@@ -1,5 +1,6 @@
 """Smoke tests for the installed ``djlib`` command (specs/cli)."""
 
+import re
 import subprocess
 import sys
 from importlib.metadata import version
@@ -15,11 +16,17 @@ INVOCATIONS = {
     "module": [sys.executable, "-m", "djlib"],
 }
 
+# CI runners force colored output, which splits words with ANSI escape codes.
+ANSI_ESCAPE = re.compile(r"\x1b\[[0-9;]*m")
+
 
 def run(argv: list[str], cwd: Path | None = None) -> subprocess.CompletedProcess[str]:
-    return subprocess.run(
+    result = subprocess.run(
         argv, capture_output=True, text=True, encoding="utf-8", cwd=cwd, check=False
     )
+    result.stdout = ANSI_ESCAPE.sub("", result.stdout)
+    result.stderr = ANSI_ESCAPE.sub("", result.stderr)
+    return result
 
 
 @pytest.fixture(params=sorted(INVOCATIONS))
