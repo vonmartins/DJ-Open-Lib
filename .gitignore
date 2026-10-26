@@ -218,3 +218,10 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# --- Project additions ---
+# Editors and OS
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
