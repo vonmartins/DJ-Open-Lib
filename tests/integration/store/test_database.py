@@ -106,8 +106,9 @@ def test_newer_version_refused(tmp_path: Path) -> None:
     with pytest.raises(SchemaTooNewError) as excinfo:
         open_database(path)
 
-    assert (excinfo.value.found, excinfo.value.supported) == (99, 1)
-    assert "99" in str(excinfo.value) and "1" in str(excinfo.value)
+    latest = bundled_migrations()[-1].version
+    assert (excinfo.value.found, excinfo.value.supported) == (99, latest)
+    assert "99" in str(excinfo.value) and str(latest) in str(excinfo.value)
     assert snapshot(tmp_path) == before
 
 

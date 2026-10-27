@@ -5,7 +5,13 @@ import sys
 
 import pytest
 
-CORE_PACKAGES = ["djlib.model", "djlib.store", "djlib.snapshots", "djlib.adapters"]
+CORE_PACKAGES = [
+    "djlib.model",
+    "djlib.store",
+    "djlib.snapshots",
+    "djlib.adapters",
+    "djlib.sources",
+]
 
 
 @pytest.mark.parametrize("module", CORE_PACKAGES)

@@ -39,8 +39,9 @@ def test_bundled_migrations_start_at_one() -> None:
 def test_new_database_reaches_latest_version() -> None:
     connection = sqlite3.connect(":memory:", isolation_level=None)
 
-    assert apply_migrations(connection, bundled_migrations()) == [1]
-    assert schema_version(connection) == 1
+    bundled = bundled_migrations()
+    assert apply_migrations(connection, bundled) == [m.version for m in bundled]
+    assert schema_version(connection) == bundled[-1].version
 
 
 def test_upgrade_from_older_version_preserves_data() -> None:
