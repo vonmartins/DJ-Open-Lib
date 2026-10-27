@@ -133,7 +133,7 @@ def test_base_hashes_and_unchanged_files(tmp_path: Path) -> None:
         ],
     )
     write_plan_to_disk(M3UAdapter().plan_write(library, tmp_path))
-    (tmp_path / "Changed.m3u8").write_text("#EXTM3U\nold\n", encoding="utf-8")
+    (tmp_path / "Changed.m3u8").write_bytes(b"#EXTM3U\nold\n")
     (tmp_path / "New.m3u8").unlink()
     old_hash = hashlib.sha256(b"#EXTM3U\nold\n").hexdigest()
 
