@@ -6,7 +6,7 @@ import sys
 import pytest
 
 
-@pytest.mark.parametrize("module", ["djlib.model", "djlib.store"])
+@pytest.mark.parametrize("module", ["djlib.model", "djlib.store", "djlib.snapshots"])
 def test_core_does_not_import_the_cli(module: str) -> None:
     code = (
         f"import sys, {module}, pkgutil, importlib\n"
