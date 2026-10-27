@@ -9,6 +9,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Snapshots: hash-verified copies of the files an operation writes, with listing,
+  verified and reversible restore (rolled back if it fails midway), consistent copies
+  of SQLite databases, and per-target retention of the last 10 snapshots by default.
 - Canonical library model: tracks with cues, loops, beatgrids and tags, a playlist
   tree of folders, playlists and smartlists, stable track identifiers, normalized
   paths, integer microsecond times, musical keys in Open Key and musical notation,
