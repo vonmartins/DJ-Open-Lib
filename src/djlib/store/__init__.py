@@ -9,11 +9,13 @@ from djlib.store.errors import (
     SchemaTooNewError,
     StoreError,
 )
+from djlib.store.file_state import FileState
 from djlib.store.repository import Store
 
 __all__ = [
     "BackupError",
     "ConflictError",
+    "FileState",
     "MigrationError",
     "NotADjlibDatabaseError",
     "NotFoundError",

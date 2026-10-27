@@ -22,7 +22,17 @@ from djlib.model.track import DATE_FIELDS, INT_FIELDS, TEXT_FIELDS, Track
 from djlib.model.unmapped import JSONValue
 from djlib.store.database import open_database, transaction
 from djlib.store.errors import ConflictError, NotFoundError
+from djlib.store.file_state import FileState
 from djlib.store.migrations import Migration
+from djlib.store.operations import (
+    AddTrack,
+    MarkMissing,
+    MarkPresent,
+    MoveTrack,
+    RefreshState,
+    ScanOperation,
+    UpdateTrack,
+)
 
 Row = tuple[Any, ...]
 
@@ -47,6 +57,7 @@ _TRACK_UPDATE = (
     f"UPDATE tracks SET {', '.join(f'{c} = ?' for c in _TRACK_COLUMNS[1:])} WHERE id = ?"
 )
 _NODE_COLUMNS = "id, parent_id, position, kind, name, match_mode, unmapped"
+_FILE_STATE_COLUMNS = "track_id, size, mtime_ns, quick_hash, missing, scanned_at, scanned_values"
 _SUBTREE = """
     WITH RECURSIVE subtree(id) AS (
         SELECT id FROM playlist_nodes WHERE id = ?
@@ -109,17 +120,91 @@ class Store:
     def list_tracks(self) -> list[Track]:
         return self._load_tracks()
 
+    def list_tracks_under(self, root: str) -> list[Track]:
+        """Tracks whose normalized path lies below the directory ``root``."""
+        prefix = normalize_path(root).rstrip("/") + "/"
+        return self._load_tracks("WHERE substr(path, 1, ?) = ?", (len(prefix), prefix))
+
     def update_track(self, track: Track) -> None:
         """Replace the stored track, including its cues, beatgrid and tags."""
         with transaction(self._db):
-            self._check_path_free(track)
-            cursor = self._db.execute(_TRACK_UPDATE, (*_track_row(track)[1:], str(track.id)))
-            if cursor.rowcount == 0:
-                raise NotFoundError(f"track {track.id} does not exist")
-            for table in ("cues", "beat_markers", "track_tags"):
-                self._db.execute(f"DELETE FROM {table} WHERE track_id = ?", (str(track.id),))
-            self._insert_track_children([track])
-            self._delete_orphan_tags()
+            self._replace_track(track)
+
+    def _replace_track(self, track: Track) -> None:
+        self._check_path_free(track)
+        cursor = self._db.execute(_TRACK_UPDATE, (*_track_row(track)[1:], str(track.id)))
+        if cursor.rowcount == 0:
+            raise NotFoundError(f"track {track.id} does not exist")
+        for table in ("cues", "beat_markers", "track_tags"):
+            self._db.execute(f"DELETE FROM {table} WHERE track_id = ?", (str(track.id),))
+        self._insert_track_children([track])
+        self._delete_orphan_tags()
+
+    # File state and scans
+
+    def file_state(self, track_id: TrackId) -> FileState | None:
+        rows = self._db.execute(
+            f"SELECT {_FILE_STATE_COLUMNS} FROM file_state WHERE track_id = ?", (str(track_id),)
+        ).fetchall()
+        return _file_state_from_row(rows[0]) if rows else None
+
+    def file_states(self, root: str) -> dict[TrackId, FileState]:
+        """File states of the tracks below the directory ``root``."""
+        prefix = normalize_path(root).rstrip("/") + "/"
+        rows = self._db.execute(
+            f"SELECT {_FILE_STATE_COLUMNS} FROM file_state"
+            " WHERE track_id IN (SELECT id FROM tracks WHERE substr(path, 1, ?) = ?)",
+            (len(prefix), prefix),
+        ).fetchall()
+        states = [_file_state_from_row(row) for row in rows]
+        return {state.track_id: state for state in states}
+
+    def apply_scan(self, operations: Sequence[ScanOperation]) -> None:
+        """Apply every operation in one transaction, or none if any of them fails."""
+        with transaction(self._db):
+            for operation in operations:
+                match operation:
+                    case AddTrack(track, state):
+                        self._check_path_free(track)
+                        try:
+                            self._insert_tracks([track])
+                        except sqlite3.IntegrityError as error:
+                            raise ConflictError(f"track {track.id} already exists") from error
+                        self._put_file_state(state)
+                    case UpdateTrack(track, state) | MoveTrack(track, state, _):
+                        self._replace_track(track)
+                        self._put_file_state(state)
+                    case MarkPresent(track_id, state) | RefreshState(track_id, state):
+                        self._require_track(track_id)
+                        self._put_file_state(state)
+                    case MarkMissing(track_id):
+                        self._require_track(track_id)
+                        cursor = self._db.execute(
+                            "UPDATE file_state SET missing = 1 WHERE track_id = ?",
+                            (str(track_id),),
+                        )
+                        if cursor.rowcount == 0:
+                            raise NotFoundError(f"track {track_id} has no file state")
+
+    def _require_track(self, track_id: TrackId) -> None:
+        row = self._db.execute("SELECT 1 FROM tracks WHERE id = ?", (str(track_id),)).fetchone()
+        if row is None:
+            raise NotFoundError(f"track {track_id} does not exist")
+
+    def _put_file_state(self, state: FileState) -> None:
+        self._db.execute(
+            f"INSERT OR REPLACE INTO file_state ({_FILE_STATE_COLUMNS})"
+            " VALUES (?, ?, ?, ?, ?, ?, ?)",
+            (
+                str(state.track_id),
+                state.size,
+                state.mtime_ns,
+                state.quick_hash,
+                int(state.missing),
+                state.scanned_at.isoformat(),
+                json.dumps(state.scanned_values, ensure_ascii=False, allow_nan=False),
+            ),
+        )
 
     def delete_track(self, track_id: TrackId) -> None:
         """Delete a track; its entries disappear from every playlist."""
@@ -432,6 +517,19 @@ def _subtree(node: Node) -> list[Node]:
         if isinstance(current, Folder):
             nodes.extend(current.children)
     return nodes
+
+
+def _file_state_from_row(row: Row) -> FileState:
+    track_id, size, mtime_ns, quick_hash, missing, scanned_at, scanned_values = row
+    return FileState(
+        track_id=TrackId(uuid.UUID(track_id)),
+        size=size,
+        mtime_ns=mtime_ns,
+        quick_hash=quick_hash,
+        missing=bool(missing),
+        scanned_at=datetime.datetime.fromisoformat(scanned_at),
+        scanned_values=json.loads(scanned_values),
+    )
 
 
 def _node_kind(node: Node) -> str:
