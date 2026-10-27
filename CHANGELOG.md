@@ -9,6 +9,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Plan/apply engine: the only write path. Plans list every change with before and
+  after values (tracks, playlists, files, losses, warnings and conflicts) as text or
+  versioned JSON. Applying needs a confirmation, refuses targets changed since the
+  plan, snapshots first, writes files atomically and restores the target
+  automatically on failure. Exports can write all playlists, selected ones or only
+  those modified since the last export to the same target; nothing is ever deleted
+  from a target. The store gains a revision counter and per-target sync state
+  (schema version 3).
+- Commands `djlib scan`, `djlib export m3u`, `djlib snapshot list` and `djlib
+  snapshot restore`, dry-run by default with `--apply`, `--yes` and `--json`, and a
+  `--home` directory (or `DJLIB_HOME`) for the library and snapshots.
 - Folder scan: reads MP3, FLAC, WAV, AIFF, M4A and OGG tags and properties with
   mutagen into scan plans, with incremental rescans, move detection that keeps cues
   and playlists, missing-file marking, a three-way merge that keeps edits made in

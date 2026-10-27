@@ -1,0 +1,144 @@
+"""The flow every writing command shares: plan, show, confirm, apply, report."""
+
+import contextlib
+import json
+import sys
+from collections.abc import Callable, Generator
+from dataclasses import dataclass
+from pathlib import Path
+from typing import NoReturn
+
+import typer
+
+from djlib.adapters.errors import AdapterError
+from djlib.cli._home import DATABASE, SNAPSHOTS
+from djlib.planning import (
+    ApplyFailedError,
+    ApplyResult,
+    Engine,
+    Plan,
+    PlanError,
+    assume_yes,
+    render_text,
+    to_json,
+)
+from djlib.snapshots import SnapshotError, SnapshotStore
+from djlib.store import Store, StoreError
+
+# Failures users can act on: one line on stderr, exit code 1, no traceback.
+EXPECTED_ERRORS = (AdapterError, OSError, PlanError, SnapshotError, StoreError)
+
+
+@dataclass(frozen=True, slots=True)
+class Home:
+    path: Path
+
+    @property
+    def database(self) -> Path:
+        return self.path / DATABASE
+
+    @property
+    def snapshots(self) -> SnapshotStore:
+        return SnapshotStore(self.path / SNAPSHOTS)
+
+    @contextlib.contextmanager
+    def engine(self, *, create: bool = False) -> Generator[Engine]:
+        """An engine on the library.
+
+        Without ``create``, a home that has no library yet gets an in-memory one, so
+        planning there creates nothing.
+        """
+        if create:
+            self.path.mkdir(parents=True, exist_ok=True)
+        exists = create or self.database.exists()
+        with Store.open(str(self.database) if exists else ":memory:") as store:
+            yield Engine(store, self.snapshots)
+
+
+def home_of(ctx: typer.Context) -> Home:
+    home = ctx.find_root().obj
+    assert isinstance(home, Home)  # noqa: S101 - set by the root callback
+    return home
+
+
+def fail(message: str) -> NoReturn:
+    typer.echo(f"error: {message}", err=True)
+    raise typer.Exit(1)
+
+
+@contextlib.contextmanager
+def reported_errors() -> Generator[None]:
+    """Turn expected failures into a one-line message and exit code 1."""
+    try:
+        yield
+    except ApplyFailedError as error:
+        hint = (
+            ""
+            if error.restored
+            else (f"\nrun: djlib snapshot restore {error.target} {error.snapshot}")
+        )
+        fail(f"{error}{hint}")
+    except EXPECTED_ERRORS as error:
+        fail(str(error))
+
+
+def stdin_is_interactive() -> bool:
+    return sys.stdin.isatty()
+
+
+def run(
+    ctx: typer.Context,
+    make_plan: Callable[[Engine], Plan],
+    *,
+    apply: bool,
+    yes: bool,
+    as_json: bool,
+) -> None:
+    """Plan with ``make_plan``, show the plan, and apply it when asked and confirmed."""
+    home = home_of(ctx)
+    with reported_errors(), home.engine() as engine:
+        plan = make_plan(engine)
+        if not as_json:
+            typer.echo(render_text(plan), nl=False)
+        result = None
+        if apply:
+            result = _apply(home, engine, plan, yes=yes, as_json=as_json)
+        if as_json:
+            typer.echo(json.dumps(to_json(plan, result), ensure_ascii=False, indent=2))
+        else:
+            _report(plan, result)
+
+
+def _apply(home: Home, engine: Engine, plan: Plan, *, yes: bool, as_json: bool) -> ApplyResult:
+    if plan.empty:
+        return engine.apply(plan, assume_yes)
+    if not (yes or stdin_is_interactive()):
+        if as_json:
+            typer.echo(json.dumps(to_json(plan), ensure_ascii=False, indent=2))
+        fail("not applied: confirmation needs an interactive terminal; pass --yes")
+    if not (yes or _ask(as_json)):
+        return ApplyResult(status="declined")
+    if engine.store.path is not None:
+        return engine.apply(plan, assume_yes)
+    # Planned against the in-memory library of a new home: create it and apply there.
+    with home.engine(create=True) as created:
+        return created.apply(plan, assume_yes)
+
+
+def _ask(as_json: bool) -> bool:
+    return typer.confirm("Apply this plan?", default=False, err=as_json)
+
+
+def _report(plan: Plan, result: ApplyResult | None) -> None:
+    if result is None:
+        if not plan.empty:
+            typer.echo("Dry run: nothing was written. Run again with --apply to apply it.")
+        return
+    if result.status == "declined":
+        typer.echo("Not applied.")
+    elif result.status == "applied":
+        typer.echo(
+            f"Applied. Snapshot {result.snapshot} of {plan.target} holds the previous state."
+        )
+    for warning in result.warnings:
+        typer.echo(f"warning: {warning}", err=True)

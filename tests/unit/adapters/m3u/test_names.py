@@ -18,6 +18,9 @@ from djlib.adapters.m3u.names import MAX_NAME_BYTES, sanitize, unique
         ("...", "_"),
         ("", "_"),
         ("Beyoncé ☀️", "Beyoncé ☀️"),
+        ("unassigned \U00014647 x", "unassigned _ x"),
+        ("non-character \uffff", "non-character _"),
+        ("lone \udc80 surrogate", "lone _ surrogate"),
     ],
 )
 def test_sanitize(name: str, expected: str) -> None:

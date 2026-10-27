@@ -1,6 +1,7 @@
 """Turning playlist and folder names into file names valid on Windows, macOS and Linux."""
 
 import re
+import unicodedata
 
 _INVALID = re.compile(r'[<>:"/\\|?*\x00-\x1f\x7f]')
 _RESERVED = frozenset(
@@ -12,12 +13,18 @@ MAX_NAME_BYTES = 150
 
 
 def sanitize(name: str) -> str:
-    cleaned = _INVALID.sub("_", name).rstrip(" .")
+    cleaned = "".join("_" if _unrepresentable(c) else c for c in _INVALID.sub("_", name))
+    cleaned = cleaned.rstrip(" .")
     cleaned = _truncate(cleaned).rstrip(" .") or "_"
     base, dot, rest = cleaned.partition(".")
     if base.upper() in _RESERVED:
         cleaned = f"{base}_{dot}{rest}"
     return cleaned
+
+
+def _unrepresentable(char: str) -> bool:
+    """Unassigned code points and surrogates, which APFS on macOS refuses in file names."""
+    return unicodedata.category(char) in {"Cn", "Cs"}
 
 
 def unique(name: str, taken: set[str]) -> str:
