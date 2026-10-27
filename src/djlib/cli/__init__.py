@@ -10,7 +10,7 @@ from typing import Annotated
 
 import typer
 
-from djlib.cli import export, snapshot
+from djlib.cli import export, imports, snapshot
 from djlib.cli._flow import Home
 from djlib.cli._home import default_home
 from djlib.cli.scan import scan
@@ -21,6 +21,7 @@ app = typer.Typer(
     add_completion=False,
 )
 app.command()(scan)
+app.add_typer(imports.app, name="import")
 app.add_typer(export.app, name="export")
 app.add_typer(snapshot.app, name="snapshot")
 
