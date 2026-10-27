@@ -1,0 +1,2 @@
+# Keep fixture bytes exactly as committed (encodings, line endings).
+tests/fixtures/** -text
