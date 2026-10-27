@@ -9,6 +9,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Folder scan: reads MP3, FLAC, WAV, AIFF, M4A and OGG tags and properties with
+  mutagen into scan plans, with incremental rescans, move detection that keeps cues
+  and playlists, missing-file marking, a three-way merge that keeps edits made in
+  djlib, and non-UTF-8 file names skipped with a warning. The store keeps per-track
+  file state (schema version 2) and applies scan plans atomically.
 - Adapter contract: declared capabilities, read-only reading, write plans with full
   file contents, base hashes and aggregated losses, path mapping between machines,
   and an adapter registry.
