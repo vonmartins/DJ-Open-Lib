@@ -16,13 +16,14 @@ from djlib.adapters.pathmap import PathMapping
 from djlib.model.library import Library
 from djlib.planning.diff import diff_export, diff_scan
 from djlib.planning.errors import ApplyFailedError, PlanError, StaleTargetError
+from djlib.planning.importing import plan_import
 from djlib.planning.model import (
     LIBRARY_TARGET,
     ApplyResult,
     ExportAction,
     FieldConflict,
+    LibraryAction,
     Plan,
-    ScanAction,
 )
 from djlib.planning.selection import covered, fingerprints, modified, resolve_paths, target_name
 from djlib.planning.writer import DirectoryTracker, WriteFile, write_atomically
@@ -77,11 +78,35 @@ class Engine:
         return Plan(
             target=LIBRARY_TARGET,
             title=f"scan {scan.root}",
-            action=ScanAction(operations=scan.operations, base_revision=revision),
+            action=LibraryAction(operations=scan.operations, base_revision=revision),
             tracks=tracks,
             refreshed=refreshed,
             conflicts=tuple(conflicts),
             warnings=scan.warnings,
+        )
+
+    def plan_import(
+        self,
+        adapter: Adapter,
+        location: str | os.PathLike[str],
+        *,
+        path_mapping: PathMapping | None = None,
+    ) -> Plan:
+        """Plan importing what ``adapter`` reads at ``location`` into the library."""
+        revision = self.store.revision()
+        location = Path(location).absolute()
+        imported = plan_import(
+            self.store, adapter, location, path_mapping=path_mapping, now=self._clock()
+        )
+        return Plan(
+            target=LIBRARY_TARGET,
+            title=f"import {adapter.name} from {location}",
+            action=LibraryAction(operations=imported.operations, base_revision=revision),
+            tracks=imported.tracks,
+            nodes=imported.nodes,
+            rebased=imported.rebased,
+            conflicts=imported.conflicts,
+            warnings=imported.warnings,
         )
 
     def plan_export(
@@ -151,11 +176,11 @@ class Engine:
             return ApplyResult(status="nothing")
         if not confirm(plan):
             return ApplyResult(status="declined")
-        if isinstance(plan.action, ScanAction):
+        if isinstance(plan.action, LibraryAction):
             return self._apply_scan(plan, plan.action)
         return self._apply_export(plan, plan.action)
 
-    def _apply_scan(self, plan: Plan, action: ScanAction) -> ApplyResult:
+    def _apply_scan(self, plan: Plan, action: LibraryAction) -> ApplyResult:
         if self.store.revision() != action.base_revision:
             raise StaleTargetError("the library changed since the plan was made; plan again")
         database = self.store.path
@@ -163,7 +188,7 @@ class Engine:
             raise PlanError("an in-memory library cannot be applied")
         snapshot = self.snapshots.create(plan.target, [database], reason=plan.title)
         try:
-            self.store.apply_scan(action.operations, expected_revision=action.base_revision)
+            self.store.apply_operations(action.operations, expected_revision=action.base_revision)
         except Exception as error:
             # The transaction was rolled back: the library is as it was.
             raise ApplyFailedError(plan.target, snapshot.id, restored=True, cause=error) from error

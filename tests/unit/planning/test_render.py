@@ -13,9 +13,9 @@ from djlib.planning.model import (
     ExportAction,
     FieldChange,
     FieldConflict,
+    LibraryAction,
     NodeChange,
     Plan,
-    ScanAction,
     TrackChange,
 )
 from djlib.planning.render import JSON_FORMAT, JSON_VERSION, json_value, render_text, to_json
@@ -36,7 +36,7 @@ def updated(n: int) -> TrackChange:
 
 
 def scan_plan(**fields: object) -> Plan:
-    action = ScanAction(operations=(MarkMissing(TRACK.id),), base_revision=3)
+    action = LibraryAction(operations=(MarkMissing(TRACK.id),), base_revision=3)
     return Plan(target="library", title="scan /music", action=action, **fields)  # pyright: ignore[reportArgumentType]
 
 
@@ -165,7 +165,7 @@ def test_export_plan_text(tmp_path: Path) -> None:
 
 def test_empty_plan_text() -> None:
     plan = Plan(
-        target="library", title="scan /music", action=ScanAction(operations=(), base_revision=0)
+        target="library", title="scan /music", action=LibraryAction(operations=(), base_revision=0)
     )
 
     assert render_text(plan) == "scan /music\nNothing to do.\n"
@@ -215,3 +215,10 @@ def test_json_values() -> None:
         {"kind": "loop", "start_us": 0, "slot": None, "name": None, "color": None,
          "end_us": 10, "active": False, "unmapped": {}}
     ]  # fmt: skip
+
+
+def test_merge_base_only() -> None:
+    plan = scan_plan(rebased=3)
+
+    assert "Tracks: merge base updated for 3\n" in render_text(plan)
+    assert to_json(plan)["rebased"] == 3

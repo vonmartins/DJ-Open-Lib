@@ -1,17 +1,14 @@
 """Showing plans to people (bounded text) and to programs (complete, versioned JSON)."""
 
-import dataclasses
 import datetime
-import enum
 import hashlib
-import uuid
 from collections import Counter
-from collections.abc import Callable, Mapping, Sequence
-from pathlib import PurePath
+from collections.abc import Callable, Sequence
 from typing import TypeVar, cast
 
 from djlib.adapters.contract import FileChange, Loss
 from djlib.model.beatgrid import BeatGrid
+from djlib.model.encoding import to_json as json_value
 from djlib.model.key import Key
 from djlib.model.unmapped import JSONValue
 from djlib.planning.model import ApplyResult, FieldConflict, NodeChange, Plan, TrackChange
@@ -36,7 +33,7 @@ def render_text(plan: Plan, *, limit: int = 20) -> str:
         lines.append("Nothing to do.")
         lines.extend(_warnings(plan, limit))
         return "\n".join(lines) + "\n"
-    if plan.tracks or plan.refreshed:
+    if plan.tracks or plan.refreshed or plan.rebased:
         lines.append(_track_summary(plan))
         lines.extend(_bounded(plan.tracks, limit, _track_lines, "tracks"))
     if plan.nodes or plan.untouched_nodes:
@@ -73,12 +70,14 @@ def _track_summary(plan: Plan) -> str:
     parts = [f"{counts[k]} {k}" for k in _TRACK_ORDER if counts[k]]
     if plan.refreshed:
         parts.append(f"{plan.refreshed} file states refreshed")
+    if plan.rebased:
+        parts.append(f"merge base updated for {plan.rebased}")
     return "Tracks: " + ", ".join(parts)
 
 
 def _node_summary(plan: Plan) -> str:
     counts = Counter(n.change for n in plan.nodes)
-    parts = [f"{counts[k]} {k}" for k in ("added", "updated") if counts[k]]
+    parts = [f"{counts[k]} {k}" for k in ("added", "updated", "removed") if counts[k]]
     if plan.untouched_nodes:
         parts.append(f"{plan.untouched_nodes} in the target but not in the library, left untouched")
     return "Playlists: " + ", ".join(parts)
@@ -99,6 +98,8 @@ def _track_lines(change: TrackChange) -> list[str]:
 
 def _node_lines(change: NodeChange) -> list[str]:
     path = show_path(change.path)
+    if change.change == "removed":
+        return [f"  - {path} ({change.kind})"]
     if change.change == "added":
         size = f", {len(change.entries_added)} entries" if change.kind == "playlist" else ""
         return [f"  + {path} ({change.kind}{size})"]
@@ -175,6 +176,7 @@ def to_json(plan: Plan, result: ApplyResult | None = None) -> dict[str, JSONValu
         "empty": plan.empty,
         "tracks": [_track_json(t) for t in plan.tracks],
         "refreshed": plan.refreshed,
+        "rebased": plan.rebased,
         "playlists": [_node_json(n) for n in plan.nodes],
         "untouched_playlists": plan.untouched_nodes,
         "files": [_file_json(f) for f in plan.files],
@@ -250,28 +252,6 @@ def _result_json(result: ApplyResult) -> dict[str, JSONValue]:
         "operations_applied": result.operations_applied,
         "warnings": list(result.warnings),
     }
-
-
-def json_value(value: object) -> JSONValue:
-    """A model value as JSON: keys in both notations, dates as ISO text, times in µs."""
-    if value is None or isinstance(value, bool | int | float | str):
-        return value
-    if isinstance(value, Key):
-        return {"open_key": value.open_key(), "musical": value.musical()}
-    if isinstance(value, datetime.date):  # datetimes included
-        return value.isoformat()
-    if isinstance(value, enum.Enum):
-        return json_value(value.value)
-    if isinstance(value, uuid.UUID | PurePath):
-        return str(value)
-    if isinstance(value, Mapping):
-        mapping = cast("Mapping[object, object]", value)
-        return {str(k): json_value(v) for k, v in mapping.items()}
-    if isinstance(value, tuple | list):
-        return [json_value(item) for item in cast("Sequence[object]", value)]
-    if dataclasses.is_dataclass(value) and not isinstance(value, type):
-        return {f.name: json_value(getattr(value, f.name)) for f in dataclasses.fields(value)}
-    raise TypeError(f"cannot convert {type(value).__name__} to JSON")
 
 
 def _sha256(content: bytes) -> str:
