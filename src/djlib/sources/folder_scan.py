@@ -20,6 +20,7 @@ from djlib.model.key import Key
 from djlib.model.paths import normalize_path
 from djlib.model.track import Track
 from djlib.model.unmapped import JSONValue
+from djlib.sources.merge import merge_fields
 from djlib.sources.scan_plan import (
     AddTrack,
     Conflict,
@@ -190,30 +191,20 @@ class _Scan:
     ) -> tuple[Track, FileState]:
         read = read_file(found.path)
         self.warnings.extend(read.warnings)
-        base = None if state is None else decode_values(state.scanned_values)
+        base = None if state is None else state.scanned_values
         changes = self._merge(track, base, read.values)
         merged = self._build(lambda v: dataclasses.replace(track, **v), changes, found.path)
         digest = digest or quick_hash(found.path, found.size)
         return merged, self._state(track.id, found, digest, read.values)
 
     def _merge(
-        self, track: Track, base: Mapping[str, Any] | None, theirs_values: Mapping[str, Any]
+        self, track: Track, base: Mapping[str, JSONValue] | None, theirs: Mapping[str, Any]
     ) -> dict[str, Any]:
         """Field changes from a three-way merge of the last scan, the library and the file."""
-        changes: dict[str, Any] = {}
-        for name in SCANNED_FIELDS:
-            theirs = theirs_values.get(name)
-            mine = getattr(track, name)
-            if base is None:  # never scanned: fill only what the library lacks
-                if mine is None and theirs is not None:
-                    changes[name] = theirs
-                continue
-            previous = base.get(name)
-            if mine == previous:
-                if theirs != mine:
-                    changes[name] = theirs
-            elif theirs not in (previous, mine):
-                self.conflicts.append(Conflict(track.id, name, mine, theirs))
+        changes, disagreements = merge_fields(track, base, theirs, SCANNED_FIELDS, _encode)
+        self.conflicts.extend(
+            Conflict(track.id, d.field, d.library_value, d.source_value) for d in disagreements
+        )
         return changes
 
     def _build(
@@ -246,17 +237,11 @@ class _Scan:
 
 def encode_values(values: Mapping[str, Any]) -> dict[str, JSONValue]:
     """Scanned field values as JSON (keys as their canonical codes)."""
-    return {
-        name: values[name].code if isinstance(values.get(name), Key) else values.get(name)
-        for name in SCANNED_FIELDS
-    }
+    return {name: _encode(name, values.get(name)) for name in SCANNED_FIELDS}
 
 
-def decode_values(values: Mapping[str, JSONValue]) -> dict[str, Any]:
-    decoded: dict[str, Any] = dict(values)
-    code = decoded.get("key")
-    decoded["key"] = Key.from_code(code) if isinstance(code, int) else None
-    return decoded
+def _encode(name: str, value: Any) -> JSONValue:
+    return value.code if isinstance(value, Key) else value
 
 
 def scan_folder(
