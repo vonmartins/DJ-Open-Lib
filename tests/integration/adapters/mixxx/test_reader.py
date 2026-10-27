@@ -230,7 +230,7 @@ def test_cue_kinds(database: MixxxDatabase) -> None:
     database.add_cue(track, LOOP, samples(10), length=samples(4), hotcue=2, label="Groove")
     database.add_cue(track, LOOP, samples(20), length=samples(2))
     database.add_cue(track, INTRO, samples(0.5), length=samples(15))
-    database.add_cue(track, OUTRO, samples(200))
+    database.add_cue(track, OUTRO, -1, length=samples(200) + 1)  # start unset, as Mixxx does
     database.add_cue(track, JUMP, samples(5))
     database.add_cue(track, BEAT, samples(6))
     database.add_cue(track, HOT_CUE, -1, hotcue=3)
@@ -251,7 +251,7 @@ def test_cue_kinds(database: MixxxDatabase) -> None:
         Cue(kind=CueKind.LOOP, start_us=20_000_000, end_us=22_000_000, color="#FF0000"),
     ]
     assert loaded.unmapped["mixxx"]["intro"] == {"start_us": 500_000, "end_us": 15_500_000}  # type: ignore[index]
-    assert loaded.unmapped["mixxx"]["outro"] == {"start_us": 200_000_000}  # type: ignore[index]
+    assert loaded.unmapped["mixxx"]["outro"] == {"end_us": 200_000_000}  # type: ignore[index]
     assert "2 cues of kinds djlib does not keep (beat, jump, silence) were skipped" in warnings
     assert "1 cues without a position were skipped" in warnings
 

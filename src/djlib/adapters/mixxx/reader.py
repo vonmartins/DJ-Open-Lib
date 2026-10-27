@@ -231,6 +231,16 @@ class MixxxReader:
                 row["length"],
                 row["hotcue"],
             )
+            if kind in (_INTRO, _OUTRO):
+                # Either end may be unset: the start as position -1, the end as length 0.
+                marker: dict[str, JSONValue] = {}
+                if position is not None and position >= 0:
+                    marker["start_us"] = _samples_to_us(position, sample_rate)
+                if position is not None and length:
+                    marker["end_us"] = _samples_to_us(position + length, sample_rate)
+                if marker:
+                    unmapped["intro" if kind == _INTRO else "outro"] = marker
+                continue
             if position is None or position < 0:
                 self._skipped["cues without a position"] += 1
                 continue
@@ -250,12 +260,6 @@ class MixxxReader:
                 cue = Cue(
                     kind=CueKind.LOOP, start_us=start, end_us=end, slot=slot, name=name, color=color
                 )
-            elif kind in (_INTRO, _OUTRO):
-                marker: dict[str, JSONValue] = {"start_us": start}
-                if end > start:
-                    marker["end_us"] = end
-                unmapped["intro" if kind == _INTRO else "outro"] = marker
-                continue
             else:
                 self._skipped["cues of kinds djlib does not keep (beat, jump, silence)"] += 1
                 continue
