@@ -74,6 +74,18 @@ def test_first_scan_adds_every_file(store: Store, music: Path) -> None:
     assert added.date_modified == expected_modified
 
 
+def test_root_as_relative_string(
+    store: Store, music: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    scan_and_apply(store, music)
+    monkeypatch.chdir(music.parent)
+
+    plan = scan_folder(store, "./music", clock=lambda: NOW)
+
+    assert plan.operations == ()
+    assert plan.root == music
+
+
 def test_nothing_changed(store: Store, music: Path) -> None:
     scan_and_apply(store, music)
     assert scan(store, music).operations == ()

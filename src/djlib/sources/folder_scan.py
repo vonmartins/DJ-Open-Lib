@@ -102,7 +102,7 @@ class _Scan:
     conflicts: list[Conflict] = field(default_factory=list[Conflict])
 
     def run(self) -> ScanPlan:
-        root = normalize_path(str(self.root.absolute()))
+        root = normalize_path(str(self.root))
         known = {t.path: t for t in self.store.list_tracks_under(root)}
         states = self.store.file_states(root)
 
@@ -260,8 +260,11 @@ def decode_values(values: Mapping[str, JSONValue]) -> dict[str, Any]:
 
 
 def scan_folder(
-    store: Store, root: Path, *, clock: Callable[[], datetime.datetime] | None = None
+    store: Store,
+    root: str | os.PathLike[str],
+    *,
+    clock: Callable[[], datetime.datetime] | None = None,
 ) -> ScanPlan:
     """Scan ``root`` against the tracks of ``store`` below it. Changes nothing."""
     now = (clock or (lambda: datetime.datetime.now(datetime.UTC)))()
-    return _Scan(store, root, now).run()
+    return _Scan(store, Path(root).absolute(), now).run()
