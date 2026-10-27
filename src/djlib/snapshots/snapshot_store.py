@@ -96,6 +96,16 @@ class SnapshotStore:
 
     # Listing
 
+    def targets(self) -> _SnapshotIds:
+        """Names of the targets that have a snapshot directory, sorted."""
+        if not self.root.is_dir():
+            return []
+        return sorted(
+            entry.name
+            for entry in self.root.iterdir()
+            if entry.is_dir() and _TARGET_NAME.match(entry.name)
+        )
+
     def list(self, target: str) -> list[Snapshot]:
         """Snapshots of ``target``, newest first. Unreadable directories are skipped."""
         directory = self._target_dir(target)

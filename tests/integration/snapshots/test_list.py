@@ -59,3 +59,13 @@ def test_listing_needs_only_the_snapshot_directory(tmp_path: Path, app_dir: Path
 def test_get_unknown_snapshot(snapshots: SnapshotStore) -> None:
     with pytest.raises(SnapshotError):
         snapshots.get("traktor", "000001-20261027T120000Z")
+
+
+def test_targets(snapshots: SnapshotStore, app_dir: Path) -> None:
+    assert snapshots.targets() == []
+    (app_dir / "a.m3u").write_text("x")
+    snapshots.create("traktor", [app_dir / "a.m3u"])
+    snapshots.create("library", [app_dir / "a.m3u"])
+    (snapshots.root / "Not A Target").mkdir()
+
+    assert snapshots.targets() == ["library", "traktor"]

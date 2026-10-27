@@ -11,6 +11,7 @@ CORE_PACKAGES = [
     "djlib.snapshots",
     "djlib.adapters",
     "djlib.sources",
+    "djlib.planning",
 ]
 
 
