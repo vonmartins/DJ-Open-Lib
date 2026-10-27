@@ -1,11 +1,12 @@
 """Reading and writing the canonical library in a djlib database."""
 
+import contextlib
 import datetime
 import json
 import sqlite3
 import uuid
 from collections import defaultdict
-from collections.abc import Iterable, Mapping, Sequence
+from collections.abc import Generator, Iterable, Mapping, Sequence
 from pathlib import Path
 from types import TracebackType
 from typing import Any, Self
@@ -96,10 +97,29 @@ class Store:
     ) -> None:
         self.close()
 
+    @property
+    def path(self) -> Path | None:
+        """The database file, or ``None`` for an in-memory store."""
+        rows = self._db.execute("PRAGMA database_list").fetchall()
+        file = next((row[2] for row in rows if row[1] == "main"), "")
+        return Path(file) if file else None
+
+    def revision(self) -> int:
+        """A number that increases with every committed write to library content."""
+        (revision,) = self._db.execute("SELECT revision FROM store_meta").fetchone()
+        return revision
+
+    @contextlib.contextmanager
+    def _write(self) -> Generator[None]:
+        """A write transaction to library content, which increments the revision."""
+        with transaction(self._db):
+            yield
+            self._db.execute("UPDATE store_meta SET revision = revision + 1")
+
     # Tracks
 
     def add_track(self, track: Track) -> None:
-        with transaction(self._db):
+        with self._write():
             self._check_path_free(track)
             try:
                 self._insert_tracks([track])
@@ -127,7 +147,7 @@ class Store:
 
     def update_track(self, track: Track) -> None:
         """Replace the stored track, including its cues, beatgrid and tags."""
-        with transaction(self._db):
+        with self._write():
             self._replace_track(track)
 
     def _replace_track(self, track: Track) -> None:
@@ -159,9 +179,19 @@ class Store:
         states = [_file_state_from_row(row) for row in rows]
         return {state.track_id: state for state in states}
 
-    def apply_scan(self, operations: Sequence[ScanOperation]) -> None:
-        """Apply every operation in one transaction, or none if any of them fails."""
-        with transaction(self._db):
+    def apply_scan(
+        self, operations: Sequence[ScanOperation], *, expected_revision: int | None = None
+    ) -> None:
+        """Apply every operation in one transaction, or none if any of them fails.
+
+        With ``expected_revision``, applying fails unless the store is at that revision.
+        """
+        with self._write():
+            if expected_revision is not None and self.revision() != expected_revision:
+                raise ConflictError(
+                    f"the library changed since the plan was made (revision"
+                    f" {self.revision()}, expected {expected_revision})"
+                )
             for operation in operations:
                 match operation:
                     case AddTrack(track, state):
@@ -208,7 +238,7 @@ class Store:
 
     def delete_track(self, track_id: TrackId) -> None:
         """Delete a track; its entries disappear from every playlist."""
-        with transaction(self._db):
+        with self._write():
             cursor = self._db.execute("DELETE FROM tracks WHERE id = ?", (str(track_id),))
             if cursor.rowcount == 0:
                 raise NotFoundError(f"track {track_id} does not exist")
@@ -223,7 +253,7 @@ class Store:
 
         ``index`` is the position among the parent's children; ``None`` appends.
         """
-        with transaction(self._db):
+        with self._write():
             self._check_parent(parent_id)
             self._check_entries(node)
             position = self._make_room(parent_id, index)
@@ -253,7 +283,7 @@ class Store:
 
         For folders, the stored subtree is replaced by ``node.children``.
         """
-        with transaction(self._db):
+        with self._write():
             row = self._db.execute(
                 "SELECT parent_id, position FROM playlist_nodes WHERE id = ?", (str(node.id),)
             ).fetchone()
@@ -261,24 +291,58 @@ class Store:
                 raise NotFoundError(f"playlist node {node.id} does not exist")
             self._check_entries(node)
             parent_id = None if row[0] is None else NodeId(uuid.UUID(row[0]))
+            # Deleting cascades to sync state; keep it for the nodes that remain.
+            synced = self._db.execute(
+                f"{_SUBTREE} SELECT target, node_id, fingerprint, synced_at FROM sync_state"
+                " WHERE node_id IN (SELECT id FROM subtree)",
+                (str(node.id),),
+            ).fetchall()
             self._db.execute("DELETE FROM playlist_nodes WHERE id = ?", (str(node.id),))
             try:
                 self._insert_nodes([(parent_id, row[1], node)])
             except sqlite3.IntegrityError as error:
                 raise ConflictError(f"a node of {node.name!r} already exists") from error
+            self._db.executemany(
+                "INSERT INTO sync_state (target, node_id, fingerprint, synced_at)"
+                " SELECT ?, ?, ?, ? WHERE EXISTS (SELECT 1 FROM playlist_nodes WHERE id = ?)",
+                ((*synced_row, synced_row[1]) for synced_row in synced),
+            )
 
     def delete_node(self, node_id: NodeId) -> None:
         """Delete a node; deleting a folder deletes everything below it."""
-        with transaction(self._db):
+        with self._write():
             cursor = self._db.execute("DELETE FROM playlist_nodes WHERE id = ?", (str(node_id),))
             if cursor.rowcount == 0:
                 raise NotFoundError(f"playlist node {node_id} does not exist")
+
+    # Export sync state (not library content: the revision is left unchanged)
+
+    def sync_state(self, target: str) -> dict[NodeId, str]:
+        """Fingerprints of the nodes last exported to ``target``."""
+        rows = self._db.execute(
+            "SELECT node_id, fingerprint FROM sync_state WHERE target = ?", (target,)
+        ).fetchall()
+        return {NodeId(uuid.UUID(node_id)): fingerprint for node_id, fingerprint in rows}
+
+    def record_sync(
+        self, target: str, fingerprints: Mapping[NodeId, str], at: datetime.datetime
+    ) -> None:
+        """Record what was exported of each node to ``target``, replacing earlier entries."""
+        with transaction(self._db):
+            self._db.executemany(
+                "INSERT OR REPLACE INTO sync_state (target, node_id, fingerprint, synced_at)"
+                " VALUES (?, ?, ?, ?)",
+                (
+                    (target, str(node_id), fp, at.isoformat())
+                    for node_id, fp in fingerprints.items()
+                ),
+            )
 
     # Whole library
 
     def replace_library(self, library: Library) -> None:
         """Make the stored library equal to ``library``."""
-        with transaction(self._db):
+        with self._write():
             self._db.execute("DELETE FROM playlist_nodes")
             self._db.execute("DELETE FROM tracks")
             self._db.execute("DELETE FROM tags")

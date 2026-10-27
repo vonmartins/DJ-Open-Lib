@@ -18,6 +18,7 @@ from djlib.store.operations import (
     RefreshState,
     UpdateTrack,
 )
+from support.store import old_database
 
 NOW = datetime.datetime(2026, 10, 27, 12, 0, tzinfo=datetime.UTC)
 
@@ -66,12 +67,11 @@ def test_list_tracks_under_root(store: Store) -> None:
 def test_version_one_database_upgrades_with_backup(tmp_path: Path) -> None:
     path = tmp_path / "library.db"
     track = Track(path_origin="/music/old.mp3", title="Old")
-    with Store.open(path, migrations=bundled_migrations()[:1]) as store:
-        store.add_track(track)
+    old_database(path, 1, [track])
 
     with Store.open(path) as store:
         assert store.get_track(track.id) == track
-        assert schema_version(store._db) == 2  # pyright: ignore[reportPrivateUsage]
+        assert schema_version(store._db) == bundled_migrations()[-1].version  # pyright: ignore[reportPrivateUsage]
     assert len(list(tmp_path.glob("library.db.v1-*.bak"))) == 1
 
 
