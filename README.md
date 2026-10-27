@@ -7,7 +7,8 @@ source of truth. DJ apps such as Traktor, Rekordbox or Mixxx are targets you syn
 to safely: every write is planned first, shown as a diff, and backed by a snapshot
 you can restore.
 
-> **Status: pre-alpha.** Only folder scans, M3U exports and snapshots work so far.
+> **Status: pre-alpha.** Only folder scans, Mixxx imports, M3U exports and snapshots
+> work so far.
 > Do not point it at your real DJ library. `djlib` is a working name; the final
 > project name is still open.
 
@@ -49,8 +50,24 @@ uv run djlib --home /tmp/djlib-try snapshot restore <target> <id>
   alone and reported. There is no full sync (mirroring) mode.
 - `--modified` exports the playlists changed since the last export to the same
   directory. Changing path mappings needs a normal (full) export.
-- Playlists cannot be imported into djlib yet, so exports only contain playlists
-  created through the Python API for now.
+
+### Importing from Mixxx
+
+```sh
+uv run djlib --home /tmp/djlib-try import mixxx            # Mixxx's own library, read only
+uv run djlib --home /tmp/djlib-try import mixxx ~/mixxx-test/mixxxdb.sqlite --apply
+```
+
+- Mixxx's database is only read (from a consistent copy, even while Mixxx runs). Tracks,
+  keys, hot cues, the main cue, loops, beat grids, playlists and crates are imported;
+  the Auto DJ queue and the history are not.
+- Tracks are matched by path. The first import only fills fields that are empty in
+  djlib; later imports take changes made in Mixxx unless you edited the same field in
+  djlib too, in which case djlib keeps your value and the plan reports a conflict.
+- Playlists and crates go to a `Mixxx` folder (`Mixxx/Playlists`, `Mixxx/Crates`)
+  that each import replaces; nothing else in djlib is touched.
+- To experiment without your real library, start Mixxx with a separate profile:
+  `mixxx --settingsPath ~/mixxx-test`.
 
 ## Development
 
