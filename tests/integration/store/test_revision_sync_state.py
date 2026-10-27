@@ -8,7 +8,7 @@ from djlib.model.ids import NodeId
 from djlib.model.playlist import Folder, Playlist
 from djlib.model.track import Track
 from djlib.store import ConflictError, FileState, NotFoundError, Store
-from djlib.store.migrations import schema_version
+from djlib.store.migrations import bundled_migrations, schema_version
 from djlib.store.operations import AddTrack, MarkMissing
 from support.store import old_database
 
@@ -112,7 +112,7 @@ def test_version_two_database_upgrades_with_backup(tmp_path: Path) -> None:
 
     with Store.open(path) as store:
         assert store.get_track(track.id) == track
-        assert schema_version(store._db) == 3  # pyright: ignore[reportPrivateUsage]
+        assert schema_version(store._db) == bundled_migrations()[-1].version  # pyright: ignore[reportPrivateUsage]
         assert store.revision() == 0
     assert len(list(tmp_path.glob("library.db.v2-*.bak"))) == 1
 

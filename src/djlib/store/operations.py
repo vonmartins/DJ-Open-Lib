@@ -1,14 +1,18 @@
-"""Changes to the store produced by a folder scan, applied atomically by ``Store.apply_scan``.
+"""Changes to the library produced by scans and imports, applied atomically by the store.
 
 Each operation carries the complete resulting values, so applying it needs no
 recomputation.
 """
 
+import datetime
+from collections.abc import Mapping
 from dataclasses import dataclass
 from typing import TypeAlias
 
 from djlib.model.ids import TrackId
+from djlib.model.playlist import Folder
 from djlib.model.track import Track
+from djlib.model.unmapped import JSONValue
 from djlib.store.file_state import FileState
 
 
@@ -57,3 +61,61 @@ class RefreshState:
 ScanOperation: TypeAlias = (
     AddTrack | UpdateTrack | MoveTrack | MarkMissing | MarkPresent | RefreshState
 )
+
+
+# Imports from adapters. ``values`` are the source's encoded field values: the merge
+# base for the next import from the same source.
+
+
+@dataclass(frozen=True, slots=True)
+class RegisterSource:
+    """Create or refresh the source row; applied before the other import operations."""
+
+    source: str
+    imported_at: datetime.datetime
+
+
+@dataclass(frozen=True, slots=True)
+class AddImportedTrack:
+    track: Track
+    source: str
+    values: Mapping[str, JSONValue]
+
+
+@dataclass(frozen=True, slots=True)
+class UpdateImportedTrack:
+    """Merged values changed the track: the stored track is replaced as a whole."""
+
+    track: Track
+    source: str
+    values: Mapping[str, JSONValue]
+
+
+@dataclass(frozen=True, slots=True)
+class RecordSourceValues:
+    """Only the merge base changed."""
+
+    track_id: TrackId
+    source: str
+    values: Mapping[str, JSONValue]
+
+
+@dataclass(frozen=True, slots=True)
+class ReplaceSourceFolder:
+    """Make the source's folder equal to ``folder``, keeping the ids of the nodes given.
+
+    The folder is appended at the root when the source has none yet.
+    """
+
+    source: str
+    folder: Folder
+
+
+ImportOperation: TypeAlias = (
+    RegisterSource
+    | AddImportedTrack
+    | UpdateImportedTrack
+    | RecordSourceValues
+    | ReplaceSourceFolder
+)
+LibraryOperation: TypeAlias = ScanOperation | ImportOperation

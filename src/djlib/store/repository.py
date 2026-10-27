@@ -26,14 +26,20 @@ from djlib.store.errors import ConflictError, NotFoundError
 from djlib.store.file_state import FileState
 from djlib.store.migrations import Migration
 from djlib.store.operations import (
+    AddImportedTrack,
     AddTrack,
+    LibraryOperation,
     MarkMissing,
     MarkPresent,
     MoveTrack,
+    RecordSourceValues,
     RefreshState,
-    ScanOperation,
+    RegisterSource,
+    ReplaceSourceFolder,
+    UpdateImportedTrack,
     UpdateTrack,
 )
+from djlib.store.source_state import SourceInfo
 
 Row = tuple[Any, ...]
 
@@ -179,12 +185,13 @@ class Store:
         states = [_file_state_from_row(row) for row in rows]
         return {state.track_id: state for state in states}
 
-    def apply_scan(
-        self, operations: Sequence[ScanOperation], *, expected_revision: int | None = None
+    def apply_operations(
+        self, operations: Sequence[LibraryOperation], *, expected_revision: int | None = None
     ) -> None:
         """Apply every operation in one transaction, or none if any of them fails.
 
         With ``expected_revision``, applying fails unless the store is at that revision.
+        Sources are registered before the other operations run.
         """
         with self._write():
             if expected_revision is not None and self.revision() != expected_revision:
@@ -192,29 +199,103 @@ class Store:
                     f"the library changed since the plan was made (revision"
                     f" {self.revision()}, expected {expected_revision})"
                 )
-            for operation in operations:
-                match operation:
-                    case AddTrack(track, state):
-                        self._check_path_free(track)
-                        try:
-                            self._insert_tracks([track])
-                        except sqlite3.IntegrityError as error:
-                            raise ConflictError(f"track {track.id} already exists") from error
-                        self._put_file_state(state)
-                    case UpdateTrack(track, state) | MoveTrack(track, state, _):
-                        self._replace_track(track)
-                        self._put_file_state(state)
-                    case MarkPresent(track_id, state) | RefreshState(track_id, state):
-                        self._require_track(track_id)
-                        self._put_file_state(state)
-                    case MarkMissing(track_id):
-                        self._require_track(track_id)
-                        cursor = self._db.execute(
-                            "UPDATE file_state SET missing = 1 WHERE track_id = ?",
-                            (str(track_id),),
-                        )
-                        if cursor.rowcount == 0:
-                            raise NotFoundError(f"track {track_id} has no file state")
+            ordered = sorted(operations, key=lambda op: not isinstance(op, RegisterSource))
+            for operation in ordered:
+                self._apply_operation(operation)
+
+    apply_scan = apply_operations
+
+    def _apply_operation(self, operation: LibraryOperation) -> None:
+        match operation:
+            case AddTrack(track, state):
+                self._insert_new_track(track)
+                self._put_file_state(state)
+            case UpdateTrack(track, state) | MoveTrack(track, state, _):
+                self._replace_track(track)
+                self._put_file_state(state)
+            case MarkPresent(track_id, state) | RefreshState(track_id, state):
+                self._require_track(track_id)
+                self._put_file_state(state)
+            case MarkMissing(track_id):
+                self._require_track(track_id)
+                cursor = self._db.execute(
+                    "UPDATE file_state SET missing = 1 WHERE track_id = ?", (str(track_id),)
+                )
+                if cursor.rowcount == 0:
+                    raise NotFoundError(f"track {track_id} has no file state")
+            case RegisterSource(source, imported_at):
+                self._db.execute(
+                    "INSERT INTO sources (name, imported_at) VALUES (?, ?)"
+                    " ON CONFLICT (name) DO UPDATE SET imported_at = excluded.imported_at",
+                    (source, imported_at.isoformat()),
+                )
+            case AddImportedTrack(track, source, values):
+                self._insert_new_track(track)
+                self._put_source_values(source, track.id, values)
+            case UpdateImportedTrack(track, source, values):
+                self._replace_track(track)
+                self._put_source_values(source, track.id, values)
+            case RecordSourceValues(track_id, source, values):
+                self._require_track(track_id)
+                self._put_source_values(source, track_id, values)
+            case ReplaceSourceFolder(source, folder):
+                self._replace_source_folder(source, folder)
+
+    def _insert_new_track(self, track: Track) -> None:
+        self._check_path_free(track)
+        try:
+            self._insert_tracks([track])
+        except sqlite3.IntegrityError as error:
+            raise ConflictError(f"track {track.id} already exists") from error
+
+    def _put_source_values(
+        self, source: str, track_id: TrackId, values: Mapping[str, JSONValue]
+    ) -> None:
+        self._db.execute(
+            "INSERT OR REPLACE INTO source_values (source, track_id, field_values)"
+            " VALUES (?, ?, ?)",
+            (source, str(track_id), json.dumps(values, ensure_ascii=False, allow_nan=False)),
+        )
+
+    def _replace_source_folder(self, source: str, folder: Folder) -> None:
+        info = self.source(source)
+        if info is None:
+            raise NotFoundError(f"source {source!r} is not registered")
+        if info.root_node_id is not None:
+            if info.root_node_id != folder.id:
+                raise ConflictError(f"the folder of source {source!r} has another id")
+            self._replace_node(folder)
+            return
+        self._check_entries(folder)
+        position = self._make_room(None, None)
+        try:
+            self._insert_nodes([(None, position, folder)])
+        except sqlite3.IntegrityError as error:
+            raise ConflictError(f"a node of {folder.name!r} already exists") from error
+        self._db.execute(
+            "UPDATE sources SET root_node_id = ? WHERE name = ?", (str(folder.id), source)
+        )
+
+    # Import sources
+
+    def source(self, name: str) -> SourceInfo | None:
+        row = self._db.execute(
+            "SELECT root_node_id, imported_at FROM sources WHERE name = ?", (name,)
+        ).fetchone()
+        if row is None:
+            return None
+        return SourceInfo(
+            name=name,
+            root_node_id=None if row[0] is None else NodeId(uuid.UUID(row[0])),
+            imported_at=datetime.datetime.fromisoformat(row[1]),
+        )
+
+    def source_values(self, name: str) -> dict[TrackId, dict[str, JSONValue]]:
+        """The merge base per track: what the last import from ``name`` read."""
+        rows = self._db.execute(
+            "SELECT track_id, field_values FROM source_values WHERE source = ?", (name,)
+        ).fetchall()
+        return {TrackId(uuid.UUID(track_id)): json.loads(values) for track_id, values in rows}
 
     def _require_track(self, track_id: TrackId) -> None:
         row = self._db.execute("SELECT 1 FROM tracks WHERE id = ?", (str(track_id),)).fetchone()
@@ -284,29 +365,40 @@ class Store:
         For folders, the stored subtree is replaced by ``node.children``.
         """
         with self._write():
-            row = self._db.execute(
-                "SELECT parent_id, position FROM playlist_nodes WHERE id = ?", (str(node.id),)
-            ).fetchone()
-            if row is None:
-                raise NotFoundError(f"playlist node {node.id} does not exist")
-            self._check_entries(node)
-            parent_id = None if row[0] is None else NodeId(uuid.UUID(row[0]))
-            # Deleting cascades to sync state; keep it for the nodes that remain.
-            synced = self._db.execute(
-                f"{_SUBTREE} SELECT target, node_id, fingerprint, synced_at FROM sync_state"
-                " WHERE node_id IN (SELECT id FROM subtree)",
-                (str(node.id),),
-            ).fetchall()
-            self._db.execute("DELETE FROM playlist_nodes WHERE id = ?", (str(node.id),))
-            try:
-                self._insert_nodes([(parent_id, row[1], node)])
-            except sqlite3.IntegrityError as error:
-                raise ConflictError(f"a node of {node.name!r} already exists") from error
-            self._db.executemany(
-                "INSERT INTO sync_state (target, node_id, fingerprint, synced_at)"
-                " SELECT ?, ?, ?, ? WHERE EXISTS (SELECT 1 FROM playlist_nodes WHERE id = ?)",
-                ((*synced_row, synced_row[1]) for synced_row in synced),
-            )
+            self._replace_node(node)
+
+    def _replace_node(self, node: Node) -> None:
+        row = self._db.execute(
+            "SELECT parent_id, position FROM playlist_nodes WHERE id = ?", (str(node.id),)
+        ).fetchone()
+        if row is None:
+            raise NotFoundError(f"playlist node {node.id} does not exist")
+        self._check_entries(node)
+        parent_id = None if row[0] is None else NodeId(uuid.UUID(row[0]))
+        # Deleting cascades to sync state; keep it for the nodes that remain.
+        synced = self._db.execute(
+            f"{_SUBTREE} SELECT target, node_id, fingerprint, synced_at FROM sync_state"
+            " WHERE node_id IN (SELECT id FROM subtree)",
+            (str(node.id),),
+        ).fetchall()
+        # The same goes for a source whose root folder is this node.
+        roots = self._db.execute(
+            "SELECT name FROM sources WHERE root_node_id = ?", (str(node.id),)
+        ).fetchall()
+        self._db.execute("DELETE FROM playlist_nodes WHERE id = ?", (str(node.id),))
+        try:
+            self._insert_nodes([(parent_id, row[1], node)])
+        except sqlite3.IntegrityError as error:
+            raise ConflictError(f"a node of {node.name!r} already exists") from error
+        self._db.executemany(
+            "INSERT INTO sync_state (target, node_id, fingerprint, synced_at)"
+            " SELECT ?, ?, ?, ? WHERE EXISTS (SELECT 1 FROM playlist_nodes WHERE id = ?)",
+            ((*synced_row, synced_row[1]) for synced_row in synced),
+        )
+        self._db.executemany(
+            "UPDATE sources SET root_node_id = ? WHERE name = ?",
+            ((str(node.id), name) for (name,) in roots),
+        )
 
     def delete_node(self, node_id: NodeId) -> None:
         """Delete a node; deleting a folder deletes everything below it."""
