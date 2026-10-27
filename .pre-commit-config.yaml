@@ -1,5 +1,8 @@
 # Ruff and pyright run from the project environment so pre-commit, CI and
 # manual runs use exactly the versions pinned in uv.lock.
+
+# Fixtures keep their exact bytes (encodings, line endings, whitespace).
+exclude: ^tests/fixtures/
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v6.0.0

@@ -1,0 +1,6 @@
+﻿#EXTM3U
+#EXTINF:241.6 tvg-id="x",Caribou - Sun
+file:///music/Beyonc%C3%A9.mp3
+http://radio.example/stream
+#EXTVLCOPT:start-time=5
+/music/b.mp3
