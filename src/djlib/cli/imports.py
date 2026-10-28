@@ -7,8 +7,10 @@ import typer
 
 from djlib.adapters.mixxx import MixxxAdapter
 from djlib.cli import _options
+from djlib.cli._beets import beets_library, default_music_dir
 from djlib.cli._flow import run
 from djlib.cli._mixxx import default_mixxx_location, mixxx_database
+from djlib.sources.beets import BeetsSource
 
 __all__ = ["app", "default_mixxx_location"]
 
@@ -38,6 +40,44 @@ def mixxx(
     run(
         ctx,
         lambda engine: engine.plan_import(adapter, location),
+        apply=apply,
+        yes=yes,
+        as_json=as_json,
+    )
+
+
+@app.command("beets")
+def beets(
+    ctx: typer.Context,
+    library: Annotated[
+        Path | None,
+        typer.Argument(
+            help="beets' library.db (or its directory). Default: beets' own.",
+            show_default=False,
+        ),
+    ] = None,
+    music_dir: Annotated[
+        Path | None,
+        typer.Option(
+            "--music-dir",
+            help="beets' music directory, for libraries with relative paths."
+            " Default: `directory` in beets' config.yaml, or ~/Music.",
+            show_default=False,
+        ),
+    ] = None,
+    apply: _options.Apply = False,
+    yes: _options.Yes = False,
+    as_json: _options.Json = False,
+) -> None:
+    """Plan importing the tracks of a beets library and their tags.
+
+    beets' database and the music files are only read. Albums do not become playlists.
+    """
+    source = BeetsSource(music_dir=(music_dir or default_music_dir()).expanduser())
+    location = beets_library(source, library)
+    run(
+        ctx,
+        lambda engine: engine.plan_import(source, location),
         apply=apply,
         yes=yes,
         as_json=as_json,

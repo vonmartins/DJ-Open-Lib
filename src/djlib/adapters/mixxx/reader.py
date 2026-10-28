@@ -116,6 +116,8 @@ def snapshot(path: Path) -> sqlite3.Connection:
 class MixxxReader:
     path_mapping: PathMapping = field(default_factory=PathMapping)
     warnings: list[str] = field(default_factory=list[str])
+    keys: dict[TrackId, str] = field(default_factory=dict[TrackId, str])
+    """The Mixxx ``library.id`` of each track of the last read."""
     _skipped: Counter[str] = field(default_factory=Counter[str])
 
     def read(self, location: Path) -> Library:
@@ -143,6 +145,7 @@ class MixxxReader:
     def read_database(self, db: sqlite3.Connection) -> Library:
         """Read an open Mixxx database (already checked to be a supported version)."""
         tracks, playlists = self.read_rows(db)
+        self.keys = {track.id: str(mixxx_id) for mixxx_id, track in tracks.items()}
         return Library.build(tracks.values(), playlists)
 
     def read_rows(self, db: sqlite3.Connection) -> tuple[dict[int, Track], tuple[Node, ...]]:

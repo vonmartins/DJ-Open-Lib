@@ -38,6 +38,11 @@ def diff_tracks(
     )
 
 
+def added_fields(track: Track, fields: Iterable[str] | None = None) -> tuple[FieldChange, ...]:
+    """Every field ``track`` has, as changes from nothing, for a track being added."""
+    return diff_tracks(Track(path_origin=track.path), track, fields)
+
+
 def diff_scan(store: Store, plan: ScanPlan) -> tuple[tuple[TrackChange, ...], int]:
     """Track changes of a scan plan against the store, and the number of refreshes."""
     changes: list[TrackChange] = []
@@ -45,7 +50,7 @@ def diff_scan(store: Store, plan: ScanPlan) -> tuple[tuple[TrackChange, ...], in
     for operation in plan.operations:
         match operation:
             case AddTrack(track, _):
-                changes.append(_change("added", track))
+                changes.append(_change("added", track, added_fields(track)))
             case UpdateTrack(track, _):
                 fields = diff_tracks(store.get_track(track.id), track)
                 changes.append(_change("updated", track, fields))
@@ -72,7 +77,7 @@ def _change(
         change=kind,
         track_id=track.id,
         path=track.path,
-        label=display_name(track),
+        name=display_name(track),
         fields=fields,
         old_path=old_path,
     )
@@ -113,7 +118,7 @@ def diff_export(
         for track in sorted(desired.tracks.values(), key=lambda t: t.path):
             old = current_tracks.get(track.path)
             if old is None:
-                tracks.append(_change("added", track))
+                tracks.append(_change("added", track, added_fields(track, fields)))
             elif changed := diff_tracks(old, track, fields):
                 tracks.append(_change("updated", track, changed))
     return tuple(nodes), tuple(tracks), untouched

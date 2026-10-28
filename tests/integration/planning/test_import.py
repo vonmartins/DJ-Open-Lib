@@ -311,3 +311,43 @@ def test_owner_deleted(engine: Engine, store: Store, mixxx: MixxxDatabase) -> No
     assert ("added", ("Mixxx", "Playlists", "Techno / Peak")) in [
         (n.change, n.path) for n in plan.nodes
     ]
+
+
+# Links to source items and files elsewhere
+
+
+def test_keys_from_a_database(mixxx: MixxxDatabase) -> None:
+    a = mixxx.add_track("/music/a.mp3")
+    mixxx.close()
+
+    result = MIXXX.read(mixxx.path)
+
+    (track,) = result.library.tracks.values()
+    assert result.keys == {track.id: str(a)}
+
+
+def test_relocated_track_stays_linked(engine: Engine, store: Store, mixxx: MixxxDatabase) -> None:
+    mixxx.add_track("/mnt/music/a.mp3", title="A")
+    import_now(engine, mixxx)
+    (track,) = store.list_tracks()
+    store.update_track(dataclasses.replace(track, path_origin="/home/me/music/a.mp3"))
+    set_column(mixxx, "title", "A (edit)")
+
+    plan = engine.plan_import(MIXXX, mixxx.path)
+    engine.apply(plan, assume_yes)
+
+    (after,) = store.list_tracks()
+    assert (after.id, after.path, after.title) == (track.id, "/home/me/music/a.mp3", "A (edit)")
+
+
+def test_files_elsewhere(engine: Engine, mixxx: MixxxDatabase, tmp_path: Path) -> None:
+    here = tmp_path / "here.mp3"
+    here.write_bytes(b"x")
+    mixxx.add_track(str(here))
+    mixxx.add_track("/mnt/Elements/a.mp3")
+
+    plan = engine.plan_import(MIXXX, mixxx.path)
+
+    assert [t.change for t in plan.tracks] == ["added", "added"]
+    (warning,) = [w for w in plan.warnings if "do not exist" in w]
+    assert warning.startswith("1 imported tracks") and "/mnt/Elements/a.mp3" in warning

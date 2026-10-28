@@ -82,7 +82,7 @@ class MixxxAdapter:
         options = options or ReadOptions()
         mixxx = reader.MixxxReader(options.path_mapping)
         library = mixxx.read(location)
-        return ReadResult(library=library, warnings=tuple(mixxx.warnings))
+        return ReadResult(library=library, warnings=tuple(mixxx.warnings), keys=mixxx.keys)
 
     def plan_write(
         self, library: Library, location: Path, options: WriteOptions | None = None

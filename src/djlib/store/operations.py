@@ -64,7 +64,8 @@ ScanOperation: TypeAlias = (
 
 
 # Imports from adapters. ``values`` are the source's encoded field values: the merge
-# base for the next import from the same source.
+# base for the next import from the same source. ``item_key`` is the source's own id of
+# the item, kept to link the track to it.
 
 
 @dataclass(frozen=True, slots=True)
@@ -80,6 +81,7 @@ class AddImportedTrack:
     track: Track
     source: str
     values: Mapping[str, JSONValue]
+    item_key: str | None = None
 
 
 @dataclass(frozen=True, slots=True)
@@ -89,6 +91,7 @@ class UpdateImportedTrack:
     track: Track
     source: str
     values: Mapping[str, JSONValue]
+    item_key: str | None = None
 
 
 @dataclass(frozen=True, slots=True)
@@ -98,6 +101,7 @@ class RecordSourceValues:
     track_id: TrackId
     source: str
     values: Mapping[str, JSONValue]
+    item_key: str | None = None
 
 
 @dataclass(frozen=True, slots=True)

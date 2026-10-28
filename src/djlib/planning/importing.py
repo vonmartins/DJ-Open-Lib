@@ -21,7 +21,7 @@ from djlib.model.library import Library
 from djlib.model.playlist import Folder, Node, Playlist
 from djlib.model.track import Track
 from djlib.model.unmapped import JSONValue
-from djlib.planning.diff import diff_export, diff_tracks
+from djlib.planning.diff import added_fields, diff_export, diff_tracks
 from djlib.planning.model import (
     FieldChange,
     FieldConflict,
@@ -88,27 +88,41 @@ def plan_import(
     existing = {t.path: t for t in library_tracks.values()}
     bases = store.source_values(source)
 
+    links = store.source_links(source)
+    linked_keys = {track_id: key for key, track_id in links.items()}
+
     operations: list[ImportOperation] = []
     changes: list[TrackChange] = []
     conflicts: list[FieldConflict] = []
+    warnings: list[str] = []
     rebased = 0
     ids: dict[TrackId, TrackId] = {}  # id in the read library -> id in djlib
+    matched: set[TrackId] = set()
     for theirs in sorted(read.library.tracks.values(), key=lambda t: t.path):
         values = {name: to_json(getattr(theirs, name)) for name in fields}
-        mine = existing.get(theirs.path)
+        key = read.keys.get(theirs.id)
+        # The item's earlier track first, so that a track whose path was fixed in djlib
+        # stays linked; then the track at the same path.
+        linked = links.get(key) if key is not None else None
+        mine = library_tracks.get(linked) if linked is not None else None
+        mine = mine or existing.get(theirs.path)
         if mine is None:
-            operations.append(AddImportedTrack(theirs, source, values))
-            changes.append(_change("added", theirs))
+            operations.append(AddImportedTrack(theirs, source, values, key))
+            changes.append(_change("added", theirs, added_fields(theirs)))
             ids[theirs.id] = theirs.id
             library_tracks[theirs.id] = theirs
             continue
         ids[theirs.id] = mine.id
+        if mine.id in matched:
+            warnings.append(f"skipped {theirs.path}: another source item already matched it")
+            continue
+        matched.add(mine.id)
         merged, disagreements = _merge(mine, bases.get(mine.id), theirs, fields, adapter.name)
         conflicts.extend(
             FieldConflict(
                 track_id=mine.id,
                 path=mine.path,
-                label=display_name(mine),
+                name=display_name(mine),
                 field=d.field,
                 library_value=d.library_value,
                 file_value=d.source_value,
@@ -117,13 +131,13 @@ def plan_import(
         )
         library_tracks[mine.id] = merged
         if merged != mine:
-            operations.append(UpdateImportedTrack(merged, source, values))
+            operations.append(UpdateImportedTrack(merged, source, values, key))
             if fields_changed := diff_tracks(mine, merged):
                 changes.append(_change("updated", merged, fields_changed))
             else:
                 rebased += 1
-        elif bases.get(mine.id) != values:
-            operations.append(RecordSourceValues(mine.id, source, values))
+        elif bases.get(mine.id) != values or (key is not None and linked_keys.get(mine.id) != key):
+            operations.append(RecordSourceValues(mine.id, source, values, key))
             rebased += 1
 
     folder_operation, nodes = _source_folder(
@@ -139,9 +153,21 @@ def plan_import(
         tracks=tuple(changes),
         nodes=nodes,
         conflicts=tuple(conflicts),
-        warnings=read.warnings,
+        warnings=(*read.warnings, *warnings, *_missing_files(changes)),
         rebased=rebased,
     )
+
+
+def _missing_files(changes: list[TrackChange]) -> list[str]:
+    """A warning for the added or updated tracks whose files are not on this computer."""
+    missing = [c for c in changes if not Path(c.path).exists()]
+    if not missing:
+        return []
+    examples = ", ".join(c.path for c in missing[:5])
+    return [
+        f"{len(missing)} imported tracks point to files that do not exist on this computer"
+        f" (e.g. {examples}); they are imported anyway and can be relocated"
+    ]
 
 
 def _merge(
@@ -174,7 +200,7 @@ def _change(
         change=kind,
         track_id=track.id,
         path=track.path,
-        label=display_name(track),
+        name=display_name(track),
         fields=fields,
     )
 
@@ -192,6 +218,8 @@ def _source_folder(
     if info is not None and info.root_node_id is not None:
         current_node = store.get_node(info.root_node_id)
         current = current_node if isinstance(current_node, Folder) else None
+    if current is None and not read.playlists:
+        return None, ()  # a source without playlists, such as beets, gets no folder
     read = _without_own_playlists(store, source, read, current)
     name = current.name if current is not None else _free_name(store, adapter)
     known = {} if current is None else by_path(Library(tracks=tracks, playlists=(current,)))

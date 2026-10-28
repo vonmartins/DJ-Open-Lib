@@ -9,6 +9,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- beets libraries (`djlib import beets`): every item's tags, keys in Open Key or
+  musical notation, MusicBrainz and Discogs ids and flexible attributes, from both the
+  older schema and beets 2.14's list fields and relative paths. Read only; beets is not
+  a dependency. Imports now link tracks to their source items (schema version 6) and
+  match by that link before the path, warn about tracks whose files are not on this
+  computer, and create no folder for sources without playlists.
+
 - Exports to Mixxx (`djlib export mixxx`): track metadata, keys, cues, loops, beat
   grids, new tracks, playlists and crates are written into Mixxx 2.5 databases by
   editing a copy and replacing the file atomically, with everything djlib does not
@@ -60,3 +67,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Project bootstrap: Python package `djlib` managed with uv, placeholder `djlib`
   command (`--version`, `--help`), ruff, pyright, pytest + hypothesis,
   pre-commit hooks and CI on Linux, macOS and Windows.
+
+### Changed
+
+- Plan JSON version 2: track changes and conflicts name the track under `name`
+  (was `label`, easy to confuse with the record label), and added tracks list every
+  field they bring.

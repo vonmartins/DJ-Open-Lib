@@ -5,14 +5,14 @@ file contents. They never write to disk: the plan/apply engine checks the base h
 snapshots the target and writes atomically.
 """
 
-from collections.abc import Callable
+from collections.abc import Callable, Mapping
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Literal, Protocol
 
 from djlib.adapters.pathmap import PathMapping
 from djlib.model.cue import CueKind
-from djlib.model.ids import NodeId
+from djlib.model.ids import NodeId, TrackId
 from djlib.model.library import Library
 
 MAX_LOSS_EXAMPLES = 5
@@ -56,6 +56,8 @@ class ReadOptions:
 class ReadResult:
     library: Library
     warnings: tuple[str, ...] = ()
+    keys: Mapping[TrackId, str] = field(default_factory=dict[TrackId, str])
+    """The source's own stable id of each read track's item, when it has one."""
 
 
 @dataclass(frozen=True, slots=True, kw_only=True)

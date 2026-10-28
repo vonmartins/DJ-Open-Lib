@@ -60,7 +60,7 @@ def merge_export(
                 FieldConflict(
                     track_id=track.id,
                     path=track.path,
-                    label=display_name(track),
+                    name=display_name(track),
                     field=d.field,
                     library_value=d.source_value,
                     file_value=d.library_value,

@@ -32,8 +32,10 @@ class TrackChange:
     change: TrackChangeKind
     track_id: TrackId | None
     path: str
-    label: str
+    name: str
+    """How the track is shown: ``artist - title``, or the file name."""
     fields: tuple[FieldChange, ...] = ()
+    """Changed fields; for an added track, every field it has, from ``None``."""
     old_path: str | None = None
 
 
@@ -62,7 +64,7 @@ class FieldConflict:
 
     track_id: TrackId
     path: str
-    label: str
+    name: str
     field: str
     library_value: Any
     file_value: Any
