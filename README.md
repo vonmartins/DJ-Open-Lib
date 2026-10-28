@@ -69,6 +69,30 @@ uv run djlib --home /tmp/djlib-try import mixxx ~/mixxx-test/mixxxdb.sqlite --ap
 - To experiment without your real library, start Mixxx with a separate profile:
   `mixxx --settingsPath ~/mixxx-test`.
 
+### Exporting to Mixxx
+
+Quit Mixxx first: djlib refuses to write while Mixxx runs.
+
+```sh
+uv run djlib --home /tmp/djlib-try export mixxx ~/mixxx-test             # show the plan
+uv run djlib --home /tmp/djlib-try export mixxx ~/mixxx-test --apply
+uv run djlib --home /tmp/djlib-try export mixxx ~/mixxx-test --playlist Techno/Peak
+```
+
+- Written: track metadata, BPM and key, hot cues, the main cue, loops, beat grids,
+  tracks Mixxx does not have yet, playlists and crates. Everything else in the database
+  (analysis data, cover art, ReplayGain, Auto DJ, history) is kept as it is.
+- Playlists from the `Mixxx` folder go back to the playlist or crate they came from.
+  Other playlists become Mixxx playlists named after their path: `Techno/Peak` is
+  written as `Techno / Peak`, and is not imported back as a copy.
+- A field edited in Mixxx since the last import is left as Mixxx has it and the plan
+  shows a conflict; import first to bring the Mixxx value into djlib.
+- Nothing is deleted from Mixxx, and tracks removed from the Mixxx library are not
+  brought back. Smartlists, tags and extra memory cues cannot be stored and are listed
+  as losses.
+- The previous database is kept as a snapshot: `djlib snapshot list` and
+  `djlib snapshot restore <target> <id>` put it back (with Mixxx closed).
+
 ## Development
 
 Requires [uv](https://docs.astral.sh/uv/).
