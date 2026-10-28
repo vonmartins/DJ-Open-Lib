@@ -88,7 +88,24 @@ uv run djlib --home /tmp/djlib-try import beets ~/Music/.beets.db --apply
   `--music-dir`.
 - If beets runs on another computer (a server, a NAS), its paths may not exist where
   djlib runs. The plan says how many tracks point to files that are not here; they are
-  imported anyway, to be relocated.
+  imported anyway, to be relocated (see below).
+
+### Relocating tracks
+
+```sh
+uv run djlib --home /tmp/djlib-try relocate ~/Elements/Music          # show the plan
+uv run djlib --home /tmp/djlib-try relocate ~/Elements/Music --apply
+```
+
+- For tracks whose files do not exist on this computer (a disk mounted elsewhere, a
+  library made on another machine, a renamed folder), djlib looks for the files under
+  the folder you name, by file name, and plans their new paths. There is nothing to
+  configure, and it is done once.
+- When several files have the same name, the one in the same folders as before wins.
+  If that does not settle it, the track is left alone and the plan says so. A file
+  already used by another track is never taken.
+- Only the path changes: cues, playlists and tags stay, and later imports from the same
+  beets or Mixxx library keep matching the track. Files on disk are not touched.
 
 ### Exporting to Mixxx
 

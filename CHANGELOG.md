@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Relocating tracks (`djlib relocate FOLDER`): tracks whose files are not on this
+  computer are matched by file name under a folder (the same trailing folders win; ties
+  without a recorded size are reported, never guessed) and get their new paths through a
+  plan. Only the path changes, so links to beets and Mixxx items keep working.
 - beets libraries (`djlib import beets`): every item's tags, keys in Open Key or
   musical notation, MusicBrainz and Discogs ids and flexible attributes, from both the
   older schema and beets 2.14's list fields and relative paths. Read only; beets is not
