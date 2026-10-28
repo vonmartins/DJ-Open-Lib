@@ -225,7 +225,10 @@ class Engine:
             _check_unchanged(change.path, change.base_sha256)
         if action.write_plan.check is not None:
             action.write_plan.check()
-        snapshot = self.snapshots.create(plan.target, [c.path for c in changes], reason=plan.title)
+        # Byte copies: the snapshot must hold exactly the content the plan was based on.
+        snapshot = self.snapshots.create(
+            plan.target, [c.path for c in changes], reason=plan.title, exact=True
+        )
         # Close the window between the check and the snapshot: the copies must match too.
         for change, record in zip(changes, snapshot.files, strict=True):
             if record.sha256 != change.base_sha256:

@@ -57,12 +57,30 @@ class SnapshotStore:
 
     # Creating
 
-    def create(self, target: str, files: Iterable[Path], *, reason: str | None = None) -> Snapshot:
-        """Copy ``files`` (absolute paths; missing ones are recorded as absent)."""
-        return self._create(target, _check_files(files), reason=reason, protect=())
+    def create(
+        self,
+        target: str,
+        files: Iterable[Path],
+        *,
+        reason: str | None = None,
+        exact: bool = False,
+    ) -> Snapshot:
+        """Copy ``files`` (absolute paths; missing ones are recorded as absent).
+
+        SQLite databases are copied through SQLite, which is safe while they are open.
+        ``exact`` copies every file byte for byte instead, for callers that already
+        made sure nothing writes to them and need the copies to match their hashes.
+        """
+        return self._create(target, _check_files(files), reason=reason, protect=(), exact=exact)
 
     def _create(
-        self, target: str, paths: list[Path], *, reason: str | None, protect: Collection[str]
+        self,
+        target: str,
+        paths: list[Path],
+        *,
+        reason: str | None,
+        protect: Collection[str],
+        exact: bool = False,
     ) -> Snapshot:
         directory = self._target_dir(target)
         directory.mkdir(parents=True, exist_ok=True)
@@ -75,7 +93,8 @@ class SnapshotStore:
         try:
             (temporary / "files").mkdir(parents=True)
             records = tuple(
-                _copy_in(path, temporary / "files" / str(index)) for index, path in enumerate(paths)
+                _copy_in(path, temporary / "files" / str(index), exact=exact)
+                for index, path in enumerate(paths)
             )
             snapshot = Snapshot(
                 id=snapshot_id,
@@ -240,11 +259,11 @@ def _check_files(files: Iterable[Path]) -> list[Path]:
     return paths
 
 
-def _copy_in(source: Path, copy: Path) -> FileRecord:
+def _copy_in(source: Path, copy: Path, *, exact: bool = False) -> FileRecord:
     if not source.exists():
         return FileRecord(path=os.fspath(source), present=False)
     method: CopyMethod = "copy"
-    if _is_sqlite(source):
+    if not exact and _is_sqlite(source):
         try:
             _sqlite_backup(source, copy)
             method = "sqlite"
