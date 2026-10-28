@@ -111,12 +111,14 @@ class MixxxWriter:
             self._check_version(db, path)
             before = db.total_changes
             with db:
-                current, _lists = reader.MixxxReader(self.path_mapping).read_rows(db)
+                current = reader.MixxxReader(self.path_mapping).read_rows(db)
                 tracks, nodes = self._selection(library, options.selection)
-                ids = self._write_tracks(db, library, tracks, current)
+                ids = self._write_tracks(db, library, tracks, current[0])
                 written = self._write_lists(db, library, nodes, ids, options.source_root)
             changed = db.total_changes != before
-            view = self._view(db, set(ids.values()), written)
+            # Unchanged, the database reads back as it read before the edits.
+            after = reader.MixxxReader(self.path_mapping).read_rows(db) if changed else current
+            view = _view(after, set(ids.values()), written)
             if changed:
                 (check,) = db.execute("PRAGMA integrity_check").fetchone()
                 if check != "ok":
@@ -204,6 +206,14 @@ class MixxxWriter:
                 " JOIN track_locations ON library.location = track_locations.id"
             )
         }
+        placeholders = ", ".join("?" * len(_OWN_CUE_TYPES))
+        cues: dict[int, list[_CueRow]] = {}
+        for row in db.execute(
+            "SELECT track_id, type, position, length, hotcue, label, color FROM cues"
+            f" WHERE type IN ({placeholders}) ORDER BY id",
+            _OWN_CUE_TYPES,
+        ):
+            cues.setdefault(row[0], []).append(tuple(row[1:]))
         ids: dict[TrackId, int] = {}
         for track in sorted(tracks.values(), key=lambda t: t.path):
             location = self.path_mapping.to_target(track.path)
@@ -225,7 +235,7 @@ class MixxxWriter:
                 sample_rate = row.sample_rate if row.sample_rate else track.sample_rate
                 duration = row.duration if row.duration else _seconds(track.duration_us)
                 self._update_track(db, mixxx_id, track, old)
-            self._write_cues(db, mixxx_id, track, sample_rate)
+            self._write_cues(db, mixxx_id, track, sample_rate, cues.get(mixxx_id, []))
             self._write_grid(db, mixxx_id, track, old, sample_rate, duration)
             ids[track.id] = mixxx_id
         return ids
@@ -284,7 +294,12 @@ class MixxxWriter:
         return _row_id(cursor)
 
     def _write_cues(
-        self, db: sqlite3.Connection, mixxx_id: int, track: Track, sample_rate: int | None
+        self,
+        db: sqlite3.Connection,
+        mixxx_id: int,
+        track: Track,
+        sample_rate: int | None,
+        current: list[_CueRow],
     ) -> None:
         if not sample_rate:
             if track.cues:
@@ -293,14 +308,9 @@ class MixxxWriter:
                 )
             return
         wanted = self._cue_rows(track, sample_rate)
-        placeholders = ", ".join("?" * len(_OWN_CUE_TYPES))
-        current = db.execute(
-            "SELECT type, position, length, hotcue, label, color FROM cues"
-            f" WHERE track_id = ? AND type IN ({placeholders})",
-            (mixxx_id, *_OWN_CUE_TYPES),
-        ).fetchall()
         if _same_cues(current, wanted):
             return
+        placeholders = ", ".join("?" * len(_OWN_CUE_TYPES))
         db.execute(
             f"DELETE FROM cues WHERE track_id = ? AND type IN ({placeholders})",
             (mixxx_id, *_OWN_CUE_TYPES),
@@ -506,37 +516,34 @@ class MixxxWriter:
             )
         return mixxx_id
 
-    # Reading back
 
-    def _view(
-        self,
-        db: sqlite3.Connection,
-        track_ids: set[int],
-        written: Mapping[tuple[str, int], NodeId],
-    ) -> Library:
-        """The written tracks and lists as Mixxx now holds them, in the reader's shape."""
-        tracks, folders = reader.MixxxReader(self.path_mapping).read_rows(db)
-        kept = {mixxx_id: t for mixxx_id, t in tracks.items() if mixxx_id in track_ids}
-        kept_ids = {t.id for t in kept.values()}
-        kinds = {"Playlists": "playlist", "Crates": "crate"}
-        view_folders: list[Node] = []
-        for folder in folders:
-            if not isinstance(folder, Folder):
-                continue
-            kind = kinds[folder.name]
-            children: list[Node] = []
-            for child in folder.children:
-                data = child.unmapped.get(reader.NAME)
-                mixxx_id = data.get("id") if isinstance(data, dict) else None
-                node_id = written.get((kind, mixxx_id)) if isinstance(mixxx_id, int) else None
-                if node_id is not None and isinstance(child, Playlist):
-                    entries = tuple(e for e in child.entries if e in kept_ids)
-                    children.append(Playlist(id=node_id, name=child.name, entries=entries,
-                                             unmapped=child.unmapped))  # fmt: skip
-            view_folders.append(
-                Folder(id=new_node_id(), name=folder.name, children=tuple(children))
-            )
-        return Library.build(kept.values(), view_folders)
+def _view(
+    read: tuple[dict[int, Track], tuple[Node, ...]],
+    track_ids: set[int],
+    written: Mapping[tuple[str, int], NodeId],
+) -> Library:
+    """The written tracks and lists as Mixxx holds them, in the reader's shape."""
+    tracks, folders = read
+    kept = {mixxx_id: t for mixxx_id, t in tracks.items() if mixxx_id in track_ids}
+    kept_ids = {t.id for t in kept.values()}
+    kinds = {"Playlists": "playlist", "Crates": "crate"}
+    view_folders: list[Node] = []
+    for folder in folders:
+        if not isinstance(folder, Folder):
+            continue
+        kind = kinds[folder.name]
+        children: list[Node] = []
+        for child in folder.children:
+            data = child.unmapped.get(reader.NAME)
+            mixxx_id = data.get("id") if isinstance(data, dict) else None
+            node_id = written.get((kind, mixxx_id)) if isinstance(mixxx_id, int) else None
+            if node_id is not None and isinstance(child, Playlist):
+                entries = tuple(e for e in child.entries if e in kept_ids)
+                children.append(
+                    Playlist(id=node_id, name=child.name, entries=entries, unmapped=child.unmapped)
+                )
+        view_folders.append(Folder(id=new_node_id(), name=folder.name, children=tuple(children)))
+    return Library.build(kept.values(), view_folders)
 
 
 def _row_id(cursor: sqlite3.Cursor) -> int:
@@ -619,7 +626,9 @@ def _same_cues(current: list[_CueRow], wanted: list[_CueRow]) -> bool:
 
 def _same_cue(a: _CueRow, b: _CueRow) -> bool:
     close = abs(a[1] - b[1]) < _SAMPLE_TOLERANCE and abs(a[2] - b[2]) < _SAMPLE_TOLERANCE
-    return close and (a[0], a[3], a[4], a[5]) == (b[0], b[3], b[4], b[5])
+    # Mixxx may keep an alpha channel in colours; djlib reads and writes RGB.
+    same_color = a[5] & 0xFFFFFF == b[5] & 0xFFFFFF
+    return close and same_color and (a[0], a[3], a[4]) == (b[0], b[3], b[4])
 
 
 def _decoded(version: str, blob: bytes, sample_rate: int) -> BeatGrid | None:
