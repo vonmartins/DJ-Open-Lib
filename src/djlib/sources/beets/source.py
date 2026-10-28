@@ -70,7 +70,9 @@ class BeetsSource:
         options = options or ReadOptions()
         beets = reader.BeetsReader(options.path_mapping, self.music_dir)
         tracks = beets.read(location)
-        return ReadResult(library=Library.build(tracks), warnings=tuple(beets.warnings))
+        return ReadResult(
+            library=Library.build(tracks), warnings=tuple(beets.warnings), keys=beets.keys
+        )
 
     def plan_write(
         self, library: Library, location: Path, options: WriteOptions | None = None

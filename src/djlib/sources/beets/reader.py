@@ -17,6 +17,7 @@ from typing import Any
 from djlib.adapters.errors import AdapterReadError
 from djlib.adapters.pathmap import PathMapping
 from djlib.model.errors import ValidationError
+from djlib.model.ids import TrackId
 from djlib.model.key import parse_musical, parse_open_key
 from djlib.model.track import Track
 from djlib.model.unmapped import JSONValue
@@ -138,6 +139,8 @@ class BeetsReader:
     path_mapping: PathMapping = field(default_factory=PathMapping)
     music_dir: Path | None = None
     warnings: list[str] = field(default_factory=list[str])
+    keys: dict[TrackId, str] = field(default_factory=dict[TrackId, str])
+    """The beets ``items.id`` of each track of the last read."""
     _skipped: Counter[str] = field(default_factory=Counter[str])
 
     def read(self, location: Path) -> list[Track]:
@@ -171,6 +174,7 @@ class BeetsReader:
             track = self._track(row, columns, attributes.get(row["id"], {}))
             if track is not None:
                 tracks.append(track)
+                self.keys[track.id] = str(row["id"])
         for reason, count in self._skipped.items():
             self.warnings.append(f"{count} {reason} were skipped")
         return tracks

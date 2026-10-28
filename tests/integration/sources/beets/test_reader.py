@@ -190,8 +190,8 @@ def test_musicbrainz_id_kept(beets: BeetsDatabase) -> None:
         catalognum="CAT 001",
         lyrics="la la",
         acoustid_fingerprint="AQAA",
-        attributes={"data_source": "MusicBrainz"},
     )
+    beets.set_attributes(item, {"data_source": "MusicBrainz"})
 
     data = only(read(beets)[0]).unmapped["beets"]
 
@@ -264,3 +264,12 @@ def test_item_without_a_path_skipped(beets: BeetsDatabase) -> None:
 def test_write_refused(beets: BeetsDatabase) -> None:
     with pytest.raises(AdapterError, match="only read"):
         SOURCE.plan_write(Library(), beets.path)
+
+
+def test_keys_from_a_database(beets: BeetsDatabase) -> None:
+    item = beets.add_item("/music/a.mp3", title="A")
+
+    result = SOURCE.read(beets.path)
+
+    (track,) = result.library.tracks.values()
+    assert result.keys == {track.id: str(item)}

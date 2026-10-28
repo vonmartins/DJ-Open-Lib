@@ -88,19 +88,32 @@ def plan_import(
     existing = {t.path: t for t in library_tracks.values()}
     bases = store.source_values(source)
 
+    links = store.source_links(source)
+    linked_keys = {track_id: key for key, track_id in links.items()}
+
     operations: list[ImportOperation] = []
     changes: list[TrackChange] = []
     conflicts: list[FieldConflict] = []
+    warnings: list[str] = []
     rebased = 0
     ids: dict[TrackId, TrackId] = {}  # id in the read library -> id in djlib
     for theirs in sorted(read.library.tracks.values(), key=lambda t: t.path):
         values = {name: to_json(getattr(theirs, name)) for name in fields}
-        mine = existing.get(theirs.path)
+        key = read.keys.get(theirs.id)
+        # The item's earlier track first, so that a track whose path was fixed in djlib
+        # stays linked; then the track at the same path.
+        linked = links.get(key) if key is not None else None
+        mine = library_tracks.get(linked) if linked is not None else None
+        mine = mine or existing.get(theirs.path)
         if mine is None:
-            operations.append(AddImportedTrack(theirs, source, values))
+            operations.append(AddImportedTrack(theirs, source, values, key))
             changes.append(_change("added", theirs))
             ids[theirs.id] = theirs.id
             library_tracks[theirs.id] = theirs
+            continue
+        if mine.id in ids.values():
+            ids[theirs.id] = mine.id
+            warnings.append(f"skipped {theirs.path}: another source item already matched it")
             continue
         ids[theirs.id] = mine.id
         merged, disagreements = _merge(mine, bases.get(mine.id), theirs, fields, adapter.name)
@@ -117,13 +130,13 @@ def plan_import(
         )
         library_tracks[mine.id] = merged
         if merged != mine:
-            operations.append(UpdateImportedTrack(merged, source, values))
+            operations.append(UpdateImportedTrack(merged, source, values, key))
             if fields_changed := diff_tracks(mine, merged):
                 changes.append(_change("updated", merged, fields_changed))
             else:
                 rebased += 1
-        elif bases.get(mine.id) != values:
-            operations.append(RecordSourceValues(mine.id, source, values))
+        elif bases.get(mine.id) != values or (key is not None and linked_keys.get(mine.id) != key):
+            operations.append(RecordSourceValues(mine.id, source, values, key))
             rebased += 1
 
     folder_operation, nodes = _source_folder(
@@ -139,9 +152,21 @@ def plan_import(
         tracks=tuple(changes),
         nodes=nodes,
         conflicts=tuple(conflicts),
-        warnings=read.warnings,
+        warnings=(*read.warnings, *warnings, *_missing_files(changes)),
         rebased=rebased,
     )
+
+
+def _missing_files(changes: list[TrackChange]) -> list[str]:
+    """A warning for the added or updated tracks whose files are not on this computer."""
+    missing = [c for c in changes if not Path(c.path).exists()]
+    if not missing:
+        return []
+    examples = ", ".join(c.path for c in missing[:5])
+    return [
+        f"{len(missing)} imported tracks point to files that do not exist on this computer"
+        f" (e.g. {examples}); they are imported anyway and can be relocated"
+    ]
 
 
 def _merge(

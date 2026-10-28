@@ -229,15 +229,15 @@ class Store:
                     " ON CONFLICT (name) DO UPDATE SET imported_at = excluded.imported_at",
                     (source, imported_at.isoformat()),
                 )
-            case AddImportedTrack(track, source, values):
+            case AddImportedTrack(track, source, values, item_key):
                 self._insert_new_track(track)
-                self._put_source_values(source, track.id, values)
-            case UpdateImportedTrack(track, source, values):
+                self._put_source_values(source, track.id, values, item_key)
+            case UpdateImportedTrack(track, source, values, item_key):
                 self._replace_track(track)
-                self._put_source_values(source, track.id, values)
-            case RecordSourceValues(track_id, source, values):
+                self._put_source_values(source, track.id, values, item_key)
+            case RecordSourceValues(track_id, source, values, item_key):
                 self._require_track(track_id)
-                self._put_source_values(source, track_id, values)
+                self._put_source_values(source, track_id, values, item_key)
             case ReplaceSourceFolder(source, folder):
                 self._replace_source_folder(source, folder)
 
@@ -249,12 +249,30 @@ class Store:
             raise ConflictError(f"track {track.id} already exists") from error
 
     def _put_source_values(
-        self, source: str, track_id: TrackId, values: Mapping[str, JSONValue]
+        self,
+        source: str,
+        track_id: TrackId,
+        values: Mapping[str, JSONValue],
+        item_key: str | None = None,
     ) -> None:
+        """Set a track's merge base; a given ``item_key`` links it (and only it) to the item."""
+        if item_key is not None:
+            self._db.execute(
+                "UPDATE source_values SET item_key = NULL"
+                " WHERE source = ? AND item_key = ? AND track_id != ?",
+                (source, item_key, str(track_id)),
+            )
         self._db.execute(
-            "INSERT OR REPLACE INTO source_values (source, track_id, field_values)"
-            " VALUES (?, ?, ?)",
-            (source, str(track_id), json.dumps(values, ensure_ascii=False, allow_nan=False)),
+            "INSERT INTO source_values (source, track_id, field_values, item_key)"
+            " VALUES (?, ?, ?, ?) ON CONFLICT (source, track_id) DO UPDATE SET"
+            " field_values = excluded.field_values,"
+            " item_key = coalesce(excluded.item_key, source_values.item_key)",
+            (
+                source,
+                str(track_id),
+                json.dumps(values, ensure_ascii=False, allow_nan=False),
+                item_key,
+            ),
         )
 
     def _replace_source_folder(self, source: str, folder: Folder) -> None:
@@ -296,6 +314,15 @@ class Store:
             "SELECT track_id, field_values FROM source_values WHERE source = ?", (name,)
         ).fetchall()
         return {TrackId(uuid.UUID(track_id)): json.loads(values) for track_id, values in rows}
+
+    def source_links(self, name: str) -> dict[str, TrackId]:
+        """Which track each item of source ``name`` was last imported into, by item key."""
+        rows = self._db.execute(
+            "SELECT item_key, track_id FROM source_values"
+            " WHERE source = ? AND item_key IS NOT NULL",
+            (name,),
+        ).fetchall()
+        return {key: TrackId(uuid.UUID(track_id)) for key, track_id in rows}
 
     def _require_track(self, track_id: TrackId) -> None:
         row = self._db.execute("SELECT 1 FROM tracks WHERE id = ?", (str(track_id),)).fetchone()

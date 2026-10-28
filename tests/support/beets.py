@@ -30,13 +30,7 @@ class BeetsDatabase:
         with contextlib.closing(sqlite3.connect(self.path)) as db:
             return [row[0] for row in db.execute(sql, parameters)]
 
-    def add_item(
-        self,
-        path: str | bytes,
-        *,
-        attributes: dict[str, str] | None = None,
-        **columns: object,
-    ) -> int:
+    def add_item(self, path: str | bytes, **columns: object) -> int:
         """Add an item; list values (for list columns) are joined as beets joins them."""
         values: dict[str, object] = {
             "path": path if isinstance(path, bytes) else path.encode(),
@@ -53,12 +47,16 @@ class BeetsDatabase:
                 f"INSERT INTO items ({names}) VALUES ({marks})", (*values.values(),)
             )
             item_id = cursor.lastrowid
-            db.executemany(
-                "INSERT INTO item_attributes (entity_id, key, value) VALUES (?, ?, ?)",
-                ((item_id, key, value) for key, value in (attributes or {}).items()),
-            )
         assert item_id is not None
         return item_id
+
+    def set_attributes(self, item_id: int, attributes: dict[str, str]) -> None:
+        """Set flexible attributes, which beets keeps in ``item_attributes``."""
+        with contextlib.closing(sqlite3.connect(self.path)) as db, db:
+            db.executemany(
+                "INSERT INTO item_attributes (entity_id, key, value) VALUES (?, ?, ?)",
+                ((item_id, key, value) for key, value in attributes.items()),
+            )
 
     def add_album(self, album: str, item_ids: Sequence[int]) -> int:
         with contextlib.closing(sqlite3.connect(self.path)) as db, db:

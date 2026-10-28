@@ -10,7 +10,8 @@ from support.beets import BeetsDatabase
 @pytest.mark.parametrize("schema", ["legacy", "2.14"])
 def test_builder_uses_the_real_schema(tmp_path: Path, schema: str) -> None:
     database = BeetsDatabase(tmp_path / "library.db", schema=schema)
-    item = database.add_item("/music/a.mp3", title="A", attributes={"data_source": "MusicBrainz"})
+    item = database.add_item("/music/a.mp3", title="A")
+    database.set_attributes(item, {"data_source": "MusicBrainz"})
 
     with contextlib.closing(sqlite3.connect(database.path)) as db:
         assert db.execute("SELECT path, title FROM items").fetchall() == [(b"/music/a.mp3", "A")]
