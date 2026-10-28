@@ -11,6 +11,7 @@ from djlib.store.errors import (
 )
 from djlib.store.file_state import FileState
 from djlib.store.repository import Store
+from djlib.store.source_state import SourceInfo
 
 __all__ = [
     "BackupError",
@@ -20,6 +21,7 @@ __all__ = [
     "NotADjlibDatabaseError",
     "NotFoundError",
     "SchemaTooNewError",
+    "SourceInfo",
     "Store",
     "StoreError",
 ]

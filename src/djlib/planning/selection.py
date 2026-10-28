@@ -8,13 +8,13 @@ from collections.abc import Iterable, Mapping
 from pathlib import Path
 
 from djlib.adapters.contract import Capabilities
+from djlib.model.encoding import to_json as json_value
 from djlib.model.ids import NodeId, TrackId
 from djlib.model.library import Library
 from djlib.model.paths import normalize_path
 from djlib.model.playlist import Folder, Playlist
 from djlib.model.unmapped import JSONValue
 from djlib.planning.errors import UnknownPlaylistError
-from djlib.planning.render import json_value
 from djlib.planning.tree import PlacedNode, by_path, kind_of, show_path, walk
 
 

@@ -7,10 +7,10 @@ from typing import Any, Literal
 
 from djlib.adapters.contract import Adapter, FileChange, Loss, WritePlan
 from djlib.model.ids import NodeId, TrackId
-from djlib.sources.scan_plan import ScanOperation
+from djlib.store.operations import LibraryOperation
 
 TrackChangeKind = Literal["added", "updated", "moved", "missing", "present"]
-NodeChangeKind = Literal["added", "updated"]
+NodeChangeKind = Literal["added", "updated", "removed"]
 NodeKind = Literal["folder", "playlist", "smartlist"]
 ApplyStatus = Literal["applied", "declined", "nothing"]
 
@@ -38,7 +38,9 @@ class TrackChange:
 
 @dataclass(frozen=True, slots=True, kw_only=True)
 class NodeChange:
-    """A playlist, smartlist or folder that is added or updated.
+    """A playlist, smartlist or folder that is added, updated or removed.
+
+    Only imports remove nodes, and only inside the source's folder.
 
     Entries are normalized track paths. ``renamed_from`` is set only by formats whose
     nodes have stable ids.
@@ -66,8 +68,8 @@ class FieldConflict:
 
 
 @dataclass(frozen=True, slots=True, kw_only=True)
-class ScanAction:
-    operations: tuple[ScanOperation, ...]
+class LibraryAction:
+    operations: tuple[LibraryOperation, ...]
     base_revision: int
 
 
@@ -84,11 +86,13 @@ class Plan:
     target: str
     """Snapshot target name: ``library`` or ``<adapter>-<12 hex digits>``."""
     title: str
-    action: ScanAction | ExportAction
+    action: LibraryAction | ExportAction
     tracks: tuple[TrackChange, ...] = ()
     nodes: tuple[NodeChange, ...] = ()
     refreshed: int = 0
     """File states refreshed without any field change (scans only)."""
+    rebased: int = 0
+    """Tracks whose merge base was updated without any field change (imports only)."""
     untouched_nodes: int = 0
     """Playlists in the target that the library does not have (exports only)."""
     losses: tuple[Loss, ...] = ()
@@ -109,7 +113,7 @@ class Plan:
 
     @property
     def empty(self) -> bool:
-        if isinstance(self.action, ScanAction):
+        if isinstance(self.action, LibraryAction):
             return not self.action.operations
         return not self.action.write_plan.changes
 

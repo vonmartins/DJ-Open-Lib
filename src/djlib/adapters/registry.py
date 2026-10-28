@@ -12,9 +12,15 @@ def _m3u() -> Adapter:
     return M3UAdapter()
 
 
+def _mixxx() -> Adapter:
+    from djlib.adapters.mixxx import MixxxAdapter
+
+    return MixxxAdapter()
+
+
 # Name -> factory for a default-configured adapter. Imports are lazy so that
 # looking up one adapter does not load every format.
-_FACTORIES: dict[str, Callable[[], Adapter]] = {"m3u": _m3u}
+_FACTORIES: dict[str, Callable[[], Adapter]] = {"m3u": _m3u, "mixxx": _mixxx}
 
 
 def list_adapters() -> list[str]:

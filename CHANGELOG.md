@@ -9,6 +9,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Mixxx adapter (read only): reads Mixxx 2.5 library databases (schema 39) from a
+  consistent in-memory copy, with tracks, keys, hot cues, main cue, loops, beat grids
+  (constant grids and beat maps), playlists and crates; Auto DJ and history are left out.
+- Imports into the library (`djlib import mixxx`): tracks matched by path, a three-way
+  merge per source that keeps edits made in djlib and reports conflicts, and the
+  source's playlists in a folder of its own that re-imports replace with stable ids.
+  The store keeps per-source merge bases (schema version 4).
 - Plan/apply engine: the only write path. Plans list every change with before and
   after values (tracks, playlists, files, losses, warnings and conflicts) as text or
   versioned JSON. Applying needs a confirmation, refuses targets changed since the

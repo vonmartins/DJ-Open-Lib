@@ -14,4 +14,4 @@ def test_lookup_by_name() -> None:
 def test_unknown_adapter_lists_available() -> None:
     with pytest.raises(UnknownAdapterError, match="m3u") as excinfo:
         get_adapter("serato")
-    assert excinfo.value.available == list_adapters() == ["m3u"]
+    assert excinfo.value.available == list_adapters() == ["m3u", "mixxx"]
