@@ -53,6 +53,7 @@ select = ["E", "F", "W", "I", "UP", "B", "SIM", "RUF", "PTH", "S"]
 "tests/**" = ["S"]
 # SQL text is composed only from module constants; values are always bound parameters.
 "src/djlib/store/repository.py" = ["S608"]
+"src/djlib/adapters/mixxx/writer.py" = ["S608"]
 
 [tool.pyright]
 include = ["src", "tests"]

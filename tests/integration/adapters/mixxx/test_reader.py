@@ -3,7 +3,7 @@ from pathlib import Path
 
 import pytest
 
-from djlib.adapters.errors import AdapterError, AdapterReadError
+from djlib.adapters.errors import AdapterReadError
 from djlib.adapters.mixxx import MixxxAdapter
 from djlib.adapters.registry import get_adapter
 from djlib.model.beatgrid import BeatGrid, BeatMarker
@@ -239,7 +239,7 @@ def test_cue_kinds(database: MixxxDatabase) -> None:
 
     loaded = only_track(library)
     assert sorted(loaded.cues, key=lambda c: c.start_us) == [
-        Cue(kind=CueKind.MEMORY, start_us=1_000_000, name="Main cue"),
+        Cue(kind=CueKind.MEMORY, start_us=1_000_000, name="Main cue", color="#FF0000"),
         Cue(
             kind=CueKind.LOOP,
             start_us=10_000_000,
@@ -361,8 +361,3 @@ def test_capabilities_and_registry() -> None:
     assert capabilities.beatgrid and capabilities.collection
     assert not (capabilities.folders or capabilities.tags or capabilities.smartlists)
     assert isinstance(get_adapter("mixxx"), MixxxAdapter)
-
-
-def test_write_refused(tmp_path: Path) -> None:
-    with pytest.raises(AdapterError, match="writing to Mixxx is not supported yet"):
-        MIXXX.plan_write(Library(), tmp_path / "mixxxdb.sqlite")
