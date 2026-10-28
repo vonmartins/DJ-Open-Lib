@@ -105,6 +105,10 @@ def diff_export(
     tracks: list[TrackChange] = []
     if capabilities.collection:
         fields = [f for f in TRACK_FIELDS if f in capabilities.track_fields]
+        if capabilities.cue_kinds:
+            fields.append("cues")
+        if capabilities.beatgrid:
+            fields.append("beatgrid")
         current_tracks = {t.path: t for t in current.tracks.values()}
         for track in sorted(desired.tracks.values(), key=lambda t: t.path):
             old = current_tracks.get(track.path)

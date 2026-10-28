@@ -11,7 +11,14 @@ from djlib.model.beatgrid import BeatGrid
 from djlib.model.encoding import to_json as json_value
 from djlib.model.key import Key
 from djlib.model.unmapped import JSONValue
-from djlib.planning.model import ApplyResult, FieldConflict, NodeChange, Plan, TrackChange
+from djlib.planning.model import (
+    ApplyResult,
+    ExportAction,
+    FieldConflict,
+    NodeChange,
+    Plan,
+    TrackChange,
+)
 from djlib.planning.tree import show_path
 
 _T = TypeVar("_T")
@@ -44,14 +51,16 @@ def render_text(plan: Plan, *, limit: int = 20) -> str:
         lines.append("Files: " + ", ".join(f"{n} to {a}" for a, n in sorted(actions.items())))
         lines.extend(_bounded(plan.files, limit, _file_lines, "files"))
     if plan.conflicts:
-        lines.append(f"Conflicts, library value kept: {len(plan.conflicts)}")
+        export = isinstance(plan.action, ExportAction)
+        kept, other = ("target", "the target") if export else ("library", "the file")
+        lines.append(f"Conflicts, {kept} value kept: {len(plan.conflicts)}")
         lines.extend(
             _bounded(
                 plan.conflicts,
                 limit,
                 lambda c: [
                     f"  {c.label}: {c.field} is {text_value(c.field, c.library_value)} in"
-                    f" the library, {text_value(c.field, c.file_value)} in the file"
+                    f" the library, {text_value(c.field, c.file_value)} in {other}"
                 ],
                 "conflicts",
             )

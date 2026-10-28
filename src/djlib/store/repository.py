@@ -377,8 +377,8 @@ class Store:
         parent_id = None if row[0] is None else NodeId(uuid.UUID(row[0]))
         # Deleting cascades to sync state; keep it for the nodes that remain.
         synced = self._db.execute(
-            f"{_SUBTREE} SELECT target, node_id, fingerprint, synced_at FROM sync_state"
-            " WHERE node_id IN (SELECT id FROM subtree)",
+            f"{_SUBTREE} SELECT target, node_id, fingerprint, synced_at, target_path"
+            " FROM sync_state WHERE node_id IN (SELECT id FROM subtree)",
             (str(node.id),),
         ).fetchall()
         # The same goes for a source whose root folder is this node.
@@ -391,8 +391,8 @@ class Store:
         except sqlite3.IntegrityError as error:
             raise ConflictError(f"a node of {node.name!r} already exists") from error
         self._db.executemany(
-            "INSERT INTO sync_state (target, node_id, fingerprint, synced_at)"
-            " SELECT ?, ?, ?, ? WHERE EXISTS (SELECT 1 FROM playlist_nodes WHERE id = ?)",
+            "INSERT INTO sync_state (target, node_id, fingerprint, synced_at, target_path)"
+            " SELECT ?, ?, ?, ?, ? WHERE EXISTS (SELECT 1 FROM playlist_nodes WHERE id = ?)",
             ((*synced_row, synced_row[1]) for synced_row in synced),
         )
         self._db.executemany(
@@ -416,19 +416,56 @@ class Store:
         ).fetchall()
         return {NodeId(uuid.UUID(node_id)): fingerprint for node_id, fingerprint in rows}
 
+    def sync_paths(self, target: str) -> dict[NodeId, tuple[str, ...]]:
+        """Where ``target`` holds each node exported to it, for targets that record it."""
+        rows = self._db.execute(
+            "SELECT node_id, target_path FROM sync_state"
+            " WHERE target = ? AND target_path IS NOT NULL",
+            (target,),
+        ).fetchall()
+        return {NodeId(uuid.UUID(node_id)): tuple(json.loads(path)) for node_id, path in rows}
+
     def record_sync(
-        self, target: str, fingerprints: Mapping[NodeId, str], at: datetime.datetime
+        self,
+        target: str,
+        fingerprints: Mapping[NodeId, str],
+        at: datetime.datetime,
+        *,
+        target_paths: Mapping[NodeId, Sequence[str]] | None = None,
+        source_values: Mapping[TrackId, Mapping[str, JSONValue]] | None = None,
     ) -> None:
-        """Record what was exported of each node to ``target``, replacing earlier entries."""
+        """Record what was exported of each node to ``target``, replacing earlier entries.
+
+        ``source_values`` become the merge base of those tracks for ``target``, which is
+        registered as a source when it is not one yet.
+        """
+        paths = target_paths or {}
         with transaction(self._db):
             self._db.executemany(
-                "INSERT OR REPLACE INTO sync_state (target, node_id, fingerprint, synced_at)"
-                " VALUES (?, ?, ?, ?)",
+                "INSERT OR REPLACE INTO sync_state"
+                " (target, node_id, fingerprint, synced_at, target_path) VALUES (?, ?, ?, ?, ?)",
                 (
-                    (target, str(node_id), fp, at.isoformat())
+                    (
+                        target,
+                        str(node_id),
+                        fp,
+                        at.isoformat(),
+                        json.dumps(list(paths[node_id]), ensure_ascii=False)
+                        if node_id in paths
+                        else None,
+                    )
                     for node_id, fp in fingerprints.items()
                 ),
             )
+            if source_values:
+                self._db.execute(
+                    "INSERT INTO sources (name, imported_at) VALUES (?, ?)"
+                    " ON CONFLICT (name) DO NOTHING",
+                    (target, at.isoformat()),
+                )
+                for track_id, values in source_values.items():
+                    self._require_track(track_id)
+                    self._put_source_values(target, track_id, values)
 
     # Whole library
 

@@ -1,4 +1,6 @@
+import contextlib
 import datetime
+import sqlite3
 from importlib.metadata import version
 from pathlib import Path
 
@@ -78,11 +80,11 @@ def test_creation_is_all_or_nothing(
     real_copy_in = module._copy_in  # pyright: ignore[reportPrivateUsage]
     calls: list[Path] = []
 
-    def failing_copy_in(source: Path, copy: Path) -> module.FileRecord:
+    def failing_copy_in(source: Path, copy: Path, *, exact: bool = False) -> module.FileRecord:
         calls.append(source)
         if len(calls) == 2:
             raise PermissionError(f"cannot read {source}")
-        return real_copy_in(source, copy)
+        return real_copy_in(source, copy, exact=exact)
 
     monkeypatch.setattr(module, "_copy_in", failing_copy_in)
 
@@ -107,3 +109,16 @@ def test_stale_temporary_directories_removed(snapshots: SnapshotStore, app_dir: 
 def test_reason_is_recorded(snapshots: SnapshotStore, app_dir: Path) -> None:
     snapshot = snapshots.create("t", [app_dir / "x"], reason="before export")
     assert snapshots.get("t", snapshot.id).reason == "before export"
+
+
+def test_exact_copy_of_a_database(snapshots: SnapshotStore, tmp_path: Path) -> None:
+    database = tmp_path / "app.sqlite"
+    with contextlib.closing(sqlite3.connect(database)) as db, db:
+        db.execute("CREATE TABLE t (x)")
+        db.execute("INSERT INTO t VALUES (1)")
+
+    snapshot = snapshots.create("app", [database], exact=True)
+
+    (record,) = snapshot.files
+    assert record.method == "copy"
+    assert record.sha256 == sha256(database)

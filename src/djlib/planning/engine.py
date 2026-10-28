@@ -16,6 +16,7 @@ from djlib.adapters.pathmap import PathMapping
 from djlib.model.library import Library
 from djlib.planning.diff import diff_export, diff_scan
 from djlib.planning.errors import ApplyFailedError, PlanError, StaleTargetError
+from djlib.planning.exporting import export_bases, merge_export, target_paths
 from djlib.planning.importing import plan_import
 from djlib.planning.model import (
     LIBRARY_TARGET,
@@ -138,12 +139,27 @@ class Engine:
             selection = modified(library, capabilities, self.store.sync_state(target))
 
         current, read_warnings = self._read_target(adapter, location, path_mapping)
+        bases = self.store.source_values(target) if capabilities.collection else {}
+        # Only targets holding a collection have track data of their own to respect.
+        merge = merge_export(
+            library, current if capabilities.collection else Library(), bases, capabilities
+        )
         if selection is not None and not selection:
             write_plan = WritePlan(adapter=adapter.name, location=location)
         else:
-            options = WriteOptions(path_mapping=path_mapping, selection=selection)
-            write_plan = adapter.plan_write(library, location, options)
-        nodes, tracks, untouched = diff_export(current, library, selection, capabilities)
+            source = self.store.source(target)
+            options = WriteOptions(
+                path_mapping=path_mapping,
+                selection=selection,
+                source_root=None if source is None else source.root_node_id,
+            )
+            write_plan = adapter.plan_write(merge.library, location, options)
+        view = write_plan.view
+        if view is not None:
+            # The view holds only what is written, already in the target's shape.
+            nodes, tracks, untouched = diff_export(current, view, None, capabilities)
+        else:
+            nodes, tracks, untouched = diff_export(current, merge.library, selection, capabilities)
         written = covered(library, selection)
         return Plan(
             target=target,
@@ -152,12 +168,19 @@ class Engine:
                 adapter=adapter,
                 write_plan=write_plan,
                 fingerprints=fingerprints(library, capabilities, written),
+                target_paths={} if view is None else target_paths(library, view),
+                source_values=(
+                    export_bases(library, view, bases, merge, capabilities)
+                    if view is not None and capabilities.collection
+                    else {}
+                ),
             ),
             tracks=tracks,
             nodes=nodes,
             untouched_nodes=untouched,
             losses=write_plan.losses,
             warnings=(*write_plan.warnings, *read_warnings),
+            conflicts=merge.conflicts,
         )
 
     def _read_target(
@@ -200,7 +223,12 @@ class Engine:
         changes = action.write_plan.changes
         for change in changes:
             _check_unchanged(change.path, change.base_sha256)
-        snapshot = self.snapshots.create(plan.target, [c.path for c in changes], reason=plan.title)
+        if action.write_plan.check is not None:
+            action.write_plan.check()
+        # Byte copies: the snapshot must hold exactly the content the plan was based on.
+        snapshot = self.snapshots.create(
+            plan.target, [c.path for c in changes], reason=plan.title, exact=True
+        )
         # Close the window between the check and the snapshot: the copies must match too.
         for change, record in zip(changes, snapshot.files, strict=True):
             if record.sha256 != change.base_sha256:
@@ -221,7 +249,13 @@ class Engine:
 
         warnings: tuple[str, ...] = ()
         try:
-            self.store.record_sync(plan.target, action.fingerprints, self._clock())
+            self.store.record_sync(
+                plan.target,
+                action.fingerprints,
+                self._clock(),
+                target_paths=action.target_paths,
+                source_values=action.source_values,
+            )
         except StoreError as error:
             warnings = (f"the files were written but the sync state was not recorded ({error})",)
         return ApplyResult(

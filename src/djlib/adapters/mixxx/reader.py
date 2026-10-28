@@ -30,6 +30,8 @@ from djlib.model.unmapped import JSONValue
 NAME = "mixxx"
 DATABASE = "mixxxdb.sqlite"
 SUPPORTED_SCHEMA = 39
+# The name given to Mixxx's unlabelled main cue; written back as no label.
+MAIN_CUE_NAME = "Main cue"
 _SQLITE_HEADER = b"SQLite format 3\x00"
 _SCHEMA_KEY = "mixxx.schema.version"
 
@@ -133,14 +135,27 @@ class MixxxReader:
                 f" {SUPPORTED_SCHEMA}; some data may be missed"
             )
         db = snapshot(path)
+        try:
+            return self.read_database(db)
+        finally:
+            db.close()
+
+    def read_database(self, db: sqlite3.Connection) -> Library:
+        """Read an open Mixxx database (already checked to be a supported version)."""
+        tracks, playlists = self.read_rows(db)
+        return Library.build(tracks.values(), playlists)
+
+    def read_rows(self, db: sqlite3.Connection) -> tuple[dict[int, Track], tuple[Node, ...]]:
+        """The tracks by their Mixxx id, and the ``Playlists`` and ``Crates`` folders."""
+        factory = db.row_factory
         db.row_factory = sqlite3.Row
         try:
             tracks = self._tracks(db)
             playlists = self._playlists(db, tracks)
         finally:
-            db.close()
+            db.row_factory = factory
         self._report_skipped()
-        return Library.build(tracks.values(), playlists)
+        return tracks, playlists
 
     # Tracks
 
@@ -255,7 +270,9 @@ class MixxxReader:
             if kind == _HOT_CUE and slot is not None:
                 cue = Cue(kind=CueKind.HOT, start_us=start, slot=slot, name=name, color=color)
             elif kind == _MAIN_CUE:
-                cue = Cue(kind=CueKind.MEMORY, start_us=start, name=name or "Main cue")
+                cue = Cue(
+                    kind=CueKind.MEMORY, start_us=start, name=name or MAIN_CUE_NAME, color=color
+                )
             elif kind == _LOOP and end > start:
                 cue = Cue(
                     kind=CueKind.LOOP, start_us=start, end_us=end, slot=slot, name=name, color=color

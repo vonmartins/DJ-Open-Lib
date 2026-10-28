@@ -1,7 +1,9 @@
 """A real Mixxx 2.5.6 database, sanitized (see tests/fixtures/mixxx/README.md)."""
 
+import dataclasses
 from pathlib import Path
 
+from djlib.adapters.contract import WriteOptions
 from djlib.adapters.mixxx import MixxxAdapter
 from djlib.model.cue import CueKind
 from djlib.model.key import Key, Mode
@@ -64,3 +66,18 @@ def test_keys_match_the_key_text() -> None:
     keyed = [t for t in library.tracks.values() if t.key is not None]
     assert len(keyed) == 13
     assert all(t.key is not None and t.key.open_key() == t.key_original for t in keyed)
+
+
+def test_real_database_rewritten_unchanged(tmp_path: Path) -> None:
+    """Writing back exactly what was read changes nothing in a real database."""
+    copy = tmp_path / "mixxxdb.sqlite"
+    copy.write_bytes(FIXTURE.read_bytes())
+    adapter = MixxxAdapter(running=lambda: False)
+    library = adapter.read(copy).library
+    root = Folder(name="Mixxx", children=library.playlists)
+    library = dataclasses.replace(library, playlists=(root,))
+
+    write_plan = adapter.plan_write(library, copy, WriteOptions(source_root=root.id))
+
+    assert write_plan.changes == ()
+    assert write_plan.losses == ()

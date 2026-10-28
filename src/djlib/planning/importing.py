@@ -16,7 +16,7 @@ from djlib.adapters.contract import Adapter, Capabilities, ReadOptions
 from djlib.adapters.losses import TRACK_FIELDS, display_name
 from djlib.adapters.pathmap import PathMapping
 from djlib.model.encoding import to_json
-from djlib.model.ids import TrackId, new_node_id
+from djlib.model.ids import NodeId, TrackId, new_node_id
 from djlib.model.library import Library
 from djlib.model.playlist import Folder, Node, Playlist
 from djlib.model.track import Track
@@ -57,9 +57,13 @@ class ImportPlan:
     """Tracks whose merge base changed without any field change."""
 
 
-def merged_fields(capabilities: Capabilities) -> tuple[str, ...]:
-    """The fields an import from an adapter with ``capabilities`` merges."""
-    fields = [name for name in TRACK_FIELDS if name in capabilities.track_fields]
+def merged_fields(capabilities: Capabilities, *, updated: bool = False) -> tuple[str, ...]:
+    """The fields an import from an adapter with ``capabilities`` merges.
+
+    With ``updated``, only the fields an export writes to tracks the target has.
+    """
+    allowed = capabilities.fields_updated if updated else capabilities.track_fields
+    fields = [name for name in TRACK_FIELDS if name in allowed]
     if capabilities.cue_kinds:
         fields.append("cues")
     if capabilities.beatgrid:
@@ -188,6 +192,7 @@ def _source_folder(
     if info is not None and info.root_node_id is not None:
         current_node = store.get_node(info.root_node_id)
         current = current_node if isinstance(current_node, Folder) else None
+    read = _without_own_playlists(store, source, read, current)
     name = current.name if current is not None else _free_name(store, adapter)
     known = {} if current is None else by_path(Library(tracks=tracks, playlists=(current,)))
 
@@ -221,6 +226,35 @@ def _source_folder(
         if path not in remaining
     )
     return ReplaceSourceFolder(source, folder), (*nodes, *removed)
+
+
+def _without_own_playlists(
+    store: Store, source: str, read: Library, folder: Folder | None
+) -> Library:
+    """``read`` without the playlists djlib exported there from nodes outside ``folder``."""
+    inside: set[NodeId] = set()
+    pending: list[Node] = [] if folder is None else [folder]
+    while pending:
+        node = pending.pop()
+        inside.add(node.id)
+        if isinstance(node, Folder):
+            pending.extend(node.children)
+    own = {path for node_id, path in store.sync_paths(source).items() if node_id not in inside}
+    if not own:
+        return read
+
+    def keep(nodes: tuple[Node, ...], path: NodePath) -> tuple[Node, ...]:
+        kept: list[Node] = []
+        for node in nodes:
+            inner = (*path, node.name)
+            if inner in own:
+                continue
+            if isinstance(node, Folder):
+                node = dataclasses.replace(node, children=keep(node.children, inner))
+            kept.append(node)
+        return tuple(kept)
+
+    return dataclasses.replace(read, playlists=keep(read.playlists, ()))
 
 
 def _free_name(store: Store, adapter: Adapter) -> str:

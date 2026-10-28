@@ -1,4 +1,5 @@
 import dataclasses
+import datetime
 from pathlib import Path
 
 import pytest
@@ -8,6 +9,7 @@ from djlib.model.cue import CueKind
 from djlib.model.playlist import Folder, Playlist
 from djlib.model.track import Track
 from djlib.planning import Engine, StaleTargetError, assume_yes, render_text, to_json
+from djlib.planning.selection import target_name
 from djlib.snapshots import SnapshotStore
 from djlib.store import Store
 from support.audio import tagged_copy
@@ -15,6 +17,7 @@ from support.files import tree_bytes
 from support.mixxx import HOT_CUE, MixxxDatabase, beat_grid
 
 MIXXX = MixxxAdapter()
+NOW = datetime.datetime(2026, 10, 28, 12, 0, tzinfo=datetime.UTC)
 
 
 @pytest.fixture
@@ -273,3 +276,38 @@ def test_library_changed_after_planning(engine: Engine, store: Store, mixxx: Mix
 
 def _track(path: str) -> Track:
     return Track(path_origin=path)
+
+
+# Playlists djlib exported there
+
+
+def _exported(store: Store, mixxx: MixxxDatabase) -> Playlist:
+    a = mixxx.add_track("/music/a.mp3")
+    mixxx.add_playlist("Techno / Peak", [a])
+    peak = Playlist(name="Peak")
+    store.add_node(Folder(name="Techno", children=(peak,)))
+    source = target_name(MIXXX.name, mixxx.path)
+    store.record_sync(
+        source, {peak.id: "0" * 64}, NOW, target_paths={peak.id: ("Playlists", "Techno / Peak")}
+    )
+    return peak
+
+
+def test_own_playlist_round_trip(engine: Engine, store: Store, mixxx: MixxxDatabase) -> None:
+    _exported(store, mixxx)
+
+    import_now(engine, mixxx)
+
+    playlists = node_at(store, "Mixxx", "Playlists")
+    assert isinstance(playlists, Folder) and playlists.children == ()
+
+
+def test_owner_deleted(engine: Engine, store: Store, mixxx: MixxxDatabase) -> None:
+    peak = _exported(store, mixxx)
+    store.delete_node(peak.id)
+
+    plan = engine.plan_import(MIXXX, mixxx.path)
+
+    assert ("added", ("Mixxx", "Playlists", "Techno / Peak")) in [
+        (n.change, n.path) for n in plan.nodes
+    ]

@@ -9,6 +9,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Exports to Mixxx (`djlib export mixxx`): track metadata, keys, cues, loops, beat
+  grids, new tracks, playlists and crates are written into Mixxx 2.5 databases by
+  editing a copy and replacing the file atomically, with everything djlib does not
+  model kept. Writing is refused while Mixxx runs. Exports to targets that hold a
+  collection merge three ways and keep fields edited in the target, reporting
+  conflicts; the values written become the merge base, so importing right after an
+  export changes nothing. Playlists djlib creates in Mixxx are not imported back as
+  copies (schema version 5 records where each exported node lives in its target).
+  Snapshots of export targets are exact byte copies.
 - Mixxx adapter (read only): reads Mixxx 2.5 library databases (schema 39) from a
   consistent in-memory copy, with tracks, keys, hot cues, main cue, loops, beat grids
   (constant grids and beat maps), playlists and crates; Auto DJ and history are left out.
