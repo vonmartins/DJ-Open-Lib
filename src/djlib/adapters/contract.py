@@ -5,6 +5,7 @@ file contents. They never write to disk: the plan/apply engine checks the base h
 snapshots the target and writes atomically.
 """
 
+from collections.abc import Callable
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Literal, Protocol
@@ -29,6 +30,15 @@ class Capabilities:
     smartlists: bool = False
     collection: bool = False
     """Whether tracks that are in no playlist can be stored."""
+    updated_fields: frozenset[str] | None = None
+    """Fields written to tracks the target already has; ``None`` means ``track_fields``.
+
+    The other fields are written only for tracks a write adds.
+    """
+
+    @property
+    def fields_updated(self) -> frozenset[str]:
+        return self.track_fields if self.updated_fields is None else self.updated_fields
 
 
 @dataclass(frozen=True, slots=True)
@@ -53,6 +63,8 @@ class WriteOptions:
     path_mapping: PathMapping = field(default_factory=PathMapping)
     selection: frozenset[NodeId] | None = None
     """Playlist and folder ids to write; ``None`` writes everything."""
+    source_root: NodeId | None = None
+    """The folder that imports from this location fill, when the location is a source."""
 
 
 @dataclass(frozen=True, slots=True, kw_only=True)
@@ -100,6 +112,14 @@ class WritePlan:
     changes: tuple[FileChange, ...] = ()
     losses: tuple[Loss, ...] = ()
     warnings: tuple[str, ...] = ()
+    view: Library | None = None
+    """The written tracks and nodes as the target holds them after the write, read back.
+
+    Nodes keep the ids of the library nodes they come from. Plans compare the target
+    with the view instead of the library when it is given.
+    """
+    check: Callable[[], None] | None = None
+    """Run by the engine right before writing; raises ``AdapterError`` to stop."""
 
 
 class Adapter(Protocol):

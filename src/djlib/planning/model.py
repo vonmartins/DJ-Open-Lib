@@ -7,6 +7,7 @@ from typing import Any, Literal
 
 from djlib.adapters.contract import Adapter, FileChange, Loss, WritePlan
 from djlib.model.ids import NodeId, TrackId
+from djlib.model.unmapped import JSONValue
 from djlib.store.operations import LibraryOperation
 
 TrackChangeKind = Literal["added", "updated", "moved", "missing", "present"]
@@ -79,6 +80,14 @@ class ExportAction:
     write_plan: WritePlan
     fingerprints: Mapping[NodeId, str] = field(default_factory=dict[NodeId, str])
     """Fingerprints of the written nodes, recorded as sync state on success."""
+    target_paths: Mapping[NodeId, tuple[str, ...]] = field(
+        default_factory=dict[NodeId, tuple[str, ...]]
+    )
+    """Where the target holds each written node, when its tree differs from the library's."""
+    source_values: Mapping[TrackId, Mapping[str, JSONValue]] = field(
+        default_factory=dict[TrackId, Mapping[str, JSONValue]]
+    )
+    """Merge bases recorded on success, for targets that hold a collection."""
 
 
 @dataclass(frozen=True, slots=True, kw_only=True)
