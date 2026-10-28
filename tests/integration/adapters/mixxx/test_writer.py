@@ -1,5 +1,6 @@
 """Planning writes to Mixxx databases, checked by reading the planned content back."""
 
+import contextlib
 import dataclasses
 import sqlite3
 from pathlib import Path
@@ -41,7 +42,7 @@ def written(write_plan: WritePlan) -> None:
 
 
 def rows(path: Path, query: str, *parameters: object) -> list[tuple[object, ...]]:
-    with sqlite3.connect(path) as db:
+    with contextlib.closing(sqlite3.connect(path)) as db, db:
         return db.execute(query, parameters).fetchall()
 
 
