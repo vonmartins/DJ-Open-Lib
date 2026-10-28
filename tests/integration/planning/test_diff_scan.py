@@ -42,7 +42,7 @@ def test_field_change_shown(store: Store) -> None:
     )
 
     (change,) = changes
-    assert (change.change, change.label, change.path) == ("updated", "X - Y", "/music/a.mp3")
+    assert (change.change, change.name, change.path) == ("updated", "X - Y", "/music/a.mp3")
     assert change.fields == (FieldChange("bpm", 126.0, 128.0),)
 
 
@@ -70,5 +70,5 @@ def test_every_operation_kind(store: Store) -> None:
     ]
     assert changes[0].old_path == "/music/m.mp3"
     assert changes[0].fields == (FieldChange("title", None, "M"),)
-    assert changes[1].label == "New"
+    assert changes[1].name == "New"
     assert refreshed == 1

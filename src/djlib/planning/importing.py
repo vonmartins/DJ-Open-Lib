@@ -21,7 +21,7 @@ from djlib.model.library import Library
 from djlib.model.playlist import Folder, Node, Playlist
 from djlib.model.track import Track
 from djlib.model.unmapped import JSONValue
-from djlib.planning.diff import diff_export, diff_tracks
+from djlib.planning.diff import added_fields, diff_export, diff_tracks
 from djlib.planning.model import (
     FieldChange,
     FieldConflict,
@@ -108,7 +108,7 @@ def plan_import(
         mine = mine or existing.get(theirs.path)
         if mine is None:
             operations.append(AddImportedTrack(theirs, source, values, key))
-            changes.append(_change("added", theirs))
+            changes.append(_change("added", theirs, added_fields(theirs)))
             ids[theirs.id] = theirs.id
             library_tracks[theirs.id] = theirs
             continue
@@ -122,7 +122,7 @@ def plan_import(
             FieldConflict(
                 track_id=mine.id,
                 path=mine.path,
-                label=display_name(mine),
+                name=display_name(mine),
                 field=d.field,
                 library_value=d.library_value,
                 file_value=d.source_value,
@@ -200,7 +200,7 @@ def _change(
         change=kind,
         track_id=track.id,
         path=track.path,
-        label=display_name(track),
+        name=display_name(track),
         fields=fields,
     )
 

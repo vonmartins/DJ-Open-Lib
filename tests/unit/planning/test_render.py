@@ -8,6 +8,7 @@ from djlib.adapters.m3u import M3UAdapter
 from djlib.model.cue import Cue, CueKind
 from djlib.model.key import Key, Mode
 from djlib.model.track import Track
+from djlib.planning.diff import added_fields
 from djlib.planning.model import (
     ApplyResult,
     ExportAction,
@@ -30,7 +31,7 @@ def updated(n: int) -> TrackChange:
         change="updated",
         track_id=TRACK.id,
         path=f"/music/{n:03}.mp3",
-        label=f"Track {n:03}",
+        name=f"Track {n:03}",
         fields=(FieldChange("bpm", 126.0, 128.0),),
     )
 
@@ -43,12 +44,12 @@ def scan_plan(**fields: object) -> Plan:
 def test_mixed_plan_text() -> None:
     plan = scan_plan(
         tracks=(
-            TrackChange(change="added", track_id=TRACK.id, path=TRACK.path, label="Bicep - Glue"),
+            TrackChange(change="added", track_id=TRACK.id, path=TRACK.path, name="Bicep - Glue"),
             TrackChange(
                 change="updated",
                 track_id=TRACK.id,
                 path="/music/b.mp3",
-                label="B",
+                name="B",
                 fields=(
                     FieldChange("bpm", 126.0, 128.5),
                     FieldChange("key", None, A_MINOR),
@@ -62,16 +63,16 @@ def test_mixed_plan_text() -> None:
                 track_id=TRACK.id,
                 path="/music/new/c.mp3",
                 old_path="/music/c.mp3",
-                label="C",
+                name="C",
             ),
-            TrackChange(change="missing", track_id=TRACK.id, path="/music/d.mp3", label="D"),
+            TrackChange(change="missing", track_id=TRACK.id, path="/music/d.mp3", name="D"),
         ),
         refreshed=2,
         conflicts=(
             FieldConflict(
                 track_id=TRACK.id,
                 path="/music/b.mp3",
-                label="B",
+                name="B",
                 field="genre",
                 library_value="Techno",
                 file_value="House",
@@ -222,3 +223,23 @@ def test_merge_base_only() -> None:
 
     assert "Tracks: merge base updated for 3\n" in render_text(plan)
     assert to_json(plan)["rebased"] == 3
+
+
+def test_added_track_fields_only_in_json() -> None:
+    track = Track(path_origin="/music/new.mp3", title="New", bpm=128.0)
+    change = TrackChange(
+        change="added",
+        track_id=track.id,
+        path=track.path,
+        name="New",
+        fields=added_fields(track),
+    )
+    plan = scan_plan(tracks=(change,))
+
+    assert "bpm" not in render_text(plan)
+    (document,) = to_json(plan)["tracks"]  # type: ignore[misc]
+    assert document["name"] == "New"  # type: ignore[index]
+    assert document["fields"] == [  # type: ignore[index]
+        {"field": "title", "before": None, "after": "New"},
+        {"field": "bpm", "before": None, "after": 128.0},
+    ]

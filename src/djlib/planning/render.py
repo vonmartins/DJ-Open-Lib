@@ -24,7 +24,7 @@ from djlib.planning.tree import show_path
 _T = TypeVar("_T")
 
 JSON_FORMAT = "djlib-plan"
-JSON_VERSION = 1
+JSON_VERSION = 2
 
 _SYMBOLS = {"added": "+", "updated": "~", "moved": ">", "missing": "!", "present": "^"}
 _TRACK_ORDER = ("added", "updated", "moved", "missing", "present")
@@ -59,7 +59,7 @@ def render_text(plan: Plan, *, limit: int = 20) -> str:
                 plan.conflicts,
                 limit,
                 lambda c: [
-                    f"  {c.label}: {c.field} is {text_value(c.field, c.library_value)} in"
+                    f"  {c.name}: {c.field} is {text_value(c.field, c.library_value)} in"
                     f" the library, {text_value(c.field, c.file_value)} in {other}"
                 ],
                 "conflicts",
@@ -95,9 +95,11 @@ def _node_summary(plan: Plan) -> str:
 def _track_lines(change: TrackChange) -> list[str]:
     symbol = _SYMBOLS[change.change]
     if change.change == "moved":
-        lines = [f"  {symbol} {change.label}  {change.old_path} → {change.path}"]
+        lines = [f"  {symbol} {change.name}  {change.old_path} → {change.path}"]
     else:
-        lines = [f"  {symbol} {change.label}  {change.path}"]
+        lines = [f"  {symbol} {change.name}  {change.path}"]
+    if change.change == "added":
+        return lines  # one line each; the JSON rendering lists their fields
     lines.extend(
         f"      {f.field}: {text_value(f.field, f.before)} → {text_value(f.field, f.after)}"
         for f in change.fields
@@ -202,7 +204,7 @@ def _track_json(change: TrackChange) -> dict[str, JSONValue]:
         "track_id": None if change.track_id is None else str(change.track_id),
         "path": change.path,
         "old_path": change.old_path,
-        "label": change.label,
+        "name": change.name,
         "fields": [
             {"field": f.field, "before": json_value(f.before), "after": json_value(f.after)}
             for f in change.fields
@@ -246,7 +248,7 @@ def _conflict_json(conflict: FieldConflict) -> dict[str, JSONValue]:
     return {
         "track_id": str(conflict.track_id),
         "path": conflict.path,
-        "label": conflict.label,
+        "name": conflict.name,
         "field": conflict.field,
         "library_value": json_value(conflict.library_value),
         "file_value": json_value(conflict.file_value),

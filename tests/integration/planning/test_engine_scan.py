@@ -60,7 +60,7 @@ def test_field_change_shown(engine: Engine, music: Path) -> None:
     plan = engine.plan_scan(music)
 
     (change,) = plan.tracks
-    assert (change.change, change.label) == ("updated", "Artist - A")
+    assert (change.change, change.name) == ("updated", "Artist - A")
     assert [(f.field, f.before, f.after) for f in change.fields] == [("bpm", 126.0, 128.0)]
 
 
@@ -75,7 +75,7 @@ def test_conflicts_carry_labels(engine: Engine, store: Store, music: Path) -> No
 
     (conflict,) = engine.plan_scan(music).conflicts
 
-    assert (conflict.label, conflict.field, conflict.library_value, conflict.file_value) == (
+    assert (conflict.name, conflict.field, conflict.library_value, conflict.file_value) == (
         "Artist - A",
         "bpm",
         125.0,

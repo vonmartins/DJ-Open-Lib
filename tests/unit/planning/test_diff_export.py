@@ -137,5 +137,5 @@ def test_tracks_compared_only_with_a_collection() -> None:
     tracks = diff_export(current, library(), None, WITH_COLLECTION)[1]
     assert [(t.change, t.path, t.fields) for t in tracks] == [
         ("updated", B.path, (FieldChange("title", "Old", "B"), FieldChange("bpm", 120.0, None))),
-        ("added", C.path, ()),
+        ("added", C.path, (FieldChange("title", None, "C"),)),
     ]

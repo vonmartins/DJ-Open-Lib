@@ -70,7 +70,7 @@ class Engine:
                 FieldConflict(
                     track_id=track.id,
                     path=track.path,
-                    label=display_name(track),
+                    name=display_name(track),
                     field=conflict.field,
                     library_value=conflict.library_value,
                     file_value=conflict.file_value,
