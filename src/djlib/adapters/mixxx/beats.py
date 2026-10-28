@@ -1,7 +1,7 @@
-"""Mixxx beat grids: decoding its protobuf messages into canonical grids.
+"""Mixxx beat grids: its protobuf messages to and from canonical grids.
 
 Mixxx stores ``BeatGrid-2.0`` (constant tempo) and ``BeatMap-1.0`` (one entry per beat)
-messages; positions are in frames. Only the fields used here are decoded.
+messages; positions are in frames. Only the fields used here are decoded and written.
 """
 
 import struct
@@ -12,6 +12,8 @@ from djlib.model.beatgrid import BeatGrid, BeatMarker
 
 BEAT_GRID = "BeatGrid-2.0"
 BEAT_MAP = "BeatMap-1.0"
+# ``Source`` enum of beats.proto and keys.proto.
+SOURCE_USER = 2
 
 
 class ProtobufError(ValueError):
@@ -159,3 +161,77 @@ def _grid_from_beats(frames: list[int], sample_rate: int) -> BeatGrid | None:
         for first, last in runs
     )
     return BeatGrid(markers=markers)
+
+
+# Encoding
+
+
+def encode_varint(value: int) -> bytes:
+    """A protobuf varint; negative numbers take ten bytes, as int32 fields require."""
+    out = bytearray()
+    value &= (1 << 64) - 1
+    while True:
+        byte = value & 0x7F
+        value >>= 7
+        if not value:
+            out.append(byte)
+            return bytes(out)
+        out.append(byte | 0x80)
+
+
+def encode_field(number: int, value: int | bytes | float) -> bytes:
+    """A varint (``int``), length-delimited (``bytes``) or double (``float``) field."""
+    if isinstance(value, float):
+        return encode_varint(number << 3 | 1) + struct.pack("<d", value)
+    if isinstance(value, bytes):
+        return encode_varint(number << 3 | 2) + encode_varint(len(value)) + value
+    return encode_varint(number << 3) + encode_varint(value)
+
+
+def _encode_beat(frame: int) -> bytes:
+    return encode_field(1, frame) + encode_field(3, SOURCE_USER)
+
+
+def encode_grid(bpm: float, first_frame: int) -> bytes:
+    """A ``BeatGrid-2.0`` message set by the user."""
+    tempo = encode_field(1, float(bpm)) + encode_field(2, SOURCE_USER)
+    return encode_field(1, tempo) + encode_field(2, _encode_beat(first_frame))
+
+
+def encode_map(frames: list[int]) -> bytes:
+    """A ``BeatMap-1.0`` message with one enabled beat per frame."""
+    return b"".join(encode_field(1, _encode_beat(frame)) for frame in frames)
+
+
+def grid_to_mixxx(
+    grid: BeatGrid, sample_rate: int, duration_frames: int | None
+) -> tuple[str, bytes] | None:
+    """The beats version and blob for ``grid``.
+
+    One marker becomes a constant grid. Several become a beat map that runs to the end
+    of the track, so they need ``duration_frames``; without it the result is ``None``.
+    """
+    markers = grid.markers
+    if len(markers) == 1:
+        (marker,) = markers
+        return BEAT_GRID, encode_grid(marker.bpm, _frame(marker.position_us, sample_rate))
+    if duration_frames is None:
+        return None
+    frames: list[int] = []
+    for index, marker in enumerate(markers):
+        start = marker.position_us * sample_rate / 1_000_000
+        end = (
+            markers[index + 1].position_us * sample_rate / 1_000_000
+            if index + 1 < len(markers)
+            else duration_frames
+        )
+        interval = 60 * sample_rate / marker.bpm
+        beat = 0
+        while (position := start + beat * interval) < end - 0.5:
+            frames.append(round(position))
+            beat += 1
+    return BEAT_MAP, encode_map(frames)
+
+
+def _frame(position_us: int, sample_rate: int) -> int:
+    return round(position_us * sample_rate / 1_000_000)
