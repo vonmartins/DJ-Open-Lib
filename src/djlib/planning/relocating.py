@@ -1,7 +1,8 @@
 """Finding the files of tracks that are not on this computer, under a folder the user names.
 
-Tracks are matched by file name, ignoring case and Unicode normalization. Among files
-with the same name, the one keeping the most trailing folders of the old path wins;
+Tracks are matched by file name, ignoring case and Unicode normalization, with an exact
+name preferred. Among files with the same name, the one keeping the most trailing folders
+of the old path wins;
 a remaining tie is settled by the size a scan recorded, or reported as ambiguous.
 Nothing is guessed: a file is never taken twice, nor taken from another track.
 """
@@ -107,6 +108,10 @@ def plan_relocate(store: Store, folder: Path) -> RelocationPlan:
 def _best(store: Store, track: Track, candidates: Sequence[_File]) -> _File | None:
     if not candidates:
         return None
+    # A file with exactly the old name wins over names that differ only in case.
+    name = unicodedata.normalize("NFC", posixpath.basename(track.path))
+    exact = [f for f in candidates if posixpath.basename(f.normalized) == name]
+    candidates = exact or candidates
     scores = {id(f): _shared_tail(track.path, f.normalized) for f in candidates}
     top = max(scores.values())
     best = [f for f in candidates if scores[id(f)] == top]

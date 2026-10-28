@@ -144,3 +144,17 @@ def test_non_utf8_name_skipped(engine: Engine, store: Store, tmp_path: Path) -> 
     plan = engine.plan_relocate(tmp_path)
 
     assert plan.empty and any("not valid UTF-8" in w for w in plan.warnings)
+
+
+def test_exact_name_wins(engine: Engine, store: Store, tmp_path: Path) -> None:
+    add(store, "/old/Life On Earth.mp3")
+    add(store, "/old/Life on Earth.mp3")
+    upper = touch(tmp_path / "Life On Earth.mp3")
+    lower = touch(tmp_path / "Life on Earth.mp3")
+    if upper.samefile(lower):
+        pytest.skip("case-insensitive filesystem")
+
+    assert moves(engine, tmp_path) == {
+        "/old/Life On Earth.mp3": normalize_path(str(upper)),
+        "/old/Life on Earth.mp3": normalize_path(str(lower)),
+    }
