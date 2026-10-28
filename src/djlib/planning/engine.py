@@ -26,6 +26,7 @@ from djlib.planning.model import (
     LibraryAction,
     Plan,
 )
+from djlib.planning.relocating import plan_relocate
 from djlib.planning.selection import covered, fingerprints, modified, resolve_paths, target_name
 from djlib.planning.writer import DirectoryTracker, WriteFile, write_atomically
 from djlib.snapshots import SnapshotStore
@@ -108,6 +109,21 @@ class Engine:
             rebased=imported.rebased,
             conflicts=imported.conflicts,
             warnings=imported.warnings,
+        )
+
+    def plan_relocate(self, folder: str | os.PathLike[str]) -> Plan:
+        """Plan new paths under ``folder`` for the tracks whose files are not here."""
+        folder = Path(folder).absolute()
+        if not folder.is_dir():
+            raise PlanError(f"{folder} is not a folder")
+        revision = self.store.revision()
+        relocation = plan_relocate(self.store, folder)
+        return Plan(
+            target=LIBRARY_TARGET,
+            title=f"relocate tracks into {folder}",
+            action=LibraryAction(operations=relocation.operations, base_revision=revision),
+            tracks=relocation.tracks,
+            warnings=relocation.warnings,
         )
 
     def plan_export(
