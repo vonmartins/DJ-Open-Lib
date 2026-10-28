@@ -217,6 +217,8 @@ def _source_folder(
     if info is not None and info.root_node_id is not None:
         current_node = store.get_node(info.root_node_id)
         current = current_node if isinstance(current_node, Folder) else None
+    if current is None and not read.playlists:
+        return None, ()  # a source without playlists, such as beets, gets no folder
     read = _without_own_playlists(store, source, read, current)
     name = current.name if current is not None else _free_name(store, adapter)
     known = {} if current is None else by_path(Library(tracks=tracks, playlists=(current,)))
