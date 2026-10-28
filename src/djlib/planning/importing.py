@@ -97,6 +97,7 @@ def plan_import(
     warnings: list[str] = []
     rebased = 0
     ids: dict[TrackId, TrackId] = {}  # id in the read library -> id in djlib
+    matched: set[TrackId] = set()
     for theirs in sorted(read.library.tracks.values(), key=lambda t: t.path):
         values = {name: to_json(getattr(theirs, name)) for name in fields}
         key = read.keys.get(theirs.id)
@@ -111,11 +112,11 @@ def plan_import(
             ids[theirs.id] = theirs.id
             library_tracks[theirs.id] = theirs
             continue
-        if mine.id in ids.values():
-            ids[theirs.id] = mine.id
+        ids[theirs.id] = mine.id
+        if mine.id in matched:
             warnings.append(f"skipped {theirs.path}: another source item already matched it")
             continue
-        ids[theirs.id] = mine.id
+        matched.add(mine.id)
         merged, disagreements = _merge(mine, bases.get(mine.id), theirs, fields, adapter.name)
         conflicts.extend(
             FieldConflict(
