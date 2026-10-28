@@ -1,4 +1,4 @@
-"""Changes to the library produced by scans and imports, applied atomically by the store.
+"""Changes to the library from scans, imports and relocations, applied atomically by the store.
 
 Each operation carries the complete resulting values, so applying it needs no
 recomputation.
@@ -122,4 +122,14 @@ ImportOperation: TypeAlias = (
     | RecordSourceValues
     | ReplaceSourceFolder
 )
-LibraryOperation: TypeAlias = ScanOperation | ImportOperation
+
+
+@dataclass(frozen=True, slots=True)
+class RelocateTrack:
+    """The track's file was found at another path; only the path changes."""
+
+    track_id: TrackId
+    path_origin: str
+
+
+LibraryOperation: TypeAlias = ScanOperation | ImportOperation | RelocateTrack
