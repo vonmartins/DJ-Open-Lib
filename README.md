@@ -69,6 +69,27 @@ uv run djlib --home /tmp/djlib-try import mixxx ~/mixxx-test/mixxxdb.sqlite --ap
 - To experiment without your real library, start Mixxx with a separate profile:
   `mixxx --settingsPath ~/mixxx-test`.
 
+### Importing from beets
+
+```sh
+uv run djlib --home /tmp/djlib-try import beets                          # beets' own library
+uv run djlib --home /tmp/djlib-try import beets ~/Music/.beets.db --apply
+```
+
+- beets' database and your music files are only read; beets does not need to be
+  installed. Every track is imported with its tags (genre, label, key, MusicBrainz and
+  Discogs ids, ISRC…); albums do not become playlists.
+- Tracks are matched by path the first time, and to the same beets item afterwards, so a
+  track whose path you fix in djlib stays linked. Fields edited in djlib win over later
+  beets changes, with a conflict in the plan.
+- Without a path, djlib looks where beets does: `$BEETSDIR`, then the `library` setting
+  of beets' `config.yaml`, then `~/.config/beets/library.db`. Newer beets versions store
+  paths relative to the music directory; it comes from `directory` in the same file, or
+  `--music-dir`.
+- If beets runs on another computer (a server, a NAS), its paths may not exist where
+  djlib runs. The plan says how many tracks point to files that are not here; they are
+  imported anyway, to be relocated.
+
 ### Exporting to Mixxx
 
 Quit Mixxx first: djlib refuses to write while Mixxx runs.
