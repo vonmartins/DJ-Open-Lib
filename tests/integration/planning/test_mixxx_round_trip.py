@@ -65,6 +65,8 @@ def test_import_after_export(
     edited(store)
 
     export = engine.plan_export(mixxx, database)
+    (change,) = export.tracks
+    assert [f.field for f in change.fields] == ["title", "cues"]
     assert engine.apply(export, assume_yes).status == "applied"
 
     with contextlib.closing(sqlite3.connect(database)) as db, db:
