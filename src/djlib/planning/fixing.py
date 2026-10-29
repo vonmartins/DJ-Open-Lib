@@ -1,5 +1,6 @@
 """Planning fixes and rules on the library's tracks."""
 
+import os
 from dataclasses import dataclass
 
 from djlib.adapters.losses import display_name
@@ -17,12 +18,15 @@ class FixPlan:
     warnings: tuple[str, ...]
 
 
-def plan_fix(store: Store, ruleset: RuleSet) -> FixPlan:
-    """The edits ``ruleset`` makes to every track. Changes nothing."""
+def plan_fix(
+    store: Store, ruleset: RuleSet, under: str | os.PathLike[str] | None = None
+) -> FixPlan:
+    """The edits ``ruleset`` makes to every track, or those under ``under``. Changes nothing."""
+    listed = store.list_tracks() if under is None else store.list_tracks_under(os.fspath(under))
     operations: list[EditTrack] = []
     changes: list[TrackChange] = []
     warnings: list[str] = []
-    for track in sorted(store.list_tracks(), key=lambda t: t.path):
+    for track in sorted(listed, key=lambda t: t.path):
         fixed, edits, problems = run(ruleset, track)
         warnings.extend(problems)
         if not edits:

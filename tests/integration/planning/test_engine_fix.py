@@ -56,3 +56,12 @@ def test_nothing_to_fix(engine: Engine, store: Store) -> None:
 
     assert engine.plan_fix(defaults()).empty
     assert dataclasses.replace(defaults(), fixes=()).rules == ()
+
+
+def test_fix_under_a_folder(engine: Engine, store: Store) -> None:
+    store.add_track(Track(path_origin="/music/new/a.mp3", title="Glue (freebeats.com)"))
+    store.add_track(Track(path_origin="/music/old/b.mp3", title="Rise (freebeats.com)"))
+
+    plan = engine.plan_fix(defaults(), under="/music/new")
+
+    assert [c.path for c in plan.tracks] == ["/music/new/a.mp3"]
