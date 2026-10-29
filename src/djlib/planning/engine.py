@@ -7,7 +7,7 @@ does nothing without it.
 import datetime
 import hashlib
 import os
-from collections.abc import Callable, Sequence
+from collections.abc import Callable, Mapping, Sequence
 from pathlib import Path
 
 from send2trash import send2trash
@@ -17,6 +17,7 @@ from djlib.adapters.losses import display_name
 from djlib.adapters.pathmap import PathMapping
 from djlib.enrich.service import Services
 from djlib.model.library import Library
+from djlib.planning.deduplicating import Decision, Group, GroupKey, find_duplicates, plan_merge
 from djlib.planning.diff import diff_export, diff_scan
 from djlib.planning.enriching import Steps, plan_enrich
 from djlib.planning.errors import ApplyFailedError, PlanError, StaleTargetError
@@ -148,6 +149,30 @@ class Engine:
             action=LibraryAction(operations=fixed.operations, base_revision=revision),
             tracks=fixed.tracks,
             warnings=fixed.warnings,
+        )
+
+    def find_duplicates(self) -> tuple[Group, ...]:
+        """The library's duplicate groups, each with its suggested track first. Read-only."""
+        return find_duplicates(self.store)
+
+    def plan_merge(
+        self, decisions: Mapping[GroupKey, Decision] | None = None, *, keep_files: bool = False
+    ) -> Plan:
+        """Plan merging each duplicate group into one track, trashing the others' files.
+
+        ``decisions`` choose the track to keep, or skip or ignore a group; the other
+        groups keep their suggested track. ``keep_files`` leaves every file in place.
+        """
+        revision = self.store.revision()
+        merged = plan_merge(self.store, decisions, keep_files=keep_files)
+        return Plan(
+            target=LIBRARY_TARGET,
+            title="merge duplicates",
+            action=LibraryAction(
+                operations=merged.operations, base_revision=revision, trash=merged.trash
+            ),
+            tracks=merged.tracks,
+            warnings=merged.warnings,
         )
 
     def plan_relocate(self, folder: str | os.PathLike[str]) -> Plan:
