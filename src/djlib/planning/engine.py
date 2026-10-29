@@ -26,7 +26,7 @@ from djlib.planning.model import (
     LibraryAction,
     Plan,
 )
-from djlib.planning.relocating import plan_relocate
+from djlib.planning.relocating import Progress, plan_relocate
 from djlib.planning.selection import covered, fingerprints, modified, resolve_paths, target_name
 from djlib.planning.writer import DirectoryTracker, WriteFile, write_atomically
 from djlib.snapshots import SnapshotStore
@@ -50,10 +50,13 @@ class Engine:
         snapshots: SnapshotStore,
         *,
         clock: Callable[[], datetime.datetime] | None = None,
+        progress: Progress | None = None,
         _write_file: WriteFile = write_atomically,
     ) -> None:
+        """``progress`` is told how many files were seen while walking a folder."""
         self.store = store
         self.snapshots = snapshots
+        self._progress = progress
         self._clock = clock or (lambda: datetime.datetime.now(datetime.UTC))
         self._write_file = _write_file
 
@@ -93,12 +96,26 @@ class Engine:
         location: str | os.PathLike[str],
         *,
         path_mapping: PathMapping | None = None,
+        find_in: str | os.PathLike[str] | None = None,
     ) -> Plan:
-        """Plan importing what ``adapter`` reads at ``location`` into the library."""
+        """Plan importing what ``adapter`` reads at ``location`` into the library.
+
+        With ``find_in``, tracks whose files are not on this computer are looked for in
+        that folder, and only the found ones are imported.
+        """
         revision = self.store.revision()
         location = Path(location).absolute()
+        folder = None if find_in is None else Path(find_in).absolute()
+        if folder is not None and not folder.is_dir():
+            raise PlanError(f"{folder} is not a folder")
         imported = plan_import(
-            self.store, adapter, location, path_mapping=path_mapping, now=self._clock()
+            self.store,
+            adapter,
+            location,
+            path_mapping=path_mapping,
+            find_in=folder,
+            progress=self._progress,
+            now=self._clock(),
         )
         return Plan(
             target=LIBRARY_TARGET,
@@ -117,7 +134,7 @@ class Engine:
         if not folder.is_dir():
             raise PlanError(f"{folder} is not a folder")
         revision = self.store.revision()
-        relocation = plan_relocate(self.store, folder)
+        relocation = plan_relocate(self.store, folder, progress=self._progress)
         return Plan(
             target=LIBRARY_TARGET,
             title=f"relocate tracks into {folder}",

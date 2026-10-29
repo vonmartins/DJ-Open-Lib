@@ -110,3 +110,26 @@ def test_no_beets_library_found(tmp_path: Path, home: Path) -> None:
 
     assert result.exit_code == 1
     assert f"no beets library at {home / '.config' / 'beets' / 'library.db'}" in result.stderr
+
+
+def test_import_with_a_search_folder(tmp_path: Path) -> None:
+    beets = BeetsDatabase(tmp_path / "library.db")
+    beets.add_item("/mnt/server/Calyx/a.mp3", title="A")
+    beets.add_item("/mnt/server/Phace/b.mp3", title="B")
+    artists = tmp_path / "Artists"
+    (artists / "Calyx").mkdir(parents=True)
+    (artists / "Calyx" / "a.mp3").write_bytes(b"x")
+
+    result = invoke(tmp_path, str(beets.path), "--find-in", str(artists), "--apply", "--yes")
+
+    assert result.exit_code == 0, result.stderr
+    assert titles(tmp_path) == ["A"]
+
+
+def test_search_folder_missing(tmp_path: Path) -> None:
+    beets = BeetsDatabase(tmp_path / "library.db")
+
+    result = invoke(tmp_path, str(beets.path), "--find-in", str(tmp_path / "nowhere"))
+
+    assert result.exit_code == 1
+    assert "nowhere is not a directory" in result.stderr

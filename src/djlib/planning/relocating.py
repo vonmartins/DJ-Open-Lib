@@ -11,7 +11,7 @@ import os
 import posixpath
 import unicodedata
 from collections import Counter, defaultdict
-from collections.abc import Sequence
+from collections.abc import Callable, Sequence, Set
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -56,27 +56,43 @@ def _shared_tail(old: str, new: str) -> int:
     return count
 
 
-def plan_relocate(store: Store, folder: Path) -> RelocationPlan:
-    """Plan new paths under ``folder`` for the tracks whose files do not exist. Changes nothing."""
-    tracks = store.list_tracks()
-    missing = [t for t in tracks if not Path(t.path_origin).exists()]
-    if not missing:
-        return RelocationPlan(operations=(), tracks=(), warnings=())
+Progress = Callable[[Path, int], None]
+"""Told the folder being walked and how many audio files were seen so far."""
 
+
+@dataclass(frozen=True, slots=True, kw_only=True)
+class Found:
+    chosen: dict[TrackId, tuple[Track, Path, str]]
+    """Track id -> (track, file path, normalized file path)."""
+    not_found: list[Track]
+    ambiguous: list[Track]
+    warnings: list[str]
+
+
+def find_files(
+    folder: Path,
+    tracks: Sequence[Track],
+    *,
+    exclude: Set[str] = frozenset(),
+    known_size: Callable[[Track], int | None] = lambda _track: None,
+    progress: Progress | None = None,
+) -> Found:
+    """Find the file of each of ``tracks`` under ``folder``; files in ``exclude`` are never used."""
     warnings: list[str] = []
-    taken = {t.path for t in tracks}
+    if not tracks:
+        return Found(chosen={}, not_found=[], ambiguous=[], warnings=warnings)
     index: defaultdict[str, list[_File]] = defaultdict(list)
-    for found in discover(folder, warnings):
-        if found.normalized not in taken:
+    for found in discover(folder, warnings, progress=_for_folder(progress, folder)):
+        if found.normalized not in exclude:
             file = _File(found.path, found.normalized, found.size)
             index[_fold(posixpath.basename(found.normalized))].append(file)
 
     chosen: dict[TrackId, tuple[Track, _File]] = {}
     not_found: list[Track] = []
     ambiguous: list[Track] = []
-    for track in sorted(missing, key=lambda t: t.path):
+    for track in sorted(tracks, key=lambda t: t.path):
         candidates = index.get(_fold(posixpath.basename(track.path)), [])
-        best = _best(store, track, candidates)
+        best = _best(track, candidates, known_size)
         if best is None:
             (ambiguous if len(candidates) > 1 else not_found).append(track)
         else:
@@ -86,26 +102,68 @@ def plan_relocate(store: Store, folder: Path) -> RelocationPlan:
         if claims[file.normalized] > 1:
             del chosen[track_id]
             ambiguous.append(track)
+    return Found(
+        chosen={i: (t, f.path, f.normalized) for i, (t, f) in chosen.items()},
+        not_found=not_found,
+        ambiguous=ambiguous,
+        warnings=warnings,
+    )
 
-    operations = tuple(RelocateTrack(t.id, os.fspath(f.path)) for t, f in chosen.values())
+
+def _for_folder(progress: Progress | None, folder: Path) -> Callable[[int], None] | None:
+    if progress is None:
+        return None
+    report_progress = progress
+
+    def count(seen: int) -> None:
+        report_progress(folder, seen)
+
+    return count
+
+
+def plan_relocate(
+    store: Store, folder: Path, *, progress: Progress | None = None
+) -> RelocationPlan:
+    """Plan new paths under ``folder`` for the tracks whose files do not exist. Changes nothing."""
+    tracks = store.list_tracks()
+    missing = [t for t in tracks if not Path(t.path_origin).exists()]
+    if not missing:
+        return RelocationPlan(operations=(), tracks=(), warnings=())
+
+    def known_size(track: Track) -> int | None:
+        state = store.file_state(track.id)
+        return None if state is None else state.size
+
+    found = find_files(
+        folder,
+        missing,
+        exclude={t.path for t in tracks},
+        known_size=known_size,
+        progress=progress,
+    )
+    chosen = found.chosen.values()
+    operations = tuple(RelocateTrack(t.id, os.fspath(path)) for t, path, _ in chosen)
     changes = tuple(
         TrackChange(
             change="moved",
             track_id=t.id,
-            path=f.normalized,
+            path=normalized,
             name=display_name(t),
             old_path=t.path,
         )
-        for t, f in chosen.values()
+        for t, _path, normalized in chosen
     )
-    warnings.extend(_report(not_found, f"missing tracks were not found under {folder}"))
+    warnings = [*found.warnings]
+    warnings.extend(report(found.not_found, f"missing tracks were not found under {folder}"))
     warnings.extend(
-        _report(ambiguous, "missing tracks match several files and were left as they are")
+        report(found.ambiguous, "missing tracks match several files and were left as they are")
     )
     return RelocationPlan(operations=operations, tracks=changes, warnings=tuple(warnings))
 
 
-def _best(store: Store, track: Track, candidates: Sequence[_File]) -> _File | None:
+def _best(
+    track: Track, candidates: Sequence[_File], known_size: Callable[[Track], int | None]
+) -> _File | None:
     if not candidates:
         return None
     # A file with exactly the old name wins over names that differ only in case.
@@ -115,14 +173,12 @@ def _best(store: Store, track: Track, candidates: Sequence[_File]) -> _File | No
     scores = {id(f): _shared_tail(track.path, f.normalized) for f in candidates}
     top = max(scores.values())
     best = [f for f in candidates if scores[id(f)] == top]
-    if len(best) > 1:
-        state = store.file_state(track.id)
-        if state is not None:
-            best = [f for f in best if f.size == state.size]
+    if len(best) > 1 and (size := known_size(track)) is not None:
+        best = [f for f in best if f.size == size]
     return best[0] if len(best) == 1 else None
 
 
-def _report(tracks: Sequence[Track], what: str) -> list[str]:
+def report(tracks: Sequence[Track], what: str) -> list[str]:
     if not tracks:
         return []
     examples = ", ".join(t.path for t in sorted(tracks, key=lambda t: t.path)[:_EXAMPLES])
