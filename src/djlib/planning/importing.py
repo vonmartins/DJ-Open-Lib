@@ -97,12 +97,20 @@ def plan_import(
 
     links = store.source_links(source)
     linked_keys = {track_id: key for key, track_id in links.items()}
+    merged_items, merged_paths = store.merged_items(source), store.merged_paths()
     local: dict[TrackId, Track] = {}
     skipped: set[TrackId] = set()
     found_warnings: list[str] = []
     if find_in is not None:
         local, skipped, found_warnings = _find_local(
-            read.library, read.keys, links, library_tracks, existing, find_in, progress
+            read.library,
+            read.keys,
+            links,
+            library_tracks,
+            existing,
+            find_in,
+            progress,
+            merged=(merged_items, merged_paths),
         )
 
     operations: list[ImportOperation] = []
@@ -112,27 +120,13 @@ def plan_import(
     rebased = 0
     ids: dict[TrackId, TrackId] = {}  # id in the read library -> id in djlib
     matched: set[TrackId] = set()
-    for theirs in sorted(read.library.tracks.values(), key=lambda t: t.path):
-        if theirs.id in skipped:
-            continue
-        theirs = local.get(theirs.id, theirs)
-        values = {name: to_json(getattr(theirs, name)) for name in fields}
-        key = read.keys.get(theirs.id)
-        # The item's earlier track first, so that a track whose path was fixed in djlib
-        # stays linked; then the track at the same path.
-        linked = links.get(key) if key is not None else None
-        mine = library_tracks.get(linked) if linked is not None else None
-        mine = mine or existing.get(theirs.path)
-        if mine is None:
-            operations.append(AddImportedTrack(theirs, source, values, key))
-            changes.append(_change("added", theirs, added_fields(theirs)))
-            ids[theirs.id] = theirs.id
-            library_tracks[theirs.id] = theirs
-            continue
-        ids[theirs.id] = mine.id
+    into_kept: list[tuple[Track, Track, str | None, dict[str, JSONValue]]] = []
+
+    def update(theirs: Track, mine: Track, key: str | None, values: dict[str, JSONValue]) -> None:
+        nonlocal rebased
         if mine.id in matched:
             warnings.append(f"skipped {theirs.path}: another source item already matched it")
-            continue
+            return
         matched.add(mine.id)
         merged, disagreements = _merge(mine, bases.get(mine.id), theirs, fields, adapter.name)
         conflicts.extend(
@@ -156,6 +150,38 @@ def plan_import(
         elif bases.get(mine.id) != values or (key is not None and linked_keys.get(mine.id) != key):
             operations.append(RecordSourceValues(mine.id, source, values, key))
             rebased += 1
+
+    for theirs in sorted(read.library.tracks.values(), key=lambda t: t.path):
+        if theirs.id in skipped:
+            continue
+        theirs = local.get(theirs.id, theirs)
+        values = {name: to_json(getattr(theirs, name)) for name in fields}
+        key = read.keys.get(theirs.id)
+        # The item's earlier track first, so that a track whose path was fixed in djlib
+        # stays linked; then the track at the same path.
+        linked = links.get(key) if key is not None else None
+        mine = library_tracks.get(linked) if linked is not None else None
+        mine = mine or existing.get(theirs.path)
+        merged_into = (merged_items.get(key) if key is not None else None) or merged_paths.get(
+            theirs.path
+        )
+        if mine is None and merged_into is not None and merged_into in library_tracks:
+            into_kept.append((theirs, library_tracks[merged_into], key, values))
+            continue
+        if mine is None:
+            operations.append(AddImportedTrack(theirs, source, values, key))
+            changes.append(_change("added", theirs, added_fields(theirs)))
+            ids[theirs.id] = theirs.id
+            library_tracks[theirs.id] = theirs
+            continue
+        ids[theirs.id] = mine.id
+        update(theirs, mine, key, values)
+
+    # Items whose track was merged into another update it, unless an item of its own did.
+    for theirs, kept, key, values in into_kept:
+        ids[theirs.id] = kept.id
+        if kept.id not in matched and kept.id not in linked_keys:
+            update(theirs, library_tracks[kept.id], key, values)
 
     folder_operation, nodes = _source_folder(
         store, source, adapter, read.library, ids, library_tracks
@@ -183,6 +209,8 @@ def _find_local(
     existing: Mapping[str, Track],
     folder: Path,
     progress: Progress | None,
+    *,
+    merged: tuple[Mapping[str, TrackId], Mapping[str, TrackId]] = ({}, {}),
 ) -> tuple[dict[TrackId, Track], set[TrackId], list[str]]:
     """Local copies under ``folder`` of the read tracks that are nowhere else to be found.
 
@@ -196,6 +224,8 @@ def _find_local(
         linked = links.get(key) if key is not None else None
         if (linked is not None and linked in library_tracks) or track.path in existing:
             continue
+        if (key is not None and key in merged[0]) or track.path in merged[1]:
+            continue  # merged into another track: not looked for
         if Path(track.path_origin).exists():
             here.add(track.path)
         else:
