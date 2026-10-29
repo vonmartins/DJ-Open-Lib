@@ -13,6 +13,7 @@ import typer
 from djlib.cli import export, imports, snapshot
 from djlib.cli._flow import Home
 from djlib.cli._home import default_home
+from djlib.cli.dupes import dupes
 from djlib.cli.enrich import enrich
 from djlib.cli.fix import fix
 from djlib.cli.relocate import relocate
@@ -27,6 +28,7 @@ app.command()(scan)
 app.command()(relocate)
 app.command()(fix)
 app.command()(enrich)
+app.command()(dupes)
 app.add_typer(imports.app, name="import")
 app.add_typer(export.app, name="export")
 app.add_typer(snapshot.app, name="snapshot")

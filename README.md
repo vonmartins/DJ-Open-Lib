@@ -203,6 +203,36 @@ or `tags`), an `op` and a `value` (or `values`):
 - numbers and dates: `equals`, `not_equals`, `gt`, `gte`, `lt`, `lte`, `in`;
 - anything: `empty`, `not_empty`.
 
+### Merging duplicates
+
+```sh
+uv run djlib --home /tmp/djlib-try dupes                      # report the groups
+uv run djlib --home /tmp/djlib-try dupes --merge              # show the merge plan
+uv run djlib --home /tmp/djlib-try dupes --merge --apply      # decide group by group
+```
+
+`djlib dupes` lists groups of tracks that are the same song, with each file's format,
+bitrate, length, cues and playlists, and marks the one it suggests keeping.
+
+- **Same song:** the same MusicBrainz recording (from `enrich` or beets), or the same
+  artist and title once case, `(Original Mix)`, video ids, URLs and where the `feat.`
+  guest is written are ignored, with lengths within 3 seconds. Remixes, VIPs, edits
+  and extended mixes are different songs and never grouped.
+- **Suggested track:** a file that is present, then lossless before lossy, then the
+  higher bitrate, more cues, a beat grid, more playlists, and the oldest in the library.
+- **Merging:** with `--apply` in a terminal, each group is shown and you answer Enter
+  (keep the marked track), a number (keep that one), `s` (skip), `i` (not duplicates:
+  never shown again) or `q` (stop). Then one plan shows everything and asks once.
+  `--keep PATH` chooses the track to keep from scripts; `--yes` takes the suggestions.
+- **What the kept track gets:** the others' values for its empty fields, their cues
+  and beat grid if it has none, their playlist entries, the sum of the play counts, the
+  highest rating, the oldest date added and all the tags.
+- **The other files go to the system trash**, so they can be recovered; djlib never
+  deletes a file for good. A file that cannot be trashed (some network mounts have no
+  trash) is left in place and reported. `--keep-files` merges in djlib only. The plan
+  warns when a file belongs to your beets or Mixxx library, which will then miss it;
+  later imports from them update the kept track instead of bringing the merged one back.
+
 ### Exporting to Mixxx
 
 Quit Mixxx first: djlib refuses to write while Mixxx runs.

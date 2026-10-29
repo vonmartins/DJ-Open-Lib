@@ -61,7 +61,7 @@ class Engine:
         clock: Callable[[], datetime.datetime] | None = None,
         progress: Progress | None = None,
         _write_file: WriteFile = write_atomically,
-        _trash: Trash = send2trash,
+        _trash: Trash | None = None,
     ) -> None:
         """``progress`` is told how many files were seen while walking a folder."""
         self.store = store
@@ -69,7 +69,7 @@ class Engine:
         self._progress = progress
         self._clock = clock or (lambda: datetime.datetime.now(datetime.UTC))
         self._write_file = _write_file
-        self._trash = _trash
+        self._trash = _trash or _send_to_trash
 
     # Planning
 
@@ -392,6 +392,10 @@ class Engine:
             return False
         directories.remove_empty()
         return True
+
+
+def _send_to_trash(path: str) -> None:
+    send2trash(path)  # looked up when called, so tests can replace it
 
 
 def _check_unchanged(path: Path, base_sha256: str | None) -> None:
