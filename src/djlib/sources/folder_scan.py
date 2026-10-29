@@ -119,6 +119,7 @@ class _Scan:
     store: Store
     root: Path
     now: datetime.datetime
+    progress: Callable[[int], None] | None = None
     warnings: list[str] = field(default_factory=list[str])
     conflicts: list[Conflict] = field(default_factory=list[Conflict])
 
@@ -134,7 +135,7 @@ class _Scan:
         seen: set[str] = set()
         unknown: list[_Found] = []
 
-        for found in discover(self.root, self.warnings):
+        for found in discover(self.root, self.warnings, progress=self.progress):
             track = known.get(found.normalized)
             if track is None:
                 unknown.append(found)
@@ -269,7 +270,20 @@ def scan_folder(
     root: str | os.PathLike[str],
     *,
     clock: Callable[[], datetime.datetime] | None = None,
+    progress: Callable[[Path, int], None] | None = None,
 ) -> ScanPlan:
-    """Scan ``root`` against the tracks of ``store`` below it. Changes nothing."""
+    """Scan ``root`` against the tracks of ``store`` below it. Changes nothing.
+
+    ``progress`` is told the root and how many audio files were found so far.
+    """
     now = (clock or (lambda: datetime.datetime.now(datetime.UTC)))()
-    return _Scan(store, Path(root).absolute(), now).run()
+    folder = Path(root).absolute()
+    count: Callable[[int], None] | None = None
+    if progress is not None:
+        report = progress
+
+        def tell(seen: int) -> None:
+            report(folder, seen)
+
+        count = tell
+    return _Scan(store, folder, now, count).run()

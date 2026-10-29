@@ -65,7 +65,7 @@ class Engine:
     def plan_scan(self, root: str | os.PathLike[str]) -> Plan:
         """Plan bringing the library in line with the music folder ``root``."""
         revision = self.store.revision()
-        scan = scan_folder(self.store, root, clock=self._clock)
+        scan = scan_folder(self.store, root, clock=self._clock, progress=self._progress)
         tracks, refreshed = diff_scan(self.store, scan)
         conflicts: list[FieldConflict] = []
         for conflict in scan.conflicts:
