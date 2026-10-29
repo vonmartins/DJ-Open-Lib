@@ -1,0 +1,29 @@
+fix: normalize_characters
+change:
+  - {in: "Acid Trip (J：Ken Remix)", out: "Acid Trip (J:Ken Remix)", why: full-width colon in Latin text}
+  - {in: "Ｈｅｌｌｏ", out: "Hello", why: full-width letters}
+  - {in: "Track ！", out: "Track !", why: full-width exclamation}
+  - {in: "１９９９", out: "1999", why: full-width digits}
+  - {in: "A B", out: "A B", why: non-breaking space}
+  - {in: "A B", out: "A B", why: em space}
+  - {in: "A　B", out: "A B", why: ideographic space in Latin text}
+  - {in: "Glue  Edit", out: "Glue Edit", why: double space}
+  - {in: "  Glue", out: "Glue", why: leading spaces}
+  - {in: "Glue   ", out: "Glue", why: trailing spaces}
+  - {in: "Glue​", out: "Glue", why: zero-width space}
+  - {in: "﻿Glue", out: "Glue", why: byte order mark}
+  - {in: "   ", out: null, why: only spaces becomes empty}
+  - {track: {artist: "Bicep  ", title: "Glue"}, expected: {artist: "Bicep"}, why: applies to artists too}
+keep:
+  - {in: "行くぜっ！怪盗少女", why: full-width exclamation is native in Japanese text}
+  - {in: "東京（Tokyo）", why: full-width parentheses in CJK text}
+  - {in: "봄날 (Spring Day)", why: Korean title}
+  - {in: "Glue", why: clean}
+  - {in: "Love ❤ You", why: emoji kept}
+  - {in: "👨‍👩‍👧", why: zero-width joiners inside emoji are kept}
+  - {in: "Rock ’n’ Roll", why: curly apostrophes kept}
+  - {in: "East – West", why: en dash kept}
+  - {in: "Wait…", why: ellipsis kept}
+  - {in: "«Guillemets»", why: guillemets kept}
+  - {in: "Группа крови", why: Cyrillic}
+  - {in: "نسم علينا الهوى", why: Arabic}

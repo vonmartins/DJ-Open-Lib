@@ -1,0 +1,30 @@
+fix: fix_encoding
+change:
+  - {in: "CafÃ© Tacvba", out: "Café Tacvba", why: UTF-8 read as Windows-1252}
+  - {in: "BjÃ¶rk", out: "Björk", why: umlaut mojibake}
+  - {in: "RÃ¶yksopp", out: "Röyksopp", why: o umlaut}
+  - {in: "SinÃ©ad Oâ€™Connor", out: "Sinéad O’Connor", why: accent and curly apostrophe}
+  - {in: "Donâ€™t Stop", out: "Don’t Stop", why: curly apostrophe mojibake}
+  - {in: "Ã‰dith Piaf", out: "Édith Piaf", why: capital E acute}
+  - {in: "MÃ¶tley CrÃ¼e", out: "Mötley Crüe", why: two umlauts}
+  - {in: "CafÃƒÂ©", out: "Café", why: encoded twice}
+  - {in: "Rock &amp; Roll", out: "Rock & Roll", why: HTML entity}
+  - {in: "Simon &amp; Garfunkel", out: "Simon & Garfunkel", why: named entity}
+  - {in: "Don&#39;t Stop", out: "Don't Stop", why: numeric entity}
+  - {in: "&quot;Heroes&quot;", out: "\"Heroes\"", why: quote entities}
+  - {in: "Caf&eacute;", out: "Café", why: accented named entity}
+  - {in: "Ni&ntilde;o", out: "Niño", why: Spanish entity}
+  - {in: "Ãœber", out: "Über", why: capital U umlaut mojibake}
+keep:
+  - {in: "SÃO PAULO", why: legitimate capital A tilde}
+  - {in: "São Paulo", why: correct Portuguese}
+  - {in: "Ñandú", why: correct Spanish capital N tilde}
+  - {in: "Ð Ð", why: lone Latin eth letters that do not decode}
+  - {in: "Café", why: already correct}
+  - {in: "Rock & Roll", why: plain ampersand}
+  - {in: "R&B Classics", why: ampersand without entity}
+  - {in: "AT&T", why: ampersand inside a word}
+  - {in: "Mötley Crüe", why: correct umlauts}
+  - {in: "Æon Flux", why: AE ligature}
+  - {in: "Øresund", why: Nordic O stroke}
+  - {in: "Âme", why: real artist name starting with A circumflex}

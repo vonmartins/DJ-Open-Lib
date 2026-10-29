@@ -190,7 +190,9 @@ def test_json_is_complete() -> None:
 
     assert (document["format"], document["version"]) == (JSON_FORMAT, JSON_VERSION)
     assert len(document["tracks"]) == 500
-    assert document["tracks"][499]["fields"] == [{"field": "bpm", "before": 126.0, "after": 128.0}]
+    assert document["tracks"][499]["fields"] == [
+        {"field": "bpm", "before": 126.0, "after": 128.0, "by": None}
+    ]
     assert document["result"] is None
 
 
@@ -240,6 +242,6 @@ def test_added_track_fields_only_in_json() -> None:
     (document,) = to_json(plan)["tracks"]  # type: ignore[misc]
     assert document["name"] == "New"  # type: ignore[index]
     assert document["fields"] == [  # type: ignore[index]
-        {"field": "title", "before": None, "after": "New"},
-        {"field": "bpm", "before": None, "after": 128.0},
+        {"field": "title", "before": None, "after": "New", "by": None},
+        {"field": "bpm", "before": None, "after": 128.0, "by": None},
     ]

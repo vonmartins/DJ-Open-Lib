@@ -132,4 +132,11 @@ class RelocateTrack:
     path_origin: str
 
 
-LibraryOperation: TypeAlias = ScanOperation | ImportOperation | RelocateTrack
+@dataclass(frozen=True, slots=True)
+class EditTrack:
+    """The track's fields were edited in djlib (by fixes or rules); its path stays."""
+
+    track: Track
+
+
+LibraryOperation: TypeAlias = ScanOperation | ImportOperation | RelocateTrack | EditTrack

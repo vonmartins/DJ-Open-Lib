@@ -117,6 +117,58 @@ uv run djlib --home /tmp/djlib-try relocate ~/Elements/Music --apply
 - Walking a large or remote folder (sshfs, NAS) can take a while; `relocate`, `scan`
   and `--find-in` show how many files they have seen so far.
 
+### Cleaning tags
+
+```sh
+uv run djlib --home /tmp/djlib-try fix                       # show what would change
+uv run djlib --home /tmp/djlib-try fix --apply
+uv run djlib --home /tmp/djlib-try fix --only remove_urls,extract_featured
+```
+
+Every change in the plan says which fix or rule made it. Only djlib's library changes;
+audio files are never touched, and later scans and imports keep your fixed values.
+
+| Fix | What it does | On by default |
+|---|---|---|
+| `title_from_file_name` | fills a missing title (and artist) from `Artist - Title.mp3` | yes |
+| `fix_encoding` | repairs `CafÃ©` → `Café` and `&amp;` → `&` | yes |
+| `normalize_characters` | full-width `：` → `:` (outside CJK text), odd and repeated spaces | yes |
+| `remove_urls` | `Glue (freebeats.com)` → `Glue`, also `http…` and `www.…` | yes |
+| `remove_video_ids` | `Glue [dOFq-swCWro]` → `Glue` | yes |
+| `underscores_to_spaces` | `Sunrise_Overlook_320` → `Sunrise Overlook 320` | yes |
+| `remove_leading_number` | `03 - Glue` → `Glue` | yes |
+| `extract_featured` | `Storm (feat. Mira)` → title `Storm`, artist `… feat. Mira` | yes |
+| `extract_remixer` | fills the remixer from `(Tom Ray Remix)`, title unchanged | yes |
+| `fix_case` | `whisper of the trees` → `Whisper of the Trees` | no: one-case titles are often deliberate (`HUMBLE.`, `bad guy`) |
+
+Put a `rules.yaml` in the djlib home (or pass `--rules FILE`) to tune fixes and add
+your own rules:
+
+```yaml
+fixes:
+  extract_featured: false        # keep guests in titles
+  fix_case:                      # enable, with names to keep as written
+    keep: [DJ, MC, SBTRKT]
+rules:
+  - id: no-year-in-title
+    when: {field: title, op: matches, value: ' \[\d{4}\]$'}
+    then: {replace: title, pattern: ' \[\d{4}\]$', with: ''}
+  - id: one-dnb-genre
+    match: any
+    when:
+      - {field: genre, op: equals, value: DnB}
+      - {field: genre, op: equals, value: Drum n Bass}
+    then: {set: genre, value: Drum And Bass}
+```
+
+Conditions take a `field` (any track field, such as `title`, `bpm`, `key`, `date_added`
+or `tags`), an `op` and a `value` (or `values`):
+
+- text: `equals`, `not_equals`, `contains`, `not_contains`, `starts_with`, `ends_with`,
+  `in`, `matches` (a regular expression); case is ignored except by `matches`;
+- numbers and dates: `equals`, `not_equals`, `gt`, `gte`, `lt`, `lte`, `in`;
+- anything: `empty`, `not_empty`.
+
 ### Exporting to Mixxx
 
 Quit Mixxx first: djlib refuses to write while Mixxx runs.

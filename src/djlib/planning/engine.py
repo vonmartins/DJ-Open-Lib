@@ -17,6 +17,7 @@ from djlib.model.library import Library
 from djlib.planning.diff import diff_export, diff_scan
 from djlib.planning.errors import ApplyFailedError, PlanError, StaleTargetError
 from djlib.planning.exporting import export_bases, merge_export, target_paths
+from djlib.planning.fixing import plan_fix
 from djlib.planning.importing import plan_import
 from djlib.planning.model import (
     LIBRARY_TARGET,
@@ -29,6 +30,7 @@ from djlib.planning.model import (
 from djlib.planning.relocating import Progress, plan_relocate
 from djlib.planning.selection import covered, fingerprints, modified, resolve_paths, target_name
 from djlib.planning.writer import DirectoryTracker, WriteFile, write_atomically
+from djlib.rules.ruleset import RuleSet
 from djlib.snapshots import SnapshotStore
 from djlib.sources.folder_scan import scan_folder
 from djlib.store import Store, StoreError
@@ -126,6 +128,18 @@ class Engine:
             rebased=imported.rebased,
             conflicts=imported.conflicts,
             warnings=imported.warnings,
+        )
+
+    def plan_fix(self, ruleset: RuleSet) -> Plan:
+        """Plan the edits that ``ruleset``'s fixes and rules make to the library's tracks."""
+        revision = self.store.revision()
+        fixed = plan_fix(self.store, ruleset)
+        return Plan(
+            target=LIBRARY_TARGET,
+            title="fix tags",
+            action=LibraryAction(operations=fixed.operations, base_revision=revision),
+            tracks=fixed.tracks,
+            warnings=fixed.warnings,
         )
 
     def plan_relocate(self, folder: str | os.PathLike[str]) -> Plan:

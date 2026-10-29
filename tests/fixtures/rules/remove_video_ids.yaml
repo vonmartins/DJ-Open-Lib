@@ -1,0 +1,25 @@
+fix: remove_video_ids
+change:
+  - {in: "Night Drive (Tom Ray Remix) [aB3x-9Kq_Zt]", out: "Night Drive (Tom Ray Remix)", why: YouTube id at the end}
+  - {in: "Acid Trip [dOFq-swCWro]", out: "Acid Trip", why: id with a dash}
+  - {in: "Glue [Xy7_kLmNp0Q]", out: "Glue", why: id with an underscore}
+  - {in: "Glue [abcDEFghiJK]", out: "Glue", why: letters only with irregular case}
+  - {in: "Glue [0aB1cD2eF3g]", out: "Glue", why: digits and letters}
+  - {in: "Glue  [aB3x-9Kq_Zt]", out: "Glue", why: extra spaces before}
+  - {in: "Glue [aB3x-9Kq_Zt] ", out: "Glue", why: trailing space}
+  - {in: "Some Title (Live) [Q1w2E3r4T5y]", out: "Some Title (Live)", why: after other brackets}
+  - {in: "Набор [aB3x-9Kq_Zt]", out: "Набор", why: non-Latin title}
+  - {in: "Glue [-aB3x9Kq_Zt]", out: "Glue", why: starting with a dash}
+keep:
+  - {in: "Night Drive [CATNO123456]", why: one-case catalogue number}
+  - {in: "Session [ABCDEFGHIJK]", why: upper case only}
+  - {in: "Session [abcdefghijk]", why: lower case only}
+  - {in: "Version [ExtendedMix]", why: camel-case words}
+  - {in: "Mix [ExtendedDub]", why: camel-case words of 11 letters}
+  - {in: "Glue [aB3x-9Kq_Zt] Live", why: id not at the end}
+  - {in: "Glue [aB3x-9Kq]", why: too short}
+  - {in: "Glue [aB3x-9Kq_Zt1]", why: too long}
+  - {in: "Glue (aB3x-9Kq_Zt)", why: parentheses, not brackets}
+  - {in: "Neolithic [T-FILE-EP004_3]", why: catalogue code}
+  - {in: "Title [2016 Remaster]", why: words with a space}
+  - {in: "[aB3x-9Kq_Zt]", why: the id is the whole title}

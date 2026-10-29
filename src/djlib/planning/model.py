@@ -25,6 +25,8 @@ class FieldChange:
     field: str
     before: Any
     after: Any
+    by: str | None = None
+    """What made the change, such as a fix name or rule id, when it is known."""
 
 
 @dataclass(frozen=True, slots=True, kw_only=True)

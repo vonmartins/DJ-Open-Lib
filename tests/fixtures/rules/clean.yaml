@@ -1,0 +1,410 @@
+# Clean values that no default fix may change. Real, public titles and names (and a
+# few invented ones) chosen to sit close to what the fixes look for. Group names are
+# only for reading failures.
+
+electronic:
+- {artist: Bicep, title: Glue, album: Isles}
+- {artist: Daft Punk, title: One More Time, album: Discovery}
+- {artist: deadmau5, title: Strobe, album: For Lack of a Better Name}
+- {artist: SBTRKT, title: Wildfire}
+- {artist: MNDSCP, title: Tension (Original Mix)}
+- {artist: DFRNT, title: Fractured (Extended Mix)}
+- {artist: Calibre, title: Mr Maker}
+- {artist: Noisia, title: Stigma (VIP)}
+- {artist: Photek, title: Ni Ten Ichi Ryu (Two Swords Technique)}
+- {artist: Goldie, title: Inner City Life}
+- {artist: LTJ Bukem, title: Horizons}
+- {artist: Burial, title: Archangel, album: Untrue}
+- {artist: Skream, title: Midnight Request Line}
+- {artist: Four Tet, title: Baby}
+- {artist: Aphex Twin, title: '#3', album: Selected Ambient Works Volume II}
+- {artist: Aphex Twin, title: Avril 14th}
+- {artist: Squarepusher, title: Come On My Selector}
+- {artist: Boards of Canada, title: Roygbiv}
+- {artist: The Chemical Brothers, title: Hey Boy Hey Girl}
+- {artist: Underworld, title: Born Slippy .NUXX}
+- {artist: Orbital, title: Halcyon + On + On}
+- {artist: Mr. Oizo, title: Flat Beat}
+- {artist: Justice, title: D.A.N.C.E.}
+- {artist: Basement Jaxx, title: Where's Your Head At}
+- {artist: Fatboy Slim, title: 'Right Here, Right Now'}
+- {artist: Moby, title: Porcelain}
+- {artist: Massive Attack, title: Teardrop, album: Mezzanine}
+- {artist: Portishead, title: Glory Box}
+- {artist: Röyksopp, title: Eple}
+- {artist: Kölsch, title: Grey}
+- {artist: Âme, title: Rej}
+- {artist: Paul Kalkbrenner, title: Sky and Sand}
+- {artist: Stephan Bodzin, title: Powers of Ten}
+- {artist: Ben Klock, title: Subzero}
+- {artist: Jeff Mills, title: The Bells}
+- {artist: Carl Craig, title: At Les}
+- {artist: Laurent Garnier, title: The Man With the Red Face}
+- {artist: DJ Shadow, title: Midnight in a Perfect World}
+- {artist: DJ Koze, title: Pick Up}
+- {artist: MK, title: Burning (MK Dub)}
+- {artist: Black Sun Empire, title: Arrakis, album: Driving Insane}
+- {artist: Black Sun Empire & Corrupt Souls, title: Stealth}
+- {artist: Concord Dawn, title: Morning Light}
+- {artist: Pendulum, title: Tarantula}
+- {artist: Sub Focus, title: Timewarp}
+- {artist: Chase & Status, title: Blind Faith}
+- {artist: Netsky, title: Iron Heart}
+- {artist: Dimension, title: UK}
+- {artist: Camo & Krooked, title: Climax}
+- {artist: High Contrast, title: If We Ever}
+- {artist: Hospital Records, title: Sick Music 2}
+- {artist: Rusko, title: Cockney Thug (Caspa Remix), remixer: Caspa}
+- {artist: Benga, title: Night (Coki Remix), remixer: Coki}
+- {artist: Skrillex, title: Scary Monsters and Nice Sprites}
+- {artist: Flume, title: Never Be Like You}
+- {artist: ODESZA, title: Say My Name}
+- {artist: Disclosure, title: Latch}
+- {artist: Jamie xx, title: Gosh}
+- {artist: Floating Points, title: 'Silhouettes (I, II & III)'}
+- {artist: Caribou, title: Can't Do Without You}
+- {artist: Kraftwerk, title: Trans-Europa Express}
+- {artist: Kraftwerk, title: Computerwelt}
+- {artist: Giorgio Moroder, title: Chase}
+- {artist: Jean-Michel Jarre, title: 'Oxygène, Pt. 4'}
+- {artist: Vangelis, title: Blade Runner Blues}
+- {artist: Ricardo Villalobos, title: Dexter}
+- {artist: Amelie Lens, title: Hypnotized}
+- {artist: Charlotte de Witte, title: Selected}
+- {artist: Nina Kraviz, title: Ghetto Kraviz}
+- {artist: Peggy Gou, title: (It Goes Like) Nanana}
+- {artist: Fred again.., title: Marea (We've Lost Dancing)}
+- {artist: Overmono, title: So U Kno}
+- {artist: Objekt, title: Ganzfeld}
+- {artist: Shed, title: Another Wave From You}
+- {artist: '2562', title: Third Wave}
+- {artist: '666', title: Alarma!}
+- {artist: '!!!', title: Must Be the Moon}
+- {artist: Unknown Artist, title: Untitled}
+- {artist: Ripperton, title: Unexpected Pleasures, album: Niwa EP}
+- {title: 'White Label 001 [WHITE001]'}
+- {title: 'Track B2 [CAT 042]'}
+- {title: 'Dubplate [DUB-07]'}
+- {title: 'Promo [PROMO2024]'}
+- {title: 'Night Drive [CATNO123456]'}
+- {title: 'Session [ABCDEFGHIJK]'}
+- {title: 'Version [ExtendedMix]'}
+- {title: 'Mixtape [RadioEdit1]'}
+- {title: 'Neolithic [T-FILE-EP004_3]'}
+- {title: Original Mix}
+- {title: Re-Edit}
+- {title: Bootleg}
+- {title: VIP}
+- {title: Dub}
+
+hip_hop:
+- {artist: Kendrick Lamar, title: HUMBLE., album: DAMN.}
+- {artist: Kendrick Lamar, title: DNA.}
+- {artist: Kendrick Lamar, title: LOYALTY.}
+- {artist: JAY-Z, title: 99 Problems}
+- {artist: JAY-Z, title: '4:44'}
+- {artist: LL Cool J, title: 4 - 3 - 2 - 1}
+- {artist: OutKast, title: Ms. Jackson}
+- {artist: Wu-Tang Clan, title: C.R.E.A.M.}
+- {artist: A Tribe Called Quest, title: 'Can I Kick It?'}
+- {artist: Run-DMC, title: It's Tricky}
+- {artist: N.W.A, title: Express Yourself}
+- {artist: The Notorious B.I.G., title: Juicy}
+- {artist: 2Pac, title: California Love}
+- {artist: MF DOOM, title: Rapp Snitch Knishes}
+- {artist: Madvillain, title: Accordion}
+- {artist: J Dilla, title: Don't Cry}
+- {artist: Nas, title: N.Y. State of Mind}
+- {artist: Mos Def, title: Ms. Fat Booty}
+- {artist: Eminem, title: Lose Yourself}
+- {artist: Kanye West, title: Runaway}
+- {artist: Jay-Z & Kanye West, title: Otis}
+- {artist: Drake feat. Rihanna, title: Take Care}
+- {artist: Kendrick Lamar feat. SZA, title: All the Stars}
+- {artist: Travis Scott, title: SICKO MODE}
+- {artist: Run The Jewels, title: Legend Has It}
+- {artist: Dizzee Rascal, title: 'Fix Up, Look Sharp'}
+- {artist: Skepta, title: Shutdown}
+- {artist: Stormzy, title: Shut Up}
+- {artist: Little Simz, title: Venom}
+- {artist: Lil Nas X, title: Old Town Road}
+- {artist: 'Tyler, The Creator', title: EARFQUAKE}
+- {artist: $uicideboy$, title: Paris}
+- {artist: 21 Savage, title: a lot}
+- {artist: Cypress Hill, title: Insane in the Brain}
+- {artist: Mobb Deep, title: 'Shook Ones, Pt. II'}
+- {artist: De La Soul, title: Me Myself and I}
+- {artist: Beastie Boys, title: Sabotage}
+- {artist: Missy Elliott, title: Get Ur Freak On}
+- {artist: Lauryn Hill, title: Doo Wop (That Thing)}
+
+pop_rock:
+- {artist: Billie Eilish, title: bad guy, album: 'WHEN WE ALL FALL ASLEEP, WHERE DO WE GO?'}
+- {artist: Ariana Grande, title: 'thank u, next'}
+- {artist: Ariana Grande, title: 7 rings}
+- {artist: Radiohead, title: 2 + 2 = 5}
+- {artist: Radiohead, title: Paranoid Android, album: OK Computer}
+- {artist: Radiohead, title: Everything in Its Right Place, album: Kid A}
+- {artist: The Smashing Pumpkins, title: '1979'}
+- {artist: AC/DC, title: Back in Black}
+- {artist: Guns N' Roses, title: Sweet Child o' Mine}
+- {artist: Blue Öyster Cult, title: (Don't Fear) The Reaper}
+- {artist: Motörhead, title: Ace of Spades}
+- {artist: Mötley Crüe, title: Kickstart My Heart}
+- {artist: The Beatles, title: I Want to Hold Your Hand, album: Meet the Beatles!}
+- {artist: The Beatles, title: 'Ob-La-Di, Ob-La-Da'}
+- {artist: Queen, title: Bohemian Rhapsody, album: A Night at the Opera}
+- {artist: David Bowie, title: Heroes}
+- {artist: Prince, title: '1999'}
+- {artist: Prince, title: Nothing Compares 2 U}
+- {artist: U2, title: Sunday Bloody Sunday}
+- {artist: R.E.M., title: Losing My Religion}
+- {artist: The B-52's, title: Love Shack}
+- {artist: Sinéad O'Connor, title: Nothing Compares 2 U}
+- {artist: Paul McCartney, title: Maybe I'm Amazed}
+- {artist: Fleetwood Mac, title: Go Your Own Way}
+- {artist: 'Earth, Wind & Fire', title: September}
+- {artist: Simon & Garfunkel, title: Mrs. Robinson}
+- {artist: 'Crosby, Stills, Nash & Young', title: Ohio}
+- {artist: alt-J, title: Breezeblocks}
+- {artist: MØ, title: Final Song}
+- {artist: t.A.T.u., title: All the Things She Said}
+- {artist: will.i.am, title: Scream & Shout}
+- {artist: P!nk, title: So What}
+- {artist: Ke$ha, title: TiK ToK}
+- {artist: Sigur Rós, title: Hoppípolla}
+- {artist: Björk, title: Jóga}
+- {artist: Mumford & Sons, title: Little Lion Man}
+- {artist: Florence + the Machine, title: Dog Days Are Over}
+- {artist: The Who, title: Baba O'Riley}
+- {artist: Led Zeppelin, title: Stairway to Heaven, album: Led Zeppelin IV}
+- {artist: Pink Floyd, title: Shine On You Crazy Diamond (Pts. 1-5)}
+- {artist: Nirvana, title: Smells Like Teen Spirit}
+- {artist: The Clash, title: London Calling (Remastered 2019)}
+- {artist: The Cure, title: Lovesong (Live)}
+- {artist: Arctic Monkeys, title: 'Do I Wanna Know?'}
+- {artist: Tame Impala, title: The Less I Know the Better}
+- {artist: Beyoncé, title: Crazy in Love}
+- {artist: Rosalía, title: MALAMENTE (Cap.1 Augurio)}
+- {artist: Rosalía, title: DESPECHÁ}
+- {artist: Bad Bunny, title: Tití Me Preguntó}
+- {artist: Daddy Yankee, title: Gasolina}
+- {artist: Luis Fonsi & Daddy Yankee, title: Despacito}
+- {artist: Shakira, title: Hips Don't Lie}
+- {artist: Héroes del Silencio, title: Entre dos tierras}
+- {artist: Café Tacvba, title: Eres}
+- {artist: Soda Stereo, title: De música ligera}
+- {artist: Los Planetas, title: Segundo premio}
+- {artist: Ojete Calor, title: Opino de que}
+- {artist: Caetano Veloso, title: Sozinho}
+- {artist: Jorge Ben Jor, title: Mas Que Nada}
+- {artist: Gal Costa, title: Baby}
+- {artist: Stromae, title: Alors on danse}
+- {artist: Édith Piaf, title: 'Non, je ne regrette rien'}
+- {artist: Serge Gainsbourg, title: Je t'aime... moi non plus}
+- {artist: Françoise Hardy, title: Tous les garçons et les filles}
+- {artist: ABBA, title: Dancing Queen}
+- {artist: a-ha, title: Take On Me}
+- {artist: Rammstein, title: Du hast}
+- {artist: Nena, title: 99 Luftballons}
+- {artist: Zaz, title: Je veux}
+- {artist: Dua Lipa, title: Don't Start Now}
+- {artist: The Weeknd, title: Blinding Lights}
+- {artist: The xx, title: Intro}
+- {artist: CHVRCHES, title: The Mother We Share}
+- {artist: LCD Soundsystem, title: All My Friends}
+- {artist: Hot Chip, title: Over and Over}
+- {artist: MGMT, title: Kids}
+- {artist: blink-182, title: All the Small Things}
+- {artist: Panic! at the Disco, title: I Write Sins Not Tragedies}
+- {artist: Fall Out Boy, title: 'Sugar, We''re Goin Down'}
+- {artist: Twenty One Pilots, title: Stressed Out}
+- {artist: The Killers, title: Mr. Brightside}
+
+classical_jazz_soundtrack:
+- {artist: Ludwig van Beethoven, title: 'Symphony No. 5 in C Minor, Op. 67: I. Allegro con brio'}
+- {artist: Johann Sebastian Bach, title: 'Cello Suite No. 1 in G Major, BWV 1007: I. Prélude'}
+- {artist: Wolfgang Amadeus Mozart, title: 'Requiem in D Minor, K. 626: III. Sequentia: Lacrimosa'}
+- {artist: Pyotr Ilyich Tchaikovsky, title: 'The Nutcracker, Op. 71: No. 14c Pas de deux'}
+- {artist: Antonio Vivaldi, title: 'The Four Seasons: Spring, RV 269: I. Allegro'}
+- {artist: Erik Satie, title: Gymnopédie No. 1}
+- {artist: Claude Debussy, title: 'Suite bergamasque, L. 75: III. Clair de lune'}
+- {artist: Frédéric Chopin, title: 'Nocturne No. 2 in E-Flat Major, Op. 9 No. 2'}
+- {artist: Arvo Pärt, title: Spiegel im Spiegel}
+- {artist: Philip Glass, title: 'Glassworks: I. Opening'}
+- {artist: Steve Reich, title: 'Music for 18 Musicians: Pulses'}
+- {artist: Max Richter, title: On the Nature of Daylight}
+- {artist: Ólafur Arnalds, title: Saman}
+- {artist: Miles Davis, title: So What, album: Kind of Blue}
+- {artist: John Coltrane, title: 'A Love Supreme, Pt. I – Acknowledgement'}
+- {artist: Dave Brubeck Quartet, title: Take Five}
+- {artist: Thelonious Monk, title: '''Round Midnight'}
+- {artist: Charles Mingus, title: Moanin'}
+- {artist: Herbie Hancock, title: Cantaloupe Island}
+- {artist: Bill Evans Trio, title: 'Waltz for Debby (Live at the Village Vanguard, 1961)'}
+- {artist: Ella Fitzgerald & Louis Armstrong, title: Dream a Little Dream of Me}
+- {artist: Hans Zimmer, title: Time, album: Inception (Music from the Motion Picture)}
+- {artist: Vangelis, title: Chariots of Fire - Titles}
+- {artist: John Williams, title: Main Title (From "Star Wars")}
+- {artist: Ennio Morricone, title: L'estasi dell'oro}
+- {artist: Joe Hisaishi, title: One Summer's Day}
+- {artist: Koji Kondo, title: Super Mario Bros. Theme}
+- {artist: Nobuo Uematsu, title: Prelude, album: Final Fantasy VII}
+- {artist: Daft Punk, title: Derezzed, album: 'TRON: Legacy'}
+- {title: 'Prelude in C Major, BWV 846'}
+- {title: 'Act II, Scene 3: Duet'}
+- {title: Opus 40}
+
+scripts:
+- {artist: 坂本龍一, title: 戦場のメリークリスマス}
+- {artist: 宇多田ヒカル, title: First Love}
+- {artist: YOASOBI, title: 夜に駆ける}
+- {artist: ももいろクローバーZ, title: 行くぜっ！怪盗少女}
+- {artist: きゃりーぱみゅぱみゅ, title: PONPONPON}
+- {artist: 米津玄師, title: Lemon}
+- {artist: 周杰伦, title: 晴天}
+- {artist: 王菲, title: 红豆}
+- {artist: 方大同, title: 爱爱爱}
+- {artist: BTS, title: 봄날 (Spring Day)}
+- {artist: BLACKPINK, title: 뚜두뚜두 (DDU-DU DDU-DU)}
+- {artist: IU, title: 좋은 날}
+- {artist: Кино, title: Группа крови}
+- {artist: ДДТ, title: Что такое осень}
+- {artist: Земфира, title: 'Хочешь?'}
+- {artist: Монеточка, title: Каждый раз}
+- {artist: Βασίλης Τσιτσάνης, title: Συννεφιασμένη Κυριακή}
+- {artist: Μίκης Θεοδωράκης, title: Ζορμπάς}
+- {artist: فيروز, title: نسم علينا الهوى}
+- {artist: أم كلثوم, title: أنت عمري}
+- {artist: עומר אדם, title: תל אביב}
+- {artist: Ofra Haza, title: Im Nin'Alu}
+- {artist: A. R. Rahman, title: Jai Ho}
+- {artist: लता मंगेशकर, title: लग जा गले}
+- {artist: Tarkan, title: Şımarık}
+- {artist: Barış Manço, title: Gülpembe}
+- {artist: Sezen Aksu, title: Firuze}
+- {artist: Sơn Tùng M-TP, title: Lạc Trôi}
+- {artist: Dawid Podsiadło, title: Małomiasteczkowy}
+- {artist: Czesław Niemen, title: Dziwny jest ten świat}
+- {artist: Kaizers Orchestra, title: Ompa til du dør}
+- {artist: Raggarna, title: Därför är jag här}
+- {artist: Þursaflokkurinn, title: Pínulítill karl}
+- {artist: Cesária Évora, title: Sodade}
+- {artist: Amadou & Mariam, title: Dimanche à Bamako}
+- {artist: Fela Kuti, title: Water No Get Enemy}
+- {artist: Ladysmith Black Mambazo, title: Homeless}
+- {artist: Invented Artist, title: Sunrise 🌅}
+- {artist: Invented Artist, title: ✨ Sparkle ✨}
+- {artist: Invented Artist, title: Love ❤ You}
+
+punctuation_and_numbers:
+- {title: '6.13'}
+- {title: '1'}
+- {title: '10'}
+- {title: '007'}
+- {title: '3.14159'}
+- {title: v2.0}
+- {title: Track 1}
+- {title: Part 2}
+- {title: Pt. 2}
+- {title: Vol. 3}
+- {title: No. 5}
+- {title: Chapter IV}
+- {title: Rocky II}
+- {title: Movement III}
+- {title: Opus 9 Number 2}
+- {title: '10:15 Saturday Night'}
+- {title: 24/7}
+- {title: 1/2}
+- {title: 50/50}
+- {title: 9 to 5}
+- {title: '1, 2, 3, 4'}
+- {title: 1-2-3}
+- {title: 100%}
+- {title: '#1 Crush'}
+- {title: A.M.}
+- {title: P.S. I Love You}
+- {title: U.N.I.T.Y.}
+- {title: I.O.U.}
+- {title: Don't Stop Me Now}
+- {title: Rock 'n' Roll}
+- {title: Rock ’n’ Roll}
+- {title: It’s Alright}
+- {title: '"Quoted" Title'}
+- {title: “Curly” Quotes}
+- {title: «Guillemets»}
+- {title: „Low Quotes“}
+- {title: Wait…}
+- {title: Hello...}
+- {title: Yes!}
+- {title: 'Why?'}
+- {title: '¿Por qué?'}
+- {title: '¡Ay, caramba!'}
+- {title: Now & Then}
+- {title: Him + Her}
+- {title: Mother/Father}
+- {title: Love—Hate}
+- {title: East – West}
+- {title: Half-Life}
+- {title: Spider-Man}
+- {title: Re-Run}
+- {title: (Untitled)}
+- {title: (Sic)}
+- {title: Intro (Live)}
+- {title: 'Outro [Bonus Track]'}
+- {title: 'Interlude [Skit]'}
+- {title: Song (Demo)}
+- {title: Song (Acoustic Version)}
+- {title: Song (Instrumental)}
+- {title: Song (Radio Edit)}
+- {title: Song (Extended Mix)}
+- {title: Song (Club Mix)}
+- {title: Song (Dub Mix)}
+- {title: Song (Original Mix)}
+- {title: Song (Mixed)}
+- {title: Song - Live at Wembley}
+- {title: Song - 2011 Remaster}
+- {title: Song - From "Some Film"}
+- {title: A - B}
+- {title: Here - There}
+- {title: 'Title: Subtitle'}
+- {title: Title; Subtitle}
+- {title: Title / Subtitle}
+- {title: 'Title (Part One) [Bonus]'}
+- {title: '[Bracketed] Title'}
+- {title: 'Title [Explicit]'}
+- {title: 'Title [Clean]'}
+- {title: 'Title [2016 Remaster]'}
+- {title: The Long and Winding Road}
+- {title: In the End}
+- {title: Of Monsters and Men}
+- {title: Dot Com Blues}
+- {title: Visit the Website}
+- {title: www}
+- {title: http}
+- {title: Feat of Clay}
+- {title: Little Feat}
+- {title: The Featuring Act}
+- {title: Featuring}
+- {title: Fit for Purpose}
+- {title: Remix Culture}
+- {title: Remixed Feelings}
+- {title: The Remix}
+- {title: Mix Tape}
+- {title: 01 Monday}
+- {title: 1979 - The Year}
+- {title: 2001 A Space Odyssey}
+- {title: 3 Feet High and Rising}
+- {title: 5 Years}
+- {title: 101 Dalmatians}
+- {artist: _ensnare_, title: Ruins}
+- {artist: lo_fi_artist, title: Calm}
+- {artist: Ra_ra, title: Cool}
+- {album: OST, title: Main Theme}
+- {album: Now That's What I Call Music! 100, title: Hit}
+- {album: The Very Best of, title: Classic}
+- {album: 'Greatest Hits, Vol. 1', title: Hit}
+- {album: Live at the Apollo (1962), title: Opening}
+- {album: Fabric 20 - John Digweed, title: Opening}
+- {album: Back to Mine, title: Mix}
+

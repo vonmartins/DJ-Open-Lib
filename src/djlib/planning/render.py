@@ -102,6 +102,7 @@ def _track_lines(change: TrackChange) -> list[str]:
         return lines  # one line each; the JSON rendering lists their fields
     lines.extend(
         f"      {f.field}: {text_value(f.field, f.before)} → {text_value(f.field, f.after)}"
+        + (f"  ({f.by})" if f.by else "")
         for f in change.fields
     )
     return lines
@@ -206,7 +207,12 @@ def _track_json(change: TrackChange) -> dict[str, JSONValue]:
         "old_path": change.old_path,
         "name": change.name,
         "fields": [
-            {"field": f.field, "before": json_value(f.before), "after": json_value(f.after)}
+            {
+                "field": f.field,
+                "before": json_value(f.before),
+                "after": json_value(f.after),
+                "by": f.by,
+            }
             for f in change.fields
         ],
     }

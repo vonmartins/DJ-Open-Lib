@@ -1,0 +1,100 @@
+# Messy names from real-world downloads and rips, supplied by the user. Untagged files
+# with these names, and titles with these values, must never make the fixes fail or
+# loop; the expected results pin what the fixes already get right.
+
+file_names:
+- name: 01 -  Daft Punk  -  Around   the World.mp3
+- name: the weeknd - blinding lights (official video).mp3
+- name: 'Artist: Kavinsky | Title: Nightcall.mp3'
+- name: Luna__Nocturna---Ecos_del_Ayer.mp3
+- name: DJ TEST - TRACK_001_FINAL_FINAL_v3.mp3
+- name: MØ - Königsforst (feat. Björk) [Official Audio].mp3
+  expected:
+    artist: MØ feat. Björk
+    title: Königsforst [Official Audio]
+- name: AURORA - Runaway (Live @ Oslo, 2024).mp3
+  expected:
+    artist: AURORA
+    title: Runaway (Live @ Oslo, 2024)
+- name: '  Neon Dreams    (Extended     Mix)  .flac'
+  expected:
+    title: Neon Dreams (Extended Mix)
+- name: Artist=Nova;Title=Glass Hearts;Album=Afterlight.mp3
+- name: Música para tí — versión nº 2.mp3
+- name: AC_DC - Back_In_Black.mp3
+- name: artist - title (prod. by producer).mp3
+- name: '[FREE DOWNLOAD] Solar Drift - Gravity.mp3'
+- name: 💿🌌 Starlight ✨ (Remastered 2025).mp3
+  expected:
+    title: 💿🌌 Starlight ✨ (Remastered 2025)
+- name: 100%_Pure_Love_(Radio_Edit).mp3
+  expected:
+    title: 100% Pure Love (Radio Edit)
+- name: Beyoncé - Déjà Vu.mp3
+  expected:
+    artist: Beyoncé
+    title: Déjà Vu
+- name: The Artist feat. Another Artist ft. Third Artist - Together.mp3
+  expected:
+    artist: The Artist feat. Another Artist ft. Third Artist
+    title: Together
+- name: Unknown Artist - Untitled.mp3
+- name: track01.mp3
+- name: FINAL MIX (2) - FINAL MASTER.wav
+- name: Lofi Girl - rainy day ☔ [1 hour loop].mp3
+- name: MIXTAPE VOL.01 TRACK 07.mp3
+- name: The "Midnight" Project - Don't Stop!.mp3
+- name: Artist — Song Title [320kbps] [FLAC].mp3
+- name: ambient___space___drifting.mp3
+  expected:
+    title: ambient space drifting
+- name: Søren & Æther - Ørbit.mp3
+  expected:
+    artist: Søren & Æther
+    title: Ørbit
+- name: K-391 x Alan Walker - Ignite.mp3
+  expected:
+    artist: K-391 x Alan Walker
+    title: Ignite
+- name: Song Name (feat. Artist) (feat. Other Artist).mp3
+- name: Café del Mar – Niño’s Lullaby.mp3
+- name: artist name - song name (official lyrics) [HD].mp3
+- name: Track Name (Original Mix) (Extended Mix).mp3
+  expected:
+    title: Track Name (Original Mix) (Extended Mix)
+titles:
+- 01 -  Daft Punk  -  Around   the World.mp3
+- the weeknd - blinding lights (official video).mp3
+- 'Artist: Kavinsky | Title: Nightcall.mp3'
+- https://music.example.com/track/aurora-signal.mp3
+- Luna__Nocturna---Ecos_del_Ayer.mp3
+- DJ TEST - TRACK_001_FINAL_FINAL_v3.mp3
+- MØ - Königsforst (feat. Björk) [Official Audio].mp3
+- AURORA - Runaway (Live @ Oslo, 2024).mp3
+- '  Neon Dreams    (Extended     Mix)  .flac'
+- Artist=Nova;Title=Glass Hearts;Album=Afterlight.mp3
+- https://youtu.be/AbCdEf12345 - Silent Waves.mp3
+- Música para tí — versión nº 2.mp3
+- AC_DC - Back_In_Black.mp3
+- artist - title (prod. by producer).mp3
+- '[FREE DOWNLOAD] Solar Drift - Gravity.mp3'
+- 💿🌌 Starlight ✨ (Remastered 2025).mp3
+- 100%_Pure_Love_(Radio_Edit).mp3
+- Beyoncé - Déjà Vu.mp3
+- The Artist feat. Another Artist ft. Third Artist - Together.mp3
+- Unknown Artist - Untitled.mp3
+- track01.mp3
+- FINAL MIX (2) - FINAL MASTER.wav
+- Lofi Girl - rainy day ☔ [1 hour loop].mp3
+- MIXTAPE VOL.01 TRACK 07.mp3
+- Nova / Echo - Parallel Worlds.mp3
+- The "Midnight" Project - Don't Stop!.mp3
+- Artist — Song Title [320kbps] [FLAC].mp3
+- ambient___space___drifting.mp3
+- Søren & Æther - Ørbit.mp3
+- K-391 x Alan Walker - Ignite.mp3
+- Song Name (feat. Artist) (feat. Other Artist).mp3
+- https://example.com/music?id=12345&ref=playlist
+- Café del Mar – Niño’s Lullaby.mp3
+- artist name - song name (official lyrics) [HD].mp3
+- Track Name (Original Mix) (Extended Mix).mp3
