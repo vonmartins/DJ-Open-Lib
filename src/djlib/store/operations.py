@@ -139,4 +139,25 @@ class EditTrack:
     track: Track
 
 
-LibraryOperation: TypeAlias = ScanOperation | ImportOperation | RelocateTrack | EditTrack
+@dataclass(frozen=True, slots=True)
+class MergeTracks:
+    """Duplicates merged into ``keeper``: they leave the library, it takes their place.
+
+    ``keeper`` holds the merged values. The merged tracks' playlist entries become the
+    keeper's, and their paths and source item links are remembered as merged into it.
+    """
+
+    keeper: Track
+    merged: tuple[TrackId, ...]
+
+
+@dataclass(frozen=True, slots=True)
+class IgnoreDuplicates:
+    """These tracks were marked as not duplicates of each other."""
+
+    track_ids: frozenset[TrackId]
+
+
+LibraryOperation: TypeAlias = (
+    ScanOperation | ImportOperation | RelocateTrack | EditTrack | MergeTracks | IgnoreDuplicates
+)

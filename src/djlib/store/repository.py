@@ -30,9 +30,11 @@ from djlib.store.operations import (
     AddImportedTrack,
     AddTrack,
     EditTrack,
+    IgnoreDuplicates,
     LibraryOperation,
     MarkMissing,
     MarkPresent,
+    MergeTracks,
     MoveTrack,
     RecordSourceValues,
     RefreshState,
@@ -249,6 +251,93 @@ class Store:
                 if self.get_track(track.id).path != track.path:
                     raise ConflictError(f"an edit cannot change the path of track {track.id}")
                 self._replace_track(track)
+            case MergeTracks(keeper, merged):
+                self._merge(keeper, merged)
+            case IgnoreDuplicates(track_ids):
+                self._ignore_duplicates(track_ids)
+
+    def _merge(self, keeper: Track, merged: Sequence[TrackId]) -> None:
+        if keeper.id in merged:
+            raise ConflictError(f"track {keeper.id} cannot be merged into itself")
+        if self.get_track(keeper.id).path != keeper.path:
+            raise ConflictError(f"a merge cannot change the path of track {keeper.id}")
+        gone = [self.get_track(track_id) for track_id in merged]
+        self._replace_track(keeper)
+        into, ids = str(keeper.id), [str(t.id) for t in gone]
+        marks = ", ".join("?" * len(ids))
+        nodes = self._db.execute(
+            f"SELECT DISTINCT node_id FROM playlist_entries WHERE track_id IN ({marks})", ids
+        ).fetchall()
+        for (node_id,) in nodes:
+            entries = self._db.execute(
+                "SELECT track_id FROM playlist_entries WHERE node_id = ? ORDER BY position",
+                (node_id,),
+            ).fetchall()
+            present = any(track_id == into for (track_id,) in entries)
+            kept: list[str] = []
+            for (track_id,) in entries:
+                if track_id in ids:
+                    if present:
+                        continue
+                    track_id, present = into, True
+                kept.append(track_id)
+            self._db.execute("DELETE FROM playlist_entries WHERE node_id = ?", (node_id,))
+            self._db.executemany(
+                "INSERT INTO playlist_entries (node_id, position, track_id) VALUES (?, ?, ?)",
+                [(node_id, i, track_id) for i, track_id in enumerate(kept)],
+            )
+        # Earlier merges into the merged tracks follow them.
+        self._db.execute(
+            f"UPDATE merges SET into_track = ? WHERE into_track IN ({marks})", [into, *ids]
+        )
+        self._db.executemany(
+            "INSERT OR REPLACE INTO merges (path, into_track) VALUES (?, ?)",
+            [(t.path, into) for t in gone],
+        )
+        self._db.execute(
+            "INSERT OR REPLACE INTO merges (source, item_key, into_track)"
+            f" SELECT source, item_key, ? FROM source_values"
+            f" WHERE item_key IS NOT NULL AND track_id IN ({marks})",
+            [into, *ids],
+        )
+        self._db.execute(f"DELETE FROM tracks WHERE id IN ({marks})", ids)
+        self._delete_orphan_tags()
+
+    def _ignore_duplicates(self, track_ids: frozenset[TrackId]) -> None:
+        for track_id in track_ids:
+            self._require_track(track_id)
+        (set_id,) = self._db.execute(
+            "SELECT coalesce(max(set_id), 0) + 1 FROM not_duplicates"
+        ).fetchone()
+        self._db.executemany(
+            "INSERT INTO not_duplicates (set_id, track_id) VALUES (?, ?)",
+            [(set_id, str(t)) for t in sorted(track_ids)],
+        )
+
+    # Merged and marked duplicates
+
+    def merged_paths(self) -> dict[str, TrackId]:
+        """The track each merged-away path was merged into, by normalized path."""
+        rows = self._db.execute(
+            "SELECT path, into_track FROM merges WHERE path IS NOT NULL"
+        ).fetchall()
+        return {path: TrackId(uuid.UUID(into)) for path, into in rows}
+
+    def merged_items(self, source: str) -> dict[str, TrackId]:
+        """The track each merged-away item of ``source`` was merged into, by item key."""
+        rows = self._db.execute(
+            "SELECT item_key, into_track FROM merges WHERE source = ?", (source,)
+        ).fetchall()
+        return {key: TrackId(uuid.UUID(into)) for key, into in rows}
+
+    def not_duplicates(self) -> list[frozenset[TrackId]]:
+        """The sets of tracks marked as not duplicates of each other."""
+        sets: defaultdict[int, set[TrackId]] = defaultdict(set)
+        for set_id, track_id in self._db.execute(
+            "SELECT set_id, track_id FROM not_duplicates ORDER BY set_id"
+        ):
+            sets[set_id].add(TrackId(uuid.UUID(track_id)))
+        return [frozenset(members) for members in sets.values()]
 
     def _relocate(self, track_id: TrackId, path_origin: str) -> None:
         """Change only the track's path; its file state, if any, is marked present."""

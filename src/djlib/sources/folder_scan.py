@@ -127,6 +127,7 @@ class _Scan:
         root = normalize_path(str(self.root))
         known = {t.path: t for t in self.store.list_tracks_under(root)}
         states = self.store.file_states(root)
+        merged_away = self.store.merged_paths()
 
         moves: list[ScanOperation] = []
         changes: list[ScanOperation] = []
@@ -138,7 +139,8 @@ class _Scan:
         for found in discover(self.root, self.warnings, progress=self.progress):
             track = known.get(found.normalized)
             if track is None:
-                unknown.append(found)
+                if found.normalized not in merged_away:  # a merged duplicate kept on disk
+                    unknown.append(found)
                 continue
             seen.add(found.normalized)
             state = states.get(track.id)

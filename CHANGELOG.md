@@ -9,6 +9,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Merging duplicates (`djlib dupes`): tracks that are the same song (same MusicBrainz
+  recording, or same normalized artist and title with lengths within 3 seconds; versions
+  stay apart) are reported with their format, bitrate, cues and playlists and a
+  suggested track to keep. `--merge` asks group by group, then plans one merge: the kept
+  track inherits empty fields, cues, playlist entries, plays and tags, and the other
+  files go to the system trash (`--keep-files` to keep them). Merges and groups marked
+  as not duplicates are remembered (schema version 7), so imports and scans do not bring
+  them back. Plans can now move audio files to the trash; the plan JSON is version 3,
+  with the `merged` track change, `merged_into` and `trash`.
 - Enriching tags (`djlib enrich`): tracks are fingerprinted with `fpcalc`, recognized
   by AcoustID and tagged from MusicBrainz (title, artist, remixer, album, dates, label,
   track and disc numbers; the genre only when empty), through a plan where each change

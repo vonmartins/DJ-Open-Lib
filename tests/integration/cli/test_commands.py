@@ -216,7 +216,7 @@ def test_machine_readable_plan(home: Path, music: Path) -> None:
     result = djlib("--home", home, "scan", music, "--json")
 
     document = json.loads(result.stdout)
-    assert (document["format"], document["version"]) == ("djlib-plan", 2)
+    assert (document["format"], document["version"]) == ("djlib-plan", 3)
     assert len(document["tracks"]) == 2
     assert document["result"] is None
 
