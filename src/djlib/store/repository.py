@@ -29,6 +29,7 @@ from djlib.store.migrations import Migration
 from djlib.store.operations import (
     AddImportedTrack,
     AddTrack,
+    EditTrack,
     LibraryOperation,
     MarkMissing,
     MarkPresent,
@@ -244,6 +245,10 @@ class Store:
                 self._replace_source_folder(source, folder)
             case RelocateTrack(track_id, path_origin):
                 self._relocate(track_id, path_origin)
+            case EditTrack(track):
+                if self.get_track(track.id).path != track.path:
+                    raise ConflictError(f"an edit cannot change the path of track {track.id}")
+                self._replace_track(track)
 
     def _relocate(self, track_id: TrackId, path_origin: str) -> None:
         """Change only the track's path; its file state, if any, is marked present."""
