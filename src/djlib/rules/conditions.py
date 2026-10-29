@@ -171,20 +171,20 @@ def _convert(field: str, kind: str, op: str, value: JSONValue) -> Any:
             raise RuleError(f"{field}: expected a number, got {value!r}")
         return value
     if kind in ("date", "datetime"):
-        return _date_value(field, kind, value)
-    key = _key_value(value)
+        return date_value(field, kind, value)
+    key = key_value(value)
     if key is None:
         raise RuleError(f"{field}: expected a key such as 1m or Am, got {value!r}")
     return key
 
 
-def _key_value(value: object) -> Key | None:
+def key_value(value: object) -> Key | None:
     if not isinstance(value, str):
         return None
     return parse_open_key(value) or parse_musical(value)
 
 
-def _date_value(field: str, kind: str, value: object) -> datetime.date:
+def date_value(field: str, kind: str, value: object) -> datetime.date:
     """An ISO date text, or a date YAML already parsed, as the field's type."""
     if isinstance(value, datetime.datetime):
         moment = value
