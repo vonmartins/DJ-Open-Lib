@@ -2,7 +2,9 @@
 
 Enrichment is a source of its own, ``musicbrainz``, merged like imports: the first time
 a track is enriched its normalized fields take MusicBrainz's values; afterwards a field
-edited in djlib wins and is reported as a conflict.
+edited in djlib wins and is reported as a conflict. Tracks are not linked to recordings
+as import items are: duplicate files share a recording, and each is identified by its
+sound on every run. The recording id is kept in ``unmapped["musicbrainz"]``.
 """
 
 import dataclasses
@@ -91,7 +93,6 @@ def plan_enrich(
     listed = store.list_tracks() if under is None else store.list_tracks_under(str(under))
     tracks = sorted(listed, key=lambda t: t.path)
     bases = store.source_values(SOURCE)
-    links = {track_id: key for key, track_id in store.source_links(SOURCE).items()}
     outcomes = _Outcomes()
     operations: list[ImportOperation] = []
     changes: list[TrackChange] = []
@@ -132,15 +133,15 @@ def plan_enrich(
                     for d in disagreements
                 )
                 if merged != track:
-                    operations.append(UpdateImportedTrack(merged, SOURCE, values, recording_id))
+                    operations.append(UpdateImportedTrack(merged, SOURCE, values))
                     fields = tuple(
                         FieldChange(f.field, f.before, f.after, SOURCE)
                         for f in diff_tracks(track, merged)
                     )
                     if fields:
                         changes.append(_change(track, fields))
-                elif bases.get(track.id) != values or links.get(track.id) != recording_id:
-                    operations.append(RecordSourceValues(track.id, SOURCE, values, recording_id))
+                elif bases.get(track.id) != values:
+                    operations.append(RecordSourceValues(track.id, SOURCE, values))
             case Unresolved():
                 outcomes.unresolved.append((track, outcome))
             case Unlinked():

@@ -113,7 +113,17 @@ def test_first_run_normalizes(world: World) -> None:
     world.engine.apply(plan, assume_yes)
     enriched = world.store.get_track(track.id)
     assert enriched.unmapped["musicbrainz"]["recording_id"] == DFRNT  # type: ignore[index]
-    assert world.store.source_links("musicbrainz") == {DFRNT: track.id}
+    assert world.plan().empty
+
+
+def test_duplicates_settle(world: World) -> None:
+    world.add("dfrnt.mp3", title="x")
+    (world.music / "copy").mkdir()
+    world.add("copy/dfrnt.mp3", title="x")
+
+    world.engine.apply(world.plan(), assume_yes)
+
+    assert {t.title for t in world.store.list_tracks()} == {"Headspace (Scuba remix)"}
     assert world.plan().empty
 
 
