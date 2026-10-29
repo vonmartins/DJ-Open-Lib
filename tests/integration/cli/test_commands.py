@@ -1,16 +1,20 @@
 """The scan, export and snapshot commands, run in-process (specs/cli)."""
 
 import json
+import re
 import sys
 from pathlib import Path
 
 import pytest
 from typer.testing import CliRunner
 
-from djlib.cli import _flow, _home, app
+from djlib import home as _home
+from djlib.cli import _flow, app
 from djlib.cli import snapshot as snapshot_cli
+from djlib.home import Home
 from djlib.model.playlist import Folder, Playlist
 from djlib.model.track import Track
+from djlib.planning import ApplyFailedError
 from djlib.store import Store
 from support.audio import tagged_copy
 from support.files import tree_bytes
@@ -239,11 +243,11 @@ def test_stale_target(
         assert track is not None
         store.update_track(type(track)(id=track.id, path_origin=track.path_origin, title="B2"))
 
-    def edit_while_asking(as_json: bool) -> bool:
+    def edit_while_asking(question: str, **_: object) -> bool:
         (out / "Warm.m3u8").write_bytes(b"#EXTM3U\n# edited meanwhile\n")
         return True
 
-    monkeypatch.setattr(_flow, "_ask", edit_while_asking)
+    monkeypatch.setattr(_flow, "confirm", edit_while_asking)
     result = djlib("--home", home, "export", "m3u", out, "--apply")
 
     assert result.exit_code == 1
@@ -295,6 +299,7 @@ def test_restore_after_an_export(home: Path, tmp_path: Path) -> None:
         "restore",
         export["target"],
         export["result"]["snapshot"],
+        "--apply",
         "--yes",
     )
 
@@ -312,11 +317,46 @@ def test_restore_needs_confirmation(home: Path, music: Path) -> None:
         for s in json.loads(djlib("--home", home, "snapshot", "list", "--json").stdout)["snapshots"]
     ]
 
-    result = djlib("--home", home, "snapshot", "restore", "library", snapshot_id)
+    result = djlib("--home", home, "snapshot", "restore", "library", snapshot_id, "--apply")
 
     assert result.exit_code == 1
     assert "pass --yes" in result.stderr
     assert track_count(home) == 2
+
+
+def test_restore_dry_run(home: Path, music: Path) -> None:
+    djlib("--home", home, "scan", music, "--apply", "--yes")
+    (snapshot_id,) = [
+        s["id"]
+        for s in json.loads(djlib("--home", home, "snapshot", "list", "--json").stdout)["snapshots"]
+    ]
+
+    result = djlib("--home", home, "snapshot", "restore", "library", snapshot_id)
+
+    assert result.exit_code == 0
+    assert "put back" in result.stdout
+    assert "Dry run: nothing was restored" in result.stdout
+    assert track_count(home) == 2
+
+
+def test_restore_as_json(home: Path, music: Path) -> None:
+    djlib("--home", home, "scan", music, "--apply", "--yes")
+    (snapshot_id,) = [
+        s["id"]
+        for s in json.loads(djlib("--home", home, "snapshot", "list", "--json").stdout)["snapshots"]
+    ]
+
+    result = djlib(
+        "--home", home, "snapshot", "restore", "library", snapshot_id, "--apply", "--yes", "--json"
+    )
+
+    document = json.loads(result.stdout)
+    assert (document["format"], document["version"]) == ("djlib-restore", 1)
+    assert document["snapshot"] == snapshot_id
+    assert document["files"][0]["action"] == "put_back"
+    assert document["result"]["status"] == "restored"
+    assert document["result"]["pre_restore"]
+    assert track_count(home) == 0
 
 
 def test_restore_declined(home: Path, music: Path, interactive: None) -> None:
@@ -326,7 +366,9 @@ def test_restore_declined(home: Path, music: Path, interactive: None) -> None:
         for s in json.loads(djlib("--home", home, "snapshot", "list", "--json").stdout)["snapshots"]
     ]
 
-    result = djlib("--home", home, "snapshot", "restore", "library", snapshot_id, input="n\n")
+    result = djlib(
+        "--home", home, "snapshot", "restore", "library", snapshot_id, "--apply", input="n\n"
+    )
 
     assert "Not restored." in result.stdout
     assert track_count(home) == 2
@@ -339,3 +381,79 @@ def test_restore_unknown_snapshot(home: Path) -> None:
 
     assert result.exit_code == 1
     assert "does not exist" in result.stderr
+
+
+def test_unknown_playlist_as_json(home: Path, tmp_path: Path) -> None:
+    library_with_playlists(home)
+
+    result = djlib(
+        "--home", home, "export", "m3u", tmp_path / "out", "--playlist", "Nope", "--json"
+    )
+
+    assert result.exit_code == 1
+    assert result.stdout == ""
+    error = json.loads(result.stderr)["error"]
+    assert error["code"] == "unknown_playlist"
+    assert "Nope" in error["message"]
+
+
+def test_failed_apply_as_json(home: Path, music: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    def broken(*_: object) -> None:
+        raise ApplyFailedError(
+            "library", "000001-20261029T120000Z", restored=False, cause=OSError("disk full")
+        )
+
+    monkeypatch.setattr(Home, "apply", broken)
+    as_json = djlib("--home", home, "scan", music, "--apply", "--yes", "--json")
+    as_text = djlib("--home", home, "scan", music, "--apply", "--yes")
+
+    error = json.loads(as_json.stderr)["error"]
+    assert (error["code"], error["target"], error["restored"]) == ("apply_failed", "library", False)
+    assert error["snapshot"] == "000001-20261029T120000Z"
+    assert "djlib snapshot restore library 000001-20261029T120000Z --apply" in as_text.stderr
+
+
+ANSI_ESCAPE = re.compile(r"\x1b\[[0-9;]*m")
+
+
+@pytest.mark.parametrize(
+    "command",
+    [
+        ["status"],
+        ["list"],
+        ["show"],
+        ["playlists"],
+        ["scan"],
+        ["relocate"],
+        ["fix"],
+        ["enrich"],
+        ["dupes"],
+        ["import", "mixxx"],
+        ["import", "beets"],
+        ["export", "m3u"],
+        ["export", "mixxx"],
+        ["snapshot", "list"],
+        ["snapshot", "restore"],
+    ],
+)
+def test_every_command_has_an_example(command: list[str]) -> None:
+    result = djlib(*command, "--help")
+
+    assert result.exit_code == 0
+    assert f"Example: djlib {' '.join(command)}" in ANSI_ESCAPE.sub("", result.stdout)
+
+
+def test_root_help_states_the_rules() -> None:
+    text = " ".join(ANSI_ESCAPE.sub("", djlib("--help").stdout).split())
+
+    assert "unless --apply is given" in text
+    assert "Exit codes: 0 success" in text
+    for panel in ("Library", "Change tags", "Other apps", "Safety"):
+        assert panel in text
+
+
+def test_missing_argument_is_a_usage_error(home: Path) -> None:
+    result = djlib("--home", home, "scan")
+
+    assert result.exit_code == 2
+    assert "Missing argument" in ANSI_ESCAPE.sub("", result.stderr)

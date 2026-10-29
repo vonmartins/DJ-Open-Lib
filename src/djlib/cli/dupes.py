@@ -3,11 +3,11 @@
 import json
 from collections.abc import Sequence
 from pathlib import Path
-from typing import Annotated
+from typing import Annotated, Literal
 
 import typer
 
-from djlib.cli import _flow, _options
+from djlib.cli import _flow, _options, _paths
 from djlib.cli._flow import fail, home_of, reported_errors, run
 from djlib.model.paths import normalize_path
 from djlib.model.unmapped import JSONValue
@@ -34,10 +34,32 @@ def dupes(
             "--keep", help="Keep this track in its group (repeatable).", show_default=False
         ),
     ] = None,
+    skip: Annotated[
+        list[Path] | None,
+        typer.Option(
+            "--skip",
+            help="Leave the group of this track unmerged (repeatable).",
+            show_default=False,
+        ),
+    ] = None,
+    ignore: Annotated[
+        list[Path] | None,
+        typer.Option(
+            "--ignore",
+            help="Mark the group of this track as not duplicates (repeatable).",
+            show_default=False,
+        ),
+    ] = None,
     keep_files: Annotated[
         bool,
         typer.Option("--keep-files", help="Merge in the library only; move no file to the trash."),
     ] = False,
+    under: Annotated[
+        Path | None,
+        typer.Option(
+            "--under", help="Only the groups with a track under this folder.", show_default=False
+        ),
+    ] = None,
     apply: _options.Apply = False,
     yes: _options.Yes = False,
     as_json: _options.Json = False,
@@ -46,36 +68,55 @@ def dupes(
 
     With --merge --apply, asks about each group, then shows one plan: the kept track takes
     the others' tags, cues, playlists and plays, and their files go to the system trash.
+    --keep, --skip and --ignore answer for a group without asking.
+
+    Example: djlib dupes --merge --keep ~/Music/a.flac --apply
     """
+    with reported_errors(as_json):
+        folder = _paths.optional_folder(under)
     if not merge:
-        with reported_errors(), home_of(ctx).engine() as engine:
-            groups = engine.find_duplicates()
+        with reported_errors(as_json), home_of(ctx).engine() as engine:
+            groups = engine.find_duplicates(under=folder)
         if as_json:
             typer.echo(json.dumps(_report_json(groups), ensure_ascii=False, indent=2))
         else:
             typer.echo(_report_text(groups), nl=False)
         return
-    kept = [normalize_path(str(path.absolute())) for path in keep or ()]
+    answers: list[tuple[str, Decision | Literal["keep"]]] = [
+        *((_track_path(p), "keep") for p in keep or ()),
+        *((_track_path(p), "skip") for p in skip or ()),
+        *((_track_path(p), "ignore") for p in ignore or ()),
+    ]
     interactive = apply and not yes and not as_json and _flow.stdin_is_interactive()
 
     def make_plan(engine: Engine) -> Plan:
-        groups = engine.find_duplicates()
-        decisions = _kept(groups, kept)
+        groups = engine.find_duplicates(under=folder)
+        decisions = _decided(groups, answers)
         if interactive:
             decisions = _ask(groups, decisions)
-        return engine.plan_merge(decisions, keep_files=keep_files)
+        return engine.plan_merge(decisions, keep_files=keep_files, under=folder)
 
     run(ctx, make_plan, apply=apply, yes=yes, as_json=as_json)
 
 
-def _kept(groups: Sequence[Group], paths: Sequence[str]) -> dict[GroupKey, Decision]:
+def _track_path(path: Path) -> str:
+    return normalize_path(str(_paths.file(path)))
+
+
+def _decided(
+    groups: Sequence[Group], answers: Sequence[tuple[str, Decision | Literal["keep"]]]
+) -> dict[GroupKey, Decision]:
+    """The decisions --keep, --skip and --ignore give, by group."""
     decisions: dict[GroupKey, Decision] = {}
-    for path in paths:
+    for path, answer in answers:
         found = [(g, c) for g in groups for c in g.copies if c.track.path == path]
         if not found:
-            fail(f"{path} is in no group of duplicates")
+            fail(f"{path} is in no group of duplicates", "not_found")
         group, copy = found[0]
-        decisions[group.key] = copy.track.id
+        decision = copy.track.id if answer == "keep" else answer
+        if decisions.get(group.key, decision) != decision:
+            fail(f"the group {group.name!r} has two different answers")
+        decisions[group.key] = decision
     return decisions
 
 
@@ -84,18 +125,20 @@ def _ask(groups: Sequence[Group], kept: dict[GroupKey, Decision]) -> dict[GroupK
     noun = "group" if len(groups) == 1 else "groups"
     typer.echo(f"{len(groups)} {noun} of duplicates. {_ANSWERS}.")
     for index, group in enumerate(groups, start=1):
-        default = kept.get(group.key, group.copies[0].track.id)
+        given = kept.get(group.key)
+        default = group.copies[0].track.id if given in (None, "skip", "ignore") else given
         number = next(i for i, c in enumerate(group.copies, start=1) if c.track.id == default)
         typer.echo(f"\nGroup {index}/{len(groups)}: {group.name}")
         typer.echo("\n".join(_copy_lines(group, chosen=default)))
         choices = "/".join(str(i) for i in range(1, len(group.copies) + 1))
+        suggested = {"skip": "s", "ignore": "i"}.get(str(given), str(number))
         while True:
             answer = typer.prompt(
-                f"Keep [{number}] {choices}, s, i, q", default="", show_default=False
+                f"Keep [{suggested}] {choices}, s, i, q", default="", show_default=False
             )
             answer = answer.strip().lower()
             if answer == "":
-                decisions[group.key] = default
+                decisions[group.key] = given if given in ("skip", "ignore") else default
             elif answer.isdigit() and 1 <= int(answer) <= len(group.copies):
                 decisions[group.key] = group.copies[int(answer) - 1].track.id
             elif answer in ("s", "i"):

@@ -32,5 +32,5 @@ def mixxx_database(adapter: MixxxAdapter, location: Path | None) -> Path:
     location = location or default_mixxx_location()
     detection = adapter.detect(location)
     if not detection.matches:
-        fail(f"no Mixxx library at {location}: {detection.reason}")
+        fail(f"no Mixxx library at {location}: {detection.reason}", "not_found")
     return database_path(location).absolute()

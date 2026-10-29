@@ -76,5 +76,5 @@ def beets_library(source: BeetsSource, location: Path | None) -> Path:
     location = location or default_beets_library()
     detection = source.detect(location)
     if not detection.matches:
-        fail(f"no beets library at {location}: {detection.reason}")
+        fail(f"no beets library at {location}: {detection.reason}", "not_found")
     return database_path(location).absolute()

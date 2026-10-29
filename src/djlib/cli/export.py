@@ -7,28 +7,28 @@ import typer
 
 from djlib.adapters.m3u import M3UAdapter
 from djlib.adapters.mixxx import MixxxAdapter
-from djlib.cli import _options
-from djlib.cli._flow import run
+from djlib.cli import _options, _paths
+from djlib.cli._flow import reported_errors, run
 from djlib.cli._mixxx import mixxx_database
 
-app = typer.Typer(help="Export the library to another format or app.", no_args_is_help=True)
+app = typer.Typer(
+    rich_markup_mode="markdown",
+    help="Export the library to another format or app.",
+    no_args_is_help=True,
+)
 
 
 @app.command("m3u")
 def m3u(
     ctx: typer.Context,
-    destination: Annotated[Path, typer.Argument(help="Directory for the .m3u8 files.")],
-    playlist: Annotated[
-        list[str] | None,
-        typer.Option(
-            "--playlist", "-p", help="Playlist or folder path such as Techno/Peak; repeatable."
-        ),
-    ] = None,
+    destination: Annotated[
+        Path,
+        typer.Argument(metavar="FOLDER", help="Folder for the .m3u8 files.", show_default=False),
+    ],
+    playlist: _options.Playlists = None,
     modified: Annotated[
         bool,
-        typer.Option(
-            "--modified", help="Only playlists changed since the last export to DESTINATION."
-        ),
+        typer.Option("--modified", help="Only playlists changed since the last export there."),
     ] = False,
     relative_paths: Annotated[
         bool,
@@ -38,9 +38,15 @@ def m3u(
     yes: _options.Yes = False,
     as_json: _options.Json = False,
 ) -> None:
-    """Plan writing playlists as M3U8 files under DESTINATION."""
+    """Write the library's playlists as M3U8 files under a folder.
+
+    Folders become subfolders. The folder is created when the plan is applied.
+
+    Example: djlib export m3u ~/Playlists -p Techno --apply
+    """
     _check_selection(playlist, modified)
     adapter = M3UAdapter(relative_paths=relative_paths)
+    destination = _paths.file(destination)
     run(
         ctx,
         lambda engine: engine.plan_export(
@@ -62,12 +68,7 @@ def mixxx(
             show_default=False,
         ),
     ] = None,
-    playlist: Annotated[
-        list[str] | None,
-        typer.Option(
-            "--playlist", "-p", help="Playlist or folder path such as Techno/Peak; repeatable."
-        ),
-    ] = None,
+    playlist: _options.Playlists = None,
     modified: Annotated[
         bool,
         typer.Option("--modified", help="Only playlists changed since the last export there."),
@@ -76,15 +77,18 @@ def mixxx(
     yes: _options.Yes = False,
     as_json: _options.Json = False,
 ) -> None:
-    """Plan writing the library to a Mixxx library. Quit Mixxx first.
+    """Write the library to a Mixxx library. Quit Mixxx first.
 
     Tracks, cues, loops, grids, playlists and crates are written. Fields edited in Mixxx
     since the last import are left as they are and shown as conflicts. Nothing in Mixxx
     is deleted.
+
+    Example: djlib export mixxx --modified --apply
     """
     _check_selection(playlist, modified)
     adapter = MixxxAdapter()
-    location = mixxx_database(adapter, database)
+    with reported_errors(as_json):
+        location = mixxx_database(adapter, _paths.optional_file(database))
     run(
         ctx,
         lambda engine: engine.plan_export(

@@ -132,4 +132,4 @@ def test_search_folder_missing(tmp_path: Path) -> None:
     result = invoke(tmp_path, str(beets.path), "--find-in", str(tmp_path / "nowhere"))
 
     assert result.exit_code == 1
-    assert "nowhere is not a directory" in result.stderr
+    assert "nowhere does not exist" in result.stderr

@@ -6,15 +6,19 @@ from typing import Annotated
 import typer
 
 from djlib.adapters.mixxx import MixxxAdapter
-from djlib.cli import _options
+from djlib.cli import _options, _paths
 from djlib.cli._beets import beets_library, default_music_dir
-from djlib.cli._flow import fail, run
+from djlib.cli._flow import reported_errors, run
 from djlib.cli._mixxx import default_mixxx_location, mixxx_database
 from djlib.sources.beets import BeetsSource
 
 __all__ = ["app", "default_mixxx_location"]
 
-app = typer.Typer(help="Import tracks and playlists from another app.", no_args_is_help=True)
+app = typer.Typer(
+    rich_markup_mode="markdown",
+    help="Import tracks and playlists from another app.",
+    no_args_is_help=True,
+)
 
 FindIn = Annotated[
     Path | None,
@@ -25,12 +29,6 @@ FindIn = Annotated[
         show_default=False,
     ),
 ]
-
-
-def _search_folder(folder: Path | None) -> Path | None:
-    if folder is not None and not folder.expanduser().is_dir():
-        fail(f"{folder} is not a directory")
-    return None if folder is None else folder.expanduser()
 
 
 @app.command("mixxx")
@@ -48,13 +46,17 @@ def mixxx(
     yes: _options.Yes = False,
     as_json: _options.Json = False,
 ) -> None:
-    """Plan importing a Mixxx library: tracks, cues, loops, grids, playlists and crates.
+    """Import a Mixxx library: tracks, cues, loops, grids, playlists and crates.
 
-    Mixxx's files are only read. Playlists go to a "Mixxx" folder in djlib.
+    Mixxx's files are only read. Its playlists and crates go to a "Mixxx" folder in
+    djlib, which later imports replace.
+
+    Example: djlib import mixxx --apply
     """
     adapter = MixxxAdapter()
-    location = mixxx_database(adapter, database)
-    folder = _search_folder(find_in)
+    with reported_errors(as_json):
+        location = mixxx_database(adapter, _paths.optional_file(database))
+        folder = _paths.optional_folder(find_in)
     run(
         ctx,
         lambda engine: engine.plan_import(adapter, location, find_in=folder),
@@ -88,13 +90,16 @@ def beets(
     yes: _options.Yes = False,
     as_json: _options.Json = False,
 ) -> None:
-    """Plan importing the tracks of a beets library and their tags.
+    """Import the tracks of a beets library and their tags.
 
     beets' database and the music files are only read. Albums do not become playlists.
+
+    Example: djlib import beets ~/Music/.beets.db --apply
     """
-    source = BeetsSource(music_dir=(music_dir or default_music_dir()).expanduser())
-    location = beets_library(source, library)
-    folder = _search_folder(find_in)
+    with reported_errors(as_json):
+        source = BeetsSource(music_dir=_paths.optional_file(music_dir) or default_music_dir())
+        location = beets_library(source, _paths.optional_file(library))
+        folder = _paths.optional_folder(find_in)
     run(
         ctx,
         lambda engine: engine.plan_import(source, location, find_in=folder),

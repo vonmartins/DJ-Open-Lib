@@ -5,9 +5,9 @@ from typing import Annotated
 
 import typer
 
-from djlib.cli import _options
+from djlib.cli import _options, _paths
 from djlib.cli._flow import home_of, reported_errors, run
-from djlib.cli._home import RULES
+from djlib.home import RULES
 from djlib.rules import ruleset as rulesets
 
 
@@ -23,21 +23,37 @@ def fix(
         ),
     ] = None,
     only: Annotated[
-        str | None,
-        typer.Option("--only", help="Comma-separated fix names and rule ids to run."),
+        list[str] | None,
+        typer.Option(
+            "--only",
+            help="Only this fix or rule id; repeatable, or separated by commas.",
+            show_default=False,
+        ),
     ] = None,
+    under: _options.Under = None,
     apply: _options.Apply = False,
     yes: _options.Yes = False,
     as_json: _options.Json = False,
 ) -> None:
-    """Plan cleaning the tags of every track: URLs, video ids, odd characters, featured
-    artists, remixers, missing titles... Each change names the fix or rule that made it.
+    """Clean the tags of the library's tracks with the bundled fixes and your rules.
 
-    Only djlib's library changes; audio files are never touched.
+    Fixes remove URLs, video ids and odd characters, and move featured artists and
+    remixers to their fields. Each change names the fix or rule that made it. Only the
+    library changes; audio files are never touched.
+
+    Example: djlib fix --only remove_urls --under ~/Music/new
     """
-    with reported_errors():
-        path = rules or home_of(ctx).path / RULES
+    with reported_errors(as_json):
+        folder = _paths.optional_folder(under)
+        path = _paths.file(rules) if rules else home_of(ctx).rules_file
         chosen = rulesets.load(path) if rules or path.exists() else rulesets.defaults()
+        names = [name.strip() for value in only or () for name in value.split(",")]
         if only:
-            chosen = chosen.only(name.strip() for name in only.split(",") if name.strip())
-    run(ctx, lambda engine: engine.plan_fix(chosen), apply=apply, yes=yes, as_json=as_json)
+            chosen = chosen.only(name for name in names if name)
+    run(
+        ctx,
+        lambda engine: engine.plan_fix(chosen, under=folder),
+        apply=apply,
+        yes=yes,
+        as_json=as_json,
+    )

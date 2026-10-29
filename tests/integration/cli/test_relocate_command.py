@@ -57,7 +57,7 @@ def test_folder_missing(tmp_path: Path) -> None:
     result = invoke(tmp_path, str(tmp_path / "nowhere"))
 
     assert result.exit_code == 1
-    assert "nowhere is not a directory" in result.stderr
+    assert "nowhere does not exist" in result.stderr
 
 
 def test_not_a_terminal(tmp_path: Path) -> None:

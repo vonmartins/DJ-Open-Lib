@@ -1,32 +1,34 @@
 """The flow every writing command shares: plan, show, confirm, apply, report."""
 
 import contextlib
+import contextvars
 import json
 import sys
 from collections.abc import Callable, Generator
-from dataclasses import dataclass
 from pathlib import Path
 from typing import NoReturn
 
 import typer
 
 from djlib.adapters.errors import AdapterError
-from djlib.cli._home import DATABASE, SNAPSHOTS
 from djlib.enrich import EnrichError
+from djlib.home import Home
+from djlib.model.unmapped import JSONValue
 from djlib.planning import (
     ApplyFailedError,
     ApplyResult,
     Engine,
     Plan,
     PlanError,
+    StaleTargetError,
+    UnknownPlaylistError,
     assume_yes,
     render_text,
     to_json,
 )
-from djlib.planning.relocating import Progress
 from djlib.rules import RuleError
-from djlib.snapshots import SnapshotError, SnapshotStore
-from djlib.store import Store, StoreError
+from djlib.snapshots import SnapshotError
+from djlib.store import NotADjlibDatabaseError, NotFoundError, SchemaTooNewError, StoreError
 
 # Failures users can act on: one line on stderr, exit code 1, no traceback.
 EXPECTED_ERRORS = (
@@ -40,59 +42,78 @@ EXPECTED_ERRORS = (
 )
 
 
-@dataclass(frozen=True, slots=True)
-class Home:
-    path: Path
-
-    @property
-    def database(self) -> Path:
-        return self.path / DATABASE
-
-    @property
-    def snapshots(self) -> SnapshotStore:
-        return SnapshotStore(self.path / SNAPSHOTS)
-
-    @contextlib.contextmanager
-    def engine(
-        self, *, create: bool = False, progress: Progress | None = None
-    ) -> Generator[Engine]:
-        """An engine on the library.
-
-        Without ``create``, a home that has no library yet gets an in-memory one, so
-        planning there creates nothing.
-        """
-        if create:
-            self.path.mkdir(parents=True, exist_ok=True)
-        exists = create or self.database.exists()
-        with Store.open(str(self.database) if exists else ":memory:") as store:
-            yield Engine(store, self.snapshots, progress=progress)
-
-
 def home_of(ctx: typer.Context) -> Home:
     home = ctx.find_root().obj
     assert isinstance(home, Home)  # noqa: S101 - set by the root callback
     return home
 
 
-def fail(message: str) -> NoReturn:
-    typer.echo(f"error: {message}", err=True)
+# Error codes for --json, most specific class first. They are part of the JSON contract.
+ERROR_CODES: tuple[tuple[type[Exception], str], ...] = (
+    (UnknownPlaylistError, "unknown_playlist"),
+    (StaleTargetError, "stale_target"),
+    (ApplyFailedError, "apply_failed"),
+    (NotADjlibDatabaseError, "not_a_library"),
+    (SchemaTooNewError, "library_too_new"),
+    (NotFoundError, "not_found"),
+    (RuleError, "invalid_rule"),
+    (AdapterError, "adapter_error"),
+    (EnrichError, "enrich_error"),
+    (PlanError, "plan_error"),
+    (SnapshotError, "snapshot_error"),
+    (StoreError, "store_error"),
+    (OSError, "os_error"),
+)
+
+_json_errors: contextvars.ContextVar[bool] = contextvars.ContextVar("json_errors", default=False)
+
+
+def error_code(error: Exception) -> str:
+    return next(code for kind, code in ERROR_CODES if isinstance(error, kind))
+
+
+def fail(message: str, code: str = "invalid_argument", **details: JSONValue) -> NoReturn:
+    """Print ``message`` on standard error, as JSON under ``--json``, and exit with code 1."""
+    if _json_errors.get():
+        error: dict[str, JSONValue] = {"code": code, "message": message, **details}
+        typer.echo(json.dumps({"error": error}, ensure_ascii=False), err=True)
+    else:
+        typer.echo(f"error: {message}", err=True)
     raise typer.Exit(1)
 
 
 @contextlib.contextmanager
-def reported_errors() -> Generator[None]:
-    """Turn expected failures into a one-line message and exit code 1."""
+def reported_errors(as_json: bool = False) -> Generator[None]:
+    """Turn expected failures into a one-line message, JSON with ``as_json``, and exit code 1."""
+    token = _json_errors.set(as_json)
     try:
         yield
     except ApplyFailedError as error:
-        hint = (
-            ""
-            if error.restored
-            else (f"\nrun: djlib snapshot restore {error.target} {error.snapshot}")
-        )
-        fail(f"{error}{hint}")
+        details: dict[str, JSONValue] = {
+            "target": error.target,
+            "snapshot": error.snapshot,
+            "restored": error.restored,
+        }
+        if error.restored or as_json:
+            fail(str(error), "apply_failed", **details)
+        restore = f"djlib snapshot restore {error.target} {error.snapshot} --apply"
+        fail(f"{error}\nrun: {restore}", "apply_failed", **details)
     except EXPECTED_ERRORS as error:
-        fail(str(error))
+        fail(str(error), error_code(error))
+    finally:
+        _json_errors.reset(token)
+
+
+def confirm(question: str, *, yes: bool, as_json: bool, refused: str) -> bool:
+    """Whether to go on: ``--yes``, or the user's answer on an interactive terminal.
+
+    Without a terminal and without ``--yes``, fails with ``refused`` and a hint.
+    """
+    if yes:
+        return True
+    if not stdin_is_interactive():
+        fail(f"{refused}: confirmation needs an interactive terminal; pass --yes", "needs_yes")
+    return typer.confirm(question, default=False, err=as_json)
 
 
 def stdin_is_interactive() -> bool:
@@ -132,7 +153,7 @@ def run(
     """Plan with ``make_plan``, show the plan, and apply it when asked and confirmed."""
     home = home_of(ctx)
     progress = FolderProgress() if stderr_is_interactive() else None
-    with reported_errors(), home.engine(progress=progress) as engine:
+    with reported_errors(as_json), home.engine(progress=progress) as engine:
         try:
             plan = make_plan(engine)
         finally:
@@ -152,21 +173,11 @@ def run(
 def _apply(home: Home, engine: Engine, plan: Plan, *, yes: bool, as_json: bool) -> ApplyResult:
     if plan.empty:
         return engine.apply(plan, assume_yes)
-    if not (yes or stdin_is_interactive()):
-        if as_json:
-            typer.echo(json.dumps(to_json(plan), ensure_ascii=False, indent=2))
-        fail("not applied: confirmation needs an interactive terminal; pass --yes")
-    if not (yes or _ask(as_json)):
+    if as_json and not (yes or stdin_is_interactive()):
+        typer.echo(json.dumps(to_json(plan), ensure_ascii=False, indent=2))
+    if not confirm("Apply this plan?", yes=yes, as_json=as_json, refused="not applied"):
         return ApplyResult(status="declined")
-    if engine.store.path is not None:
-        return engine.apply(plan, assume_yes)
-    # Planned against the in-memory library of a new home: create it and apply there.
-    with home.engine(create=True) as created:
-        return created.apply(plan, assume_yes)
-
-
-def _ask(as_json: bool) -> bool:
-    return typer.confirm("Apply this plan?", default=False, err=as_json)
+    return home.apply(engine, plan)
 
 
 def _report(plan: Plan, result: ApplyResult | None) -> None:

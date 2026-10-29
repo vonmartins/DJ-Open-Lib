@@ -3,6 +3,7 @@
 import json
 from pathlib import Path
 
+import pytest
 from typer.testing import CliRunner, Result
 
 from djlib.cli import app
@@ -96,3 +97,53 @@ def test_malformed_rules_file(tmp_path: Path) -> None:
 
     assert result.exit_code == 1
     assert "rules[0] (r): unknown field 'titel'" in result.stderr
+
+
+def test_only_repeated_or_with_commas(tmp_path: Path) -> None:
+    library(tmp_path, FEATURED, URL)
+
+    repeated = json.loads(
+        invoke(tmp_path, "--only", "remove_urls", "--only", "extract_featured", "--json").stdout
+    )
+    commas = json.loads(invoke(tmp_path, "--only", "remove_urls,extract_featured", "--json").stdout)
+
+    assert len(repeated["tracks"]) == len(commas["tracks"]) == 2
+
+
+def test_under_a_folder(tmp_path: Path) -> None:
+    new = tmp_path / "music" / "new"
+    new.mkdir(parents=True)
+    library(
+        tmp_path,
+        Track(path_origin=str(new / "a.mp3"), title="Glue (freebeats.com)"),
+        Track(path_origin=str(tmp_path / "music" / "b.mp3"), title="Rise (freebeats.com)"),
+    )
+
+    document = json.loads(invoke(tmp_path, "--under", str(new), "--json").stdout)
+
+    assert [t["path"] for t in document["tracks"]] == [str(new / "a.mp3")]
+
+
+def test_under_expands_the_home_directory(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    new = tmp_path / "music" / "new"
+    new.mkdir(parents=True)
+    monkeypatch.setenv("HOME", str(tmp_path))
+    monkeypatch.setenv("USERPROFILE", str(tmp_path))
+    library(tmp_path, Track(path_origin=str(new / "a.mp3"), title="Glue (freebeats.com)"))
+
+    result = invoke(tmp_path, "--under", "~/music/new", "--json")
+
+    assert result.exit_code == 0, result.stderr
+    assert len(json.loads(result.stdout)["tracks"]) == 1
+
+
+def test_missing_folder_as_json(tmp_path: Path) -> None:
+    library(tmp_path)
+
+    result = invoke(tmp_path, "--under", str(tmp_path / "nowhere"), "--json")
+
+    assert result.exit_code == 1
+    assert result.stdout == ""
+    error = json.loads(result.stderr)["error"]
+    assert error["code"] == "not_found"
+    assert "nowhere" in error["message"]
