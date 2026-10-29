@@ -1,6 +1,7 @@
 """Parsing real AcoustID and MusicBrainz answers (tests/fixtures/enrich)."""
 
 import json
+from typing import Any
 
 import pytest
 
@@ -115,3 +116,10 @@ def test_unexpected_answers() -> None:
         musicbrainz.parse_recording({"error": "Not Found"})
     with pytest.raises(EnrichError):
         musicbrainz.parse_release([])
+
+
+def test_no_label() -> None:
+    data: Any = load("release-98efe856-2747-4ffc-845a-8f7e97cd6afa.json")
+    data["label-info"][0]["label"]["name"] = "[no label]"
+
+    assert musicbrainz.parse_release(data).label is None

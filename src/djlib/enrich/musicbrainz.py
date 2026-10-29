@@ -131,7 +131,15 @@ def parse_release(value: object) -> Release:
         title=text(data.get("title")) or "",
         date=text(data.get("date")),
         artist=credit(objects(data.get("artist-credit"))),
-        label=text(obj(first.get("label")).get("name")),
+        label=_label(text(obj(first.get("label")).get("name"))),
         catalog_number=text(first.get("catalog-number")),
         positions=positions,
     )
+
+
+NO_LABEL = "[no label]"
+"""MusicBrainz's label for releases without one."""
+
+
+def _label(name: str | None) -> str | None:
+    return None if name == NO_LABEL else name

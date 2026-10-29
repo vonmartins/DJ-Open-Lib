@@ -143,7 +143,8 @@ macOS: `brew install chromaprint`; Windows: download it from
   changed a field, your value stays and the plan lists the conflict.
 - **No guessing:** tracks with several possible recordings, recognized but not in
   MusicBrainz, not recognized, or whose MusicBrainz id (from beets) points elsewhere,
-  are left unchanged and listed in the plan's warnings.
+  are left unchanged and listed in the plan's warnings. Once applied, a re-run of an
+  unchanged library just says `Nothing to do.`
 - **Speed and cache:** MusicBrainz allows one request per second, so a first run takes
   about two seconds per track. Fingerprints and answers are cached in `cache.db` in the
   djlib home, so later runs are quick and work offline; `--refresh` asks again.

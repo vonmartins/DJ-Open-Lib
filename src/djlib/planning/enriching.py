@@ -152,13 +152,16 @@ def plan_enrich(
                 outcomes.disagreements.append((track, outcome))
     if steps is not None and tracks:
         steps(len(tracks), len(tracks))
+    # Outcomes are reported with changes, or before anything was ever enriched; once
+    # applied, a re-run of an unchanged library is quiet.
+    report_all = bool(operations) or store.source(SOURCE) is None
     if operations:
         operations.insert(0, RegisterSource(SOURCE, now))
     return EnrichPlan(
         operations=tuple(operations),
         tracks=tuple(changes),
         conflicts=tuple(conflicts),
-        warnings=tuple(_warnings(outcomes)),
+        warnings=tuple(_warnings(outcomes) if report_all else outcomes.failed[:5]),
     )
 
 

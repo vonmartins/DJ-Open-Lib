@@ -219,6 +219,9 @@ def test_outcomes_reported(world: World) -> None:
     assert any(w.startswith("unresolved ") and "Insiders" in w for w in plan.warnings)
     assert [c.name for c in plan.tracks] == ["lung"]
 
+    world.engine.apply(plan, assume_yes)
+    assert world.plan().warnings == ()
+
 
 def test_disagreement_left_alone(world: World) -> None:
     other = "00000000-0000-4000-8000-000000000000"
