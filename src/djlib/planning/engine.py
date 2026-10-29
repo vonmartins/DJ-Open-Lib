@@ -10,6 +10,8 @@ import os
 from collections.abc import Callable, Sequence
 from pathlib import Path
 
+from send2trash import send2trash
+
 from djlib.adapters.contract import Adapter, ReadOptions, WriteOptions, WritePlan
 from djlib.adapters.losses import display_name
 from djlib.adapters.pathmap import PathMapping
@@ -28,6 +30,7 @@ from djlib.planning.model import (
     FieldConflict,
     LibraryAction,
     Plan,
+    TrashFile,
 )
 from djlib.planning.relocating import Progress, plan_relocate
 from djlib.planning.selection import covered, fingerprints, modified, resolve_paths, target_name
@@ -38,6 +41,7 @@ from djlib.sources.folder_scan import scan_folder
 from djlib.store import Store, StoreError
 
 Confirm = Callable[[Plan], bool]
+Trash = Callable[[str], None]
 
 
 def assume_yes(plan: Plan) -> bool:
@@ -56,6 +60,7 @@ class Engine:
         clock: Callable[[], datetime.datetime] | None = None,
         progress: Progress | None = None,
         _write_file: WriteFile = write_atomically,
+        _trash: Trash = send2trash,
     ) -> None:
         """``progress`` is told how many files were seen while walking a folder."""
         self.store = store
@@ -63,6 +68,7 @@ class Engine:
         self._progress = progress
         self._clock = clock or (lambda: datetime.datetime.now(datetime.UTC))
         self._write_file = _write_file
+        self._trash = _trash
 
     # Planning
 
@@ -272,10 +278,10 @@ class Engine:
         if not confirm(plan):
             return ApplyResult(status="declined")
         if isinstance(plan.action, LibraryAction):
-            return self._apply_scan(plan, plan.action)
+            return self._apply_library(plan, plan.action)
         return self._apply_export(plan, plan.action)
 
-    def _apply_scan(self, plan: Plan, action: LibraryAction) -> ApplyResult:
+    def _apply_library(self, plan: Plan, action: LibraryAction) -> ApplyResult:
         if self.store.revision() != action.base_revision:
             raise StaleTargetError("the library changed since the plan was made; plan again")
         database = self.store.path
@@ -287,9 +293,29 @@ class Engine:
         except Exception as error:
             # The transaction was rolled back: the library is as it was.
             raise ApplyFailedError(plan.target, snapshot.id, restored=True, cause=error) from error
+        # Audio files go only once the library is written; a file that cannot go stays.
+        warnings = [w for file in action.trash if (w := self._trash_file(file)) is not None]
         return ApplyResult(
-            status="applied", snapshot=snapshot.id, operations_applied=len(action.operations)
+            status="applied",
+            snapshot=snapshot.id,
+            operations_applied=len(action.operations),
+            files_trashed=len(action.trash) - len(warnings),
+            warnings=tuple(warnings),
         )
+
+    def _trash_file(self, file: TrashFile) -> str | None:
+        """Move ``file`` to the trash; what went wrong, or ``None``."""
+        try:
+            stat = Path(file.path).stat()
+        except OSError:
+            return f"{file.path} was not moved to the trash: it is no longer there"
+        if (stat.st_size, stat.st_mtime_ns) != (file.size, file.mtime_ns):
+            return f"{file.path} was not moved to the trash: it changed since the plan was made"
+        try:
+            self._trash(file.path)
+        except Exception as error:  # the file stays, and the user is told why
+            return f"{file.path} was not moved to the trash ({error}); delete it yourself"
+        return None
 
     def _apply_export(self, plan: Plan, action: ExportAction) -> ApplyResult:
         changes = action.write_plan.changes

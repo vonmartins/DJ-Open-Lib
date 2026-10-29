@@ -10,7 +10,7 @@ from djlib.model.ids import NodeId, TrackId
 from djlib.model.unmapped import JSONValue
 from djlib.store.operations import LibraryOperation
 
-TrackChangeKind = Literal["added", "updated", "moved", "missing", "present"]
+TrackChangeKind = Literal["added", "updated", "moved", "missing", "present", "merged"]
 NodeChangeKind = Literal["added", "updated", "removed"]
 NodeKind = Literal["folder", "playlist", "smartlist"]
 ApplyStatus = Literal["applied", "declined", "nothing"]
@@ -39,6 +39,17 @@ class TrackChange:
     fields: tuple[FieldChange, ...] = ()
     """Changed fields; for an added track, every field it has, from ``None``."""
     old_path: str | None = None
+    merged_into: str | None = None
+    """For a merged track, the path of the track it was merged into."""
+
+
+@dataclass(frozen=True, slots=True)
+class TrashFile:
+    """An audio file to move to the system trash, as it was when planning."""
+
+    path: str
+    size: int
+    mtime_ns: int
 
 
 @dataclass(frozen=True, slots=True, kw_only=True)
@@ -76,6 +87,8 @@ class FieldConflict:
 class LibraryAction:
     operations: tuple[LibraryOperation, ...]
     base_revision: int
+    trash: tuple[TrashFile, ...] = ()
+    """Audio files moved to the system trash once the library is written."""
 
 
 @dataclass(frozen=True, slots=True, kw_only=True)
@@ -125,9 +138,15 @@ class Plan:
         return None
 
     @property
+    def trash(self) -> tuple[TrashFile, ...]:
+        if isinstance(self.action, LibraryAction):
+            return self.action.trash
+        return ()
+
+    @property
     def empty(self) -> bool:
         if isinstance(self.action, LibraryAction):
-            return not self.action.operations
+            return not self.action.operations and not self.action.trash
         return not self.action.write_plan.changes
 
 
@@ -137,4 +156,5 @@ class ApplyResult:
     snapshot: str | None = None
     files_written: int = 0
     operations_applied: int = 0
+    files_trashed: int = 0
     warnings: tuple[str, ...] = ()

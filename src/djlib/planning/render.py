@@ -18,16 +18,24 @@ from djlib.planning.model import (
     NodeChange,
     Plan,
     TrackChange,
+    TrashFile,
 )
 from djlib.planning.tree import show_path
 
 _T = TypeVar("_T")
 
 JSON_FORMAT = "djlib-plan"
-JSON_VERSION = 2
+JSON_VERSION = 3
 
-_SYMBOLS = {"added": "+", "updated": "~", "moved": ">", "missing": "!", "present": "^"}
-_TRACK_ORDER = ("added", "updated", "moved", "missing", "present")
+_SYMBOLS = {
+    "added": "+",
+    "updated": "~",
+    "moved": ">",
+    "missing": "!",
+    "present": "^",
+    "merged": "=",
+}
+_TRACK_ORDER = ("added", "updated", "moved", "missing", "present", "merged")
 
 
 # Text
@@ -50,6 +58,12 @@ def render_text(plan: Plan, *, limit: int = 20) -> str:
         actions = Counter(f.action for f in plan.files)
         lines.append("Files: " + ", ".join(f"{n} to {a}" for a, n in sorted(actions.items())))
         lines.extend(_bounded(plan.files, limit, _file_lines, "files"))
+    if plan.trash:
+        total = sum(f.size for f in plan.trash)
+        lines.append(f"Files to move to the trash: {len(plan.trash)} ({file_size(total)})")
+        lines.extend(
+            _bounded(plan.trash, limit, lambda f: [f"  - {f.path}  ({file_size(f.size)})"], "files")
+        )
     if plan.conflicts:
         export = isinstance(plan.action, ExportAction)
         kept, other = ("target", "the target") if export else ("library", "the file")
@@ -96,6 +110,8 @@ def _track_lines(change: TrackChange) -> list[str]:
     symbol = _SYMBOLS[change.change]
     if change.change == "moved":
         lines = [f"  {symbol} {change.name}  {change.old_path} → {change.path}"]
+    elif change.change == "merged":
+        return [f"  {symbol} {change.name}  {change.path} → merged into {change.merged_into}"]
     else:
         lines = [f"  {symbol} {change.name}  {change.path}"]
     if change.change == "added":
@@ -149,6 +165,15 @@ def _bounded(
     return shown
 
 
+def file_size(size: int) -> str:
+    """A size in bytes as people read it."""
+    if size < 1_000_000:
+        return f"{size / 1000:.0f} kB"
+    if size < 1_000_000_000:
+        return f"{size / 1_000_000:.1f} MB"
+    return f"{size / 1_000_000_000:.2f} GB"
+
+
 def text_value(name: str, value: object) -> str:
     """A field value as people read it."""
     if value is None:
@@ -192,6 +217,7 @@ def to_json(plan: Plan, result: ApplyResult | None = None) -> dict[str, JSONValu
         "playlists": [_node_json(n) for n in plan.nodes],
         "untouched_playlists": plan.untouched_nodes,
         "files": [_file_json(f) for f in plan.files],
+        "trash": [_trash_json(f) for f in plan.trash],
         "losses": [_loss_json(loss) for loss in plan.losses],
         "warnings": list(plan.warnings),
         "conflicts": [_conflict_json(c) for c in plan.conflicts],
@@ -205,6 +231,7 @@ def _track_json(change: TrackChange) -> dict[str, JSONValue]:
         "track_id": None if change.track_id is None else str(change.track_id),
         "path": change.path,
         "old_path": change.old_path,
+        "merged_into": change.merged_into,
         "name": change.name,
         "fields": [
             {
@@ -241,6 +268,10 @@ def _file_json(change: FileChange) -> dict[str, JSONValue]:
     }
 
 
+def _trash_json(file: TrashFile) -> dict[str, JSONValue]:
+    return {"path": file.path, "bytes": file.size}
+
+
 def _loss_json(loss: Loss) -> dict[str, JSONValue]:
     return {
         "kind": loss.kind,
@@ -267,6 +298,7 @@ def _result_json(result: ApplyResult) -> dict[str, JSONValue]:
         "snapshot": result.snapshot,
         "files_written": result.files_written,
         "operations_applied": result.operations_applied,
+        "files_trashed": result.files_trashed,
         "warnings": list(result.warnings),
     }
 

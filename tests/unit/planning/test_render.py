@@ -204,6 +204,7 @@ def test_json_result() -> None:
         "snapshot": "0001-x",
         "files_written": 0,
         "operations_applied": 1,
+        "files_trashed": 0,
         "warnings": [],
     }
 
