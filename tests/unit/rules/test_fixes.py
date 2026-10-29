@@ -114,8 +114,8 @@ def test_letters_of_clean_text_survive(track: Track) -> None:
     fixed = run_all(track, DEFAULTS)
     for name in ("title", "album"):
         before = getattr(track, name)
-        if before is None or fix_encoding_text(before) != before:
-            continue
+        if before is None or not before.strip() or fix_encoding_text(before) != before:
+            continue  # a blank title is filled from the file name, which is the point
         assert _letters(getattr(fixed, name)) == _letters(before)
 
 
