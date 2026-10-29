@@ -6,6 +6,7 @@ from pathlib import Path
 
 DATABASE = "library.db"
 SNAPSHOTS = "snapshots"
+RULES = "rules.yaml"
 
 
 def default_home() -> Path:

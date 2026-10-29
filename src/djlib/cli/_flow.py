@@ -23,11 +23,12 @@ from djlib.planning import (
     to_json,
 )
 from djlib.planning.relocating import Progress
+from djlib.rules import RuleError
 from djlib.snapshots import SnapshotError, SnapshotStore
 from djlib.store import Store, StoreError
 
 # Failures users can act on: one line on stderr, exit code 1, no traceback.
-EXPECTED_ERRORS = (AdapterError, OSError, PlanError, SnapshotError, StoreError)
+EXPECTED_ERRORS = (AdapterError, OSError, PlanError, RuleError, SnapshotError, StoreError)
 
 
 @dataclass(frozen=True, slots=True)
