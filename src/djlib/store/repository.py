@@ -1,6 +1,7 @@
 """Reading and writing the canonical library in a djlib database."""
 
 import contextlib
+import dataclasses
 import datetime
 import json
 import sqlite3
@@ -35,6 +36,7 @@ from djlib.store.operations import (
     RecordSourceValues,
     RefreshState,
     RegisterSource,
+    RelocateTrack,
     ReplaceSourceFolder,
     UpdateImportedTrack,
     UpdateTrack,
@@ -240,6 +242,18 @@ class Store:
                 self._put_source_values(source, track_id, values, item_key)
             case ReplaceSourceFolder(source, folder):
                 self._replace_source_folder(source, folder)
+            case RelocateTrack(track_id, path_origin):
+                self._relocate(track_id, path_origin)
+
+    def _relocate(self, track_id: TrackId, path_origin: str) -> None:
+        """Change only the track's path; its file state, if any, is marked present."""
+        track = dataclasses.replace(self.get_track(track_id), path_origin=path_origin)
+        self._check_path_free(track)
+        self._db.execute(
+            "UPDATE tracks SET path = ?, path_origin = ? WHERE id = ?",
+            (track.path, track.path_origin, str(track_id)),
+        )
+        self._db.execute("UPDATE file_state SET missing = 0 WHERE track_id = ?", (str(track_id),))
 
     def _insert_new_track(self, track: Track) -> None:
         self._check_path_free(track)

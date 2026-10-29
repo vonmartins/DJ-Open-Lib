@@ -8,13 +8,29 @@ import typer
 from djlib.adapters.mixxx import MixxxAdapter
 from djlib.cli import _options
 from djlib.cli._beets import beets_library, default_music_dir
-from djlib.cli._flow import run
+from djlib.cli._flow import fail, run
 from djlib.cli._mixxx import default_mixxx_location, mixxx_database
 from djlib.sources.beets import BeetsSource
 
 __all__ = ["app", "default_mixxx_location"]
 
 app = typer.Typer(help="Import tracks and playlists from another app.", no_args_is_help=True)
+
+FindIn = Annotated[
+    Path | None,
+    typer.Option(
+        "--find-in",
+        help="Look for tracks whose files are not on this computer in this folder;"
+        " only the ones found are imported.",
+        show_default=False,
+    ),
+]
+
+
+def _search_folder(folder: Path | None) -> Path | None:
+    if folder is not None and not folder.expanduser().is_dir():
+        fail(f"{folder} is not a directory")
+    return None if folder is None else folder.expanduser()
 
 
 @app.command("mixxx")
@@ -27,6 +43,7 @@ def mixxx(
             show_default=False,
         ),
     ] = None,
+    find_in: FindIn = None,
     apply: _options.Apply = False,
     yes: _options.Yes = False,
     as_json: _options.Json = False,
@@ -37,9 +54,10 @@ def mixxx(
     """
     adapter = MixxxAdapter()
     location = mixxx_database(adapter, database)
+    folder = _search_folder(find_in)
     run(
         ctx,
-        lambda engine: engine.plan_import(adapter, location),
+        lambda engine: engine.plan_import(adapter, location, find_in=folder),
         apply=apply,
         yes=yes,
         as_json=as_json,
@@ -65,6 +83,7 @@ def beets(
             show_default=False,
         ),
     ] = None,
+    find_in: FindIn = None,
     apply: _options.Apply = False,
     yes: _options.Yes = False,
     as_json: _options.Json = False,
@@ -75,9 +94,10 @@ def beets(
     """
     source = BeetsSource(music_dir=(music_dir or default_music_dir()).expanduser())
     location = beets_library(source, library)
+    folder = _search_folder(find_in)
     run(
         ctx,
-        lambda engine: engine.plan_import(source, location),
+        lambda engine: engine.plan_import(source, location, find_in=folder),
         apply=apply,
         yes=yes,
         as_json=as_json,

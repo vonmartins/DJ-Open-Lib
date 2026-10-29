@@ -66,3 +66,13 @@ def test_quick_hash_small_and_large_files(tmp_path: Path) -> None:
         same_edges, same_edges.stat().st_size
     )
     assert len(quick_hash(small, 100)) == 64
+
+
+def test_progress_counts(tmp_path: Path) -> None:
+    for i in range(600):
+        (tmp_path / f"{i:03d}.mp3").write_bytes(b"")
+    seen: list[int] = []
+
+    found = list(discover(tmp_path, [], progress=seen.append))
+
+    assert len(found) == 600 and seen == [250, 500, 600]

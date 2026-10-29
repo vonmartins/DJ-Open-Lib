@@ -29,6 +29,7 @@ from djlib.planning.model import (
     TrackChange,
     TrackChangeKind,
 )
+from djlib.planning.relocating import Progress, find_files, report
 from djlib.planning.selection import target_name
 from djlib.planning.tree import NodePath, by_path, kind_of
 from djlib.sources.merge import FieldDisagreement, merge_fields
@@ -77,9 +78,15 @@ def plan_import(
     location: str | os.PathLike[str],
     *,
     path_mapping: PathMapping | None = None,
+    find_in: Path | None = None,
+    progress: Progress | None = None,
     now: datetime.datetime,
 ) -> ImportPlan:
-    """Plan importing what ``adapter`` reads at ``location``. Changes nothing."""
+    """Plan importing what ``adapter`` reads at ``location``. Changes nothing.
+
+    With ``find_in``, the source's tracks whose files are not on this computer are looked
+    for there: the found ones are imported at their local path, the others are not.
+    """
     location = Path(location).absolute()
     source = target_name(adapter.name, location)
     read = adapter.read(location, ReadOptions(path_mapping=path_mapping or PathMapping()))
@@ -90,6 +97,13 @@ def plan_import(
 
     links = store.source_links(source)
     linked_keys = {track_id: key for key, track_id in links.items()}
+    local: dict[TrackId, Track] = {}
+    skipped: set[TrackId] = set()
+    found_warnings: list[str] = []
+    if find_in is not None:
+        local, skipped, found_warnings = _find_local(
+            read.library, read.keys, links, library_tracks, existing, find_in, progress
+        )
 
     operations: list[ImportOperation] = []
     changes: list[TrackChange] = []
@@ -99,6 +113,9 @@ def plan_import(
     ids: dict[TrackId, TrackId] = {}  # id in the read library -> id in djlib
     matched: set[TrackId] = set()
     for theirs in sorted(read.library.tracks.values(), key=lambda t: t.path):
+        if theirs.id in skipped:
+            continue
+        theirs = local.get(theirs.id, theirs)
         values = {name: to_json(getattr(theirs, name)) for name in fields}
         key = read.keys.get(theirs.id)
         # The item's earlier track first, so that a track whose path was fixed in djlib
@@ -153,9 +170,48 @@ def plan_import(
         tracks=tuple(changes),
         nodes=nodes,
         conflicts=tuple(conflicts),
-        warnings=(*read.warnings, *warnings, *_missing_files(changes)),
+        warnings=(*read.warnings, *found_warnings, *warnings, *_missing_files(changes)),
         rebased=rebased,
     )
+
+
+def _find_local(
+    read: Library,
+    keys: Mapping[TrackId, str],
+    links: Mapping[str, TrackId],
+    library_tracks: Mapping[TrackId, Track],
+    existing: Mapping[str, Track],
+    folder: Path,
+    progress: Progress | None,
+) -> tuple[dict[TrackId, Track], set[TrackId], list[str]]:
+    """Local copies under ``folder`` of the read tracks that are nowhere else to be found.
+
+    Returns the read tracks rewritten to their local paths, the ids of those not found or
+    ambiguous (not to be imported), and the warnings.
+    """
+    lookups: list[Track] = []
+    here: set[str] = set()
+    for track in read.tracks.values():
+        key = keys.get(track.id)
+        linked = links.get(key) if key is not None else None
+        if (linked is not None and linked in library_tracks) or track.path in existing:
+            continue
+        if Path(track.path_origin).exists():
+            here.add(track.path)
+        else:
+            lookups.append(track)
+    found = find_files(folder, lookups, exclude=here, progress=progress)
+    local = {
+        track_id: dataclasses.replace(track, path_origin=os.fspath(path))
+        for track_id, (track, path, _normalized) in found.chosen.items()
+    }
+    skipped = {t.id for t in (*found.not_found, *found.ambiguous)}
+    warnings = [
+        *found.warnings,
+        *report(found.not_found, f"source tracks are not under {folder} and are not imported"),
+        *report(found.ambiguous, "source tracks match several files and are not imported"),
+    ]
+    return local, skipped, warnings
 
 
 def _missing_files(changes: list[TrackChange]) -> list[str]:
@@ -232,7 +288,7 @@ def _source_folder(
             children = tuple(rebuild(c, (*path, c.name)) for c in node.children)
             return dataclasses.replace(node, id=node_id, children=children)
         if isinstance(node, Playlist):
-            entries = tuple(ids[e] for e in node.entries)
+            entries = tuple(ids[e] for e in node.entries if e in ids)  # skipped tracks drop out
             return dataclasses.replace(node, id=node_id, entries=entries)
         return dataclasses.replace(node, id=node_id)
 

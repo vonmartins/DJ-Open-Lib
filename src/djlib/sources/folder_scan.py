@@ -47,6 +47,9 @@ class _Found:
     mtime_ns: int
 
 
+_PROGRESS_EVERY = 250
+
+
 def quick_hash(path: Path, size: int) -> str:
     """SHA-256 of the size and the first and last 16 KiB (the whole file if smaller)."""
     digest = hashlib.sha256(size.to_bytes(8, "big"))
@@ -60,8 +63,25 @@ def quick_hash(path: Path, size: int) -> str:
     return digest.hexdigest()
 
 
-def discover(root: Path, warnings: list[str]) -> Iterator[_Found]:
-    """Audio files under ``root``, depth first and sorted by name."""
+def discover(
+    root: Path, warnings: list[str], *, progress: Callable[[int], None] | None = None
+) -> Iterator[_Found]:
+    """Audio files under ``root``, depth first and sorted by name.
+
+    ``progress`` is told the number of files found every 250 files and at the end.
+    """
+    if progress is None:
+        yield from _walk(root, warnings)
+        return
+    count = 0
+    for count, found in enumerate(_walk(root, warnings), start=1):
+        if count % _PROGRESS_EVERY == 0:
+            progress(count)
+        yield found
+    progress(count)
+
+
+def _walk(root: Path, warnings: list[str]) -> Iterator[_Found]:
     try:
         entries = sorted(os.scandir(root), key=lambda e: e.name)
     except OSError as error:
@@ -78,7 +98,7 @@ def discover(root: Path, warnings: list[str]) -> Iterator[_Found]:
         path = Path(entry.path)
         try:
             if entry.is_dir(follow_symlinks=False):
-                yield from discover(path, warnings)
+                yield from _walk(path, warnings)
             elif path.suffix.lower() in AUDIO_EXTENSIONS and entry.is_file():
                 stat = entry.stat()
                 yield _Found(path, normalize_path(str(path)), stat.st_size, stat.st_mtime_ns)
@@ -99,6 +119,7 @@ class _Scan:
     store: Store
     root: Path
     now: datetime.datetime
+    progress: Callable[[int], None] | None = None
     warnings: list[str] = field(default_factory=list[str])
     conflicts: list[Conflict] = field(default_factory=list[Conflict])
 
@@ -114,7 +135,7 @@ class _Scan:
         seen: set[str] = set()
         unknown: list[_Found] = []
 
-        for found in discover(self.root, self.warnings):
+        for found in discover(self.root, self.warnings, progress=self.progress):
             track = known.get(found.normalized)
             if track is None:
                 unknown.append(found)
@@ -249,7 +270,20 @@ def scan_folder(
     root: str | os.PathLike[str],
     *,
     clock: Callable[[], datetime.datetime] | None = None,
+    progress: Callable[[Path, int], None] | None = None,
 ) -> ScanPlan:
-    """Scan ``root`` against the tracks of ``store`` below it. Changes nothing."""
+    """Scan ``root`` against the tracks of ``store`` below it. Changes nothing.
+
+    ``progress`` is told the root and how many audio files were found so far.
+    """
     now = (clock or (lambda: datetime.datetime.now(datetime.UTC)))()
-    return _Scan(store, Path(root).absolute(), now).run()
+    folder = Path(root).absolute()
+    count: Callable[[int], None] | None = None
+    if progress is not None:
+        report = progress
+
+        def tell(seen: int) -> None:
+            report(folder, seen)
+
+        count = tell
+    return _Scan(store, folder, now, count).run()

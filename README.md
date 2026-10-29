@@ -88,7 +88,34 @@ uv run djlib --home /tmp/djlib-try import beets ~/Music/.beets.db --apply
   `--music-dir`.
 - If beets runs on another computer (a server, a NAS), its paths may not exist where
   djlib runs. The plan says how many tracks point to files that are not here; they are
-  imported anyway, to be relocated.
+  imported anyway, to be relocated (see below).
+- To bring in only the part of a library you have copied to this computer, add
+  `--find-in FOLDER` (also on `import mixxx`): tracks whose files are not here are looked
+  for in that folder the way `relocate` does, and only the found ones are imported. Run
+  it again after copying more; the tracks imported before are recognised.
+
+  ```sh
+  uv run djlib --home /tmp/djlib-try import beets ~/Music/.beetslibrary.db --find-in ~/Music/Artists
+  ```
+
+### Relocating tracks
+
+```sh
+uv run djlib --home /tmp/djlib-try relocate ~/Elements/Music          # show the plan
+uv run djlib --home /tmp/djlib-try relocate ~/Elements/Music --apply
+```
+
+- For tracks whose files do not exist on this computer (a disk mounted elsewhere, a
+  library made on another machine, a renamed folder), djlib looks for the files under
+  the folder you name, by file name, and plans their new paths. There is nothing to
+  configure, and it is done once.
+- When several files have the same name, the one in the same folders as before wins.
+  If that does not settle it, the track is left alone and the plan says so. A file
+  already used by another track is never taken.
+- Only the path changes: cues, playlists and tags stay, and later imports from the same
+  beets or Mixxx library keep matching the track. Files on disk are not touched.
+- Walking a large or remote folder (sshfs, NAS) can take a while; `relocate`, `scan`
+  and `--find-in` show how many files they have seen so far.
 
 ### Exporting to Mixxx
 

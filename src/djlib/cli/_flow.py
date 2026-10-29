@@ -22,6 +22,7 @@ from djlib.planning import (
     render_text,
     to_json,
 )
+from djlib.planning.relocating import Progress
 from djlib.snapshots import SnapshotError, SnapshotStore
 from djlib.store import Store, StoreError
 
@@ -42,7 +43,9 @@ class Home:
         return SnapshotStore(self.path / SNAPSHOTS)
 
     @contextlib.contextmanager
-    def engine(self, *, create: bool = False) -> Generator[Engine]:
+    def engine(
+        self, *, create: bool = False, progress: Progress | None = None
+    ) -> Generator[Engine]:
         """An engine on the library.
 
         Without ``create``, a home that has no library yet gets an in-memory one, so
@@ -52,7 +55,7 @@ class Home:
             self.path.mkdir(parents=True, exist_ok=True)
         exists = create or self.database.exists()
         with Store.open(str(self.database) if exists else ":memory:") as store:
-            yield Engine(store, self.snapshots)
+            yield Engine(store, self.snapshots, progress=progress)
 
 
 def home_of(ctx: typer.Context) -> Home:
@@ -86,6 +89,28 @@ def stdin_is_interactive() -> bool:
     return sys.stdin.isatty()
 
 
+def stderr_is_interactive() -> bool:
+    return sys.stderr.isatty()
+
+
+class FolderProgress:
+    """Shows, on one line of standard error, how many files a folder walk has seen."""
+
+    def __init__(self) -> None:
+        self._shown = False
+
+    def __call__(self, folder: Path, seen: int) -> None:
+        sys.stderr.write(f"\r\033[KSearching {folder}: {seen} files")
+        sys.stderr.flush()
+        self._shown = True
+
+    def clear(self) -> None:
+        if self._shown:
+            sys.stderr.write("\r\033[K")
+            sys.stderr.flush()
+            self._shown = False
+
+
 def run(
     ctx: typer.Context,
     make_plan: Callable[[Engine], Plan],
@@ -96,8 +121,13 @@ def run(
 ) -> None:
     """Plan with ``make_plan``, show the plan, and apply it when asked and confirmed."""
     home = home_of(ctx)
-    with reported_errors(), home.engine() as engine:
-        plan = make_plan(engine)
+    progress = FolderProgress() if stderr_is_interactive() else None
+    with reported_errors(), home.engine(progress=progress) as engine:
+        try:
+            plan = make_plan(engine)
+        finally:
+            if progress is not None:
+                progress.clear()
         if not as_json:
             typer.echo(render_text(plan), nl=False)
         result = None
