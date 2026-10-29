@@ -31,7 +31,7 @@ def fix(
     as_json: _options.Json = False,
 ) -> None:
     """Plan cleaning the tags of every track: URLs, video ids, odd characters, featured
-    artists, remixers, missing titles… Each change names the fix or rule that made it.
+    artists, remixers, missing titles... Each change names the fix or rule that made it.
 
     Only djlib's library changes; audio files are never touched.
     """
