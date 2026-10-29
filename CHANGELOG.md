@@ -9,6 +9,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Cleaning tags (`djlib fix`): ten bundled fixes (URLs, video ids, mojibake and HTML
+  entities, full-width and odd characters, underscores, leading numbers, featured
+  artists, remixers, titles from file names, and an opt-in case fix), tested against
+  per-fix tables, a clean corpus of about 400 titles in many genres and scripts, and
+  properties such as idempotence. A YAML rules file tunes or disables fixes and adds
+  rules made of conditions (shared with smartlists) and `replace` or `set` actions.
+  Each planned change names the fix or rule that made it (`by` in the plan JSON).
 - Relocating tracks (`djlib relocate FOLDER`): tracks whose files are not on this
   computer are matched by file name under a folder (the same trailing folders win; ties
   without a recorded size are reported, never guessed) and get their new paths through a
