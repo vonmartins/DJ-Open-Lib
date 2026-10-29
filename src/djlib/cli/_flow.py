@@ -181,6 +181,7 @@ def _report(plan: Plan, result: ApplyResult | None) -> None:
             f"Applied. Snapshot {result.snapshot} of {plan.target} holds the previous state."
         )
         if result.files_trashed:
-            typer.echo(f"Moved {result.files_trashed} files to the system trash.")
+            files = "file" if result.files_trashed == 1 else "files"
+            typer.echo(f"Moved {result.files_trashed} {files} to the system trash.")
     for warning in result.warnings:
         typer.echo(f"warning: {warning}", err=True)

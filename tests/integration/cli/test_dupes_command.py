@@ -94,7 +94,7 @@ def test_another_track_kept(tmp_path: Path, trashed: list[str]) -> None:
     assert result.exit_code == 0, result.stderr
     assert paths(tmp_path) == ["Numb.mp3"]
     assert trashed == [str(files["Numb.flac"])]
-    assert "Moved 1 files to the system trash." in result.stdout
+    assert "Moved 1 file to the system trash." in result.stdout
 
 
 def test_unknown_keep(tmp_path: Path) -> None:

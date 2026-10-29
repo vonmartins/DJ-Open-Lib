@@ -81,7 +81,8 @@ def _kept(groups: Sequence[Group], paths: Sequence[str]) -> dict[GroupKey, Decis
 
 def _ask(groups: Sequence[Group], kept: dict[GroupKey, Decision]) -> dict[GroupKey, Decision]:
     decisions = dict(kept)
-    typer.echo(f"{len(groups)} groups of duplicates. {_ANSWERS}.")
+    noun = "group" if len(groups) == 1 else "groups"
+    typer.echo(f"{len(groups)} {noun} of duplicates. {_ANSWERS}.")
     for index, group in enumerate(groups, start=1):
         default = kept.get(group.key, group.copies[0].track.id)
         number = next(i for i, c in enumerate(group.copies, start=1) if c.track.id == default)
