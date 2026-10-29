@@ -1,0 +1,33 @@
+{
+ "results": [
+  {
+   "id": "b3813bea-a3f8-4ee9-bd4a-a1a5b952a5db",
+   "recordings": [
+    {
+     "artists": [
+      {
+       "id": "c1090619-5f94-4cbd-99e1-344a312cdcdf",
+       "name": "Lung"
+      }
+     ],
+     "duration": 360.674,
+     "id": "73d6b7b1-2a6b-42b9-b92b-575774a70180",
+     "title": "Afterlife (Kryptic Minds remix)"
+    },
+    {
+     "artists": [
+      {
+       "id": "c1090619-5f94-4cbd-99e1-344a312cdcdf",
+       "name": "Lung"
+      }
+     ],
+     "duration": 360.0,
+     "id": "bf6253d6-1245-4d94-a0b2-22a870f1614b",
+     "title": "Afterlife (Kryptic Minds remix)"
+    }
+   ],
+   "score": 0.97498024
+  }
+ ],
+ "status": "ok"
+}

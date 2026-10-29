@@ -1,0 +1,92 @@
+{
+ "releases": [
+  {
+   "title": "The Sound of Dubstep 2",
+   "genres": [
+    {
+     "name": "dubstep",
+     "disambiguation": "",
+     "id": "1b50083b-1afa-4778-82c8-548b309af783",
+     "count": 1
+    },
+    {
+     "count": 1,
+     "disambiguation": "",
+     "id": "95c57cd7-7fb8-4405-ade1-775c2d27e54e",
+     "name": "uk garage"
+    }
+   ],
+   "status-id": "4e304316-386d-3409-af2e-78857eec5cfe",
+   "packaging-id": "119eba76-b343-3e02-a292-f0f00644bb9b",
+   "artist-credit": [
+    {
+     "name": "Various Artists",
+     "joinphrase": "",
+     "artist": {
+      "type": "Other",
+      "sort-name": "Various Artists",
+      "id": "89ad4ac3-39f7-470e-963a-56509c546377",
+      "genres": [],
+      "country": null,
+      "name": "Various Artists",
+      "type-id": "ac897045-5043-3294-969b-187360e45d86",
+      "disambiguation": "add compilations to this artist"
+     }
+    }
+   ],
+   "packaging": "None",
+   "text-representation": {
+    "language": "eng",
+    "script": "Latn"
+   },
+   "id": "b30fa2fc-a6bd-47b3-a067-f7df0883e6cf",
+   "status": "Official",
+   "date": "2010-12-24",
+   "release-events": [
+    {
+     "area": {
+      "iso-3166-1-codes": [
+       "GB"
+      ],
+      "type-id": null,
+      "disambiguation": "",
+      "name": "United Kingdom",
+      "id": "8a754a16-0027-3a29-b6d7-2b40ea0481ed",
+      "sort-name": "United Kingdom",
+      "type": null
+     },
+     "date": "2010-12-24"
+    }
+   ],
+   "barcode": null,
+   "disambiguation": "mixed + unmixed",
+   "country": "GB",
+   "quality": "normal"
+  }
+ ],
+ "id": "bf6253d6-1245-4d94-a0b2-22a870f1614b",
+ "length": 360000,
+ "relations": [],
+ "disambiguation": "",
+ "first-release-date": "2010-12-24",
+ "title": "Afterlife (Kryptic Minds remix)",
+ "genres": [],
+ "video": false,
+ "artist-credit": [
+  {
+   "name": "Lung",
+   "joinphrase": "",
+   "artist": {
+    "sort-name": "Lung",
+    "type": "Person",
+    "genres": [],
+    "id": "c1090619-5f94-4cbd-99e1-344a312cdcdf",
+    "name": "Lung",
+    "country": null,
+    "type-id": "b6e035f4-3ce9-331c-97df-83397230b0df",
+    "disambiguation": "producer / DJ James Ellaway"
+   }
+  }
+ ],
+ "isrcs": []
+}

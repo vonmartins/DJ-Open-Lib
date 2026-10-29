@@ -1,0 +1,79 @@
+{
+ "releases": [
+  {
+   "id": "ac691ae5-72e1-4571-a907-7eefad6ad2f7",
+   "disambiguation": "",
+   "country": "XW",
+   "packaging": "None",
+   "status": "Official",
+   "barcode": null,
+   "genres": [],
+   "quality": "normal",
+   "artist-credit": [
+    {
+     "name": "Various Artists",
+     "artist": {
+      "name": "Various Artists",
+      "sort-name": "Various Artists",
+      "type": "Other",
+      "country": null,
+      "disambiguation": "add compilations to this artist",
+      "id": "89ad4ac3-39f7-470e-963a-56509c546377",
+      "type-id": "ac897045-5043-3294-969b-187360e45d86",
+      "genres": []
+     },
+     "joinphrase": ""
+    }
+   ],
+   "text-representation": {
+    "language": "eng",
+    "script": "Latn"
+   },
+   "packaging-id": "119eba76-b343-3e02-a292-f0f00644bb9b",
+   "release-events": [
+    {
+     "date": "2010-12-20",
+     "area": {
+      "name": "[Worldwide]",
+      "type": null,
+      "sort-name": "[Worldwide]",
+      "disambiguation": "",
+      "type-id": null,
+      "id": "525d4e18-3d00-31b9-a58b-a146a916de8f",
+      "iso-3166-1-codes": [
+       "XW"
+      ]
+     }
+    }
+   ],
+   "status-id": "4e304316-386d-3409-af2e-78857eec5cfe",
+   "title": "Pure Dubstep",
+   "date": "2010-12-20"
+  }
+ ],
+ "disambiguation": "",
+ "video": false,
+ "isrcs": [],
+ "title": "Afterlife (Kryptic Minds remix)",
+ "genres": [],
+ "relations": [],
+ "id": "73d6b7b1-2a6b-42b9-b92b-575774a70180",
+ "artist-credit": [
+  {
+   "name": "Lung",
+   "artist": {
+    "disambiguation": "producer / DJ James Ellaway",
+    "country": null,
+    "type": "Person",
+    "sort-name": "Lung",
+    "name": "Lung",
+    "genres": [],
+    "type-id": "b6e035f4-3ce9-331c-97df-83397230b0df",
+    "id": "c1090619-5f94-4cbd-99e1-344a312cdcdf"
+   },
+   "joinphrase": ""
+  }
+ ],
+ "length": 360674,
+ "first-release-date": "2010-12-20"
+}
