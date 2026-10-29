@@ -9,6 +9,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Browsing the library: `djlib status` (summary), `djlib list` (tracks, filtered with
+  `--where "FIELD OP VALUE"`, `--under`, `--playlist` and `--missing`), `djlib show
+  TRACK` (one track, by path or id) and `djlib playlists` (the tree with track counts),
+  all with `--json`. They never write.
+- `--under FOLDER` on `fix` and `dupes`, `--skip` and `--ignore` on `dupes --merge`, and
+  a repeatable `fix --only`.
+- With `--json`, errors are printed as a JSON document with a stable `code`.
+- A Python API: `djlib.open_library()` opens the library of the command line's home, and
+  `djlib` exports the stable names.
+- Help texts in one format, with an example per command, grouped in the root help, which
+  also states the dry-run rule and the exit codes (0, 1 and 2).
+
 - Merging duplicates (`djlib dupes`): tracks that are the same song (same MusicBrainz
   recording, or same normalized artist and title with lengths within 3 seconds; versions
   stay apart) are reported with their format, bitrate, cues and playlists and a
@@ -98,6 +110,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   pre-commit hooks and CI on Linux, macOS and Windows.
 
 ### Changed
+
+- **Breaking:** `djlib snapshot restore TARGET ID` shows what it would restore and
+  writes nothing without `--apply`, like the other commands. It also accepts `--json`.
+- Every path argument and option expands `~`. A folder that does not exist is reported
+  as such by every command.
 
 - Plan JSON version 2: track changes and conflicts name the track under `name`
   (was `label`, easy to confuse with the record label), and added tracks list every

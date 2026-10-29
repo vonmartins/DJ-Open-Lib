@@ -38,7 +38,8 @@ uv run djlib --home /tmp/djlib-try export m3u /tmp/playlists --playlist Techno/P
 uv run djlib --home /tmp/djlib-try export m3u /tmp/playlists --modified
 
 uv run djlib --home /tmp/djlib-try snapshot list
-uv run djlib --home /tmp/djlib-try snapshot restore <target> <id>
+uv run djlib --home /tmp/djlib-try snapshot restore <target> <id>          # show what it restores
+uv run djlib --home /tmp/djlib-try snapshot restore <target> <id> --apply
 ```
 
 - The home directory holds `library.db` and `snapshots/`. By default it is
@@ -256,6 +257,86 @@ uv run djlib --home /tmp/djlib-try export mixxx ~/mixxx-test --playlist Techno/P
   as losses.
 - The previous database is kept as a snapshot: `djlib snapshot list` and
   `djlib snapshot restore <target> <id>` put it back (with Mixxx closed).
+
+## Commands
+
+`djlib --help` groups the commands; `djlib COMMAND --help` describes each one with an
+example. The same rules hold for all of them:
+
+- Commands that change something show a plan and write nothing unless `--apply` is
+  given. `--apply` asks for confirmation; `--yes` (`-y`) skips the question.
+- `--json` prints a single JSON document on standard output. The document has a
+  `format` and a `version`. Questions and progress go to standard error.
+- `--under FOLDER` limits a command to the tracks under a folder, and `--playlist`
+  (`-p`) to a playlist or a folder of playlists, such as `Sets/Friday`. Both can be
+  repeated where it makes sense.
+- Paths may start with `~`. A folder that does not exist is an error.
+
+| Command | What it does |
+| --- | --- |
+| `status` | Summary: tracks, missing files, playlists, imported apps, last snapshots, duplicates |
+| `list` | Tracks, filtered with `--where`, `--under`, `-p` and `--missing` |
+| `show TRACK` | Everything about one track, by path or id |
+| `playlists` | The playlist tree with track counts |
+| `scan FOLDER` | Add, update, move and mark missing the tracks of a music folder |
+| `relocate FOLDER` | Find moved files of tracks that are missing |
+| `fix` | Clean tags with the bundled fixes and your rules (`--only`, `--rules`, `--under`) |
+| `enrich` | Tags from MusicBrainz, by the sound (`--under`, `--refresh`); the only command that uses the network |
+| `dupes` | Report duplicates; `--merge` merges them (`--keep`, `--skip`, `--ignore`, `--keep-files`, `--under`) |
+| `import mixxx` / `import beets` | Import another app's library, read only (`--find-in`) |
+| `export m3u FOLDER` / `export mixxx` | Write playlists out (`-p`, `--modified`) |
+| `snapshot list` / `snapshot restore TARGET ID` | List snapshots; put a target back as it was |
+
+`--where` takes `FIELD OP VALUE`, with the field names of the rules and the operators
+`=`, `!=`, `~` (contains), `!~`, `>`, `>=`, `<` and `<=`. Text comparisons ignore case.
+`genre=` matches tracks without a genre, and `genre!=` tracks with one.
+
+```sh
+djlib list --where "genre=Techno" --where "bpm>=128" --where "bpm<135"
+djlib list -p Sets/Friday --missing
+djlib show ~/Music/techno/a.flac
+```
+
+Exit codes are:
+
+- 0 for success, including a dry run, a declined plan and nothing to do;
+- 1 for an error, printed as one line on standard error;
+- 2 for wrong usage, such as an unknown option.
+
+### Using djlib from another program
+
+A TUI, a desktop app or a script can use djlib in two ways.
+
+From any language, call the commands with `--json`. Every document names its
+`format` and `version`, and a new version means an incompatible change. With
+`--json`, errors are a JSON document on standard error:
+
+```json
+{"error": {"code": "unknown_playlist", "message": "no playlist or folder at 'Nope'"}}
+```
+
+The codes are: `invalid_argument`, `not_found`, `needs_yes`, `unknown_playlist`,
+`stale_target`, `apply_failed` (with `target`, `snapshot` and `restored`),
+`not_a_library`, `library_too_new`, `invalid_rule`, `adapter_error`, `enrich_error`,
+`plan_error`, `snapshot_error`, `store_error` and `os_error`.
+
+For a client to apply a plan its user confirmed, it shows the `--json` dry run, then
+runs the same command with `--apply --yes`. A plan made on a library that changed
+meanwhile fails with `stale_target` instead of writing. `dupes --merge` takes every
+answer of the interactive merge as options (`--keep`, `--skip`, `--ignore`).
+
+From Python, import `djlib`. The names it exports are the stable API; other modules
+are internal.
+
+```python
+import djlib
+
+with djlib.open_library() as engine:  # the home of the command line, or pass a path
+    for track in djlib.select(engine.store, where=[djlib.parse_where("bpm>=170")]):
+        print(track.artist, track.title)
+    plan = engine.plan_scan("/path/to/music")
+    print(djlib.render_text(plan))
+```
 
 ## Development
 
