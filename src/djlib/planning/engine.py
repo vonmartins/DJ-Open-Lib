@@ -13,8 +13,10 @@ from pathlib import Path
 from djlib.adapters.contract import Adapter, ReadOptions, WriteOptions, WritePlan
 from djlib.adapters.losses import display_name
 from djlib.adapters.pathmap import PathMapping
+from djlib.enrich.service import Services
 from djlib.model.library import Library
 from djlib.planning.diff import diff_export, diff_scan
+from djlib.planning.enriching import Steps, plan_enrich
 from djlib.planning.errors import ApplyFailedError, PlanError, StaleTargetError
 from djlib.planning.exporting import export_bases, merge_export, target_paths
 from djlib.planning.fixing import plan_fix
@@ -155,6 +157,29 @@ class Engine:
             action=LibraryAction(operations=relocation.operations, base_revision=revision),
             tracks=relocation.tracks,
             warnings=relocation.warnings,
+        )
+
+    def plan_enrich(
+        self,
+        services: Services,
+        *,
+        under: str | os.PathLike[str] | None = None,
+        steps: Steps | None = None,
+    ) -> Plan:
+        """Plan tags from MusicBrainz for the tracks AcoustID recognizes by their sound.
+
+        This is the only plan that uses the network, through ``services``.
+        """
+        revision = self.store.revision()
+        folder = None if under is None else Path(under).absolute()
+        enriched = plan_enrich(self.store, services, under=folder, now=self._clock(), steps=steps)
+        return Plan(
+            target=LIBRARY_TARGET,
+            title="enrich from MusicBrainz" if folder is None else f"enrich {folder}",
+            action=LibraryAction(operations=enriched.operations, base_revision=revision),
+            tracks=enriched.tracks,
+            conflicts=enriched.conflicts,
+            warnings=enriched.warnings,
         )
 
     def plan_export(

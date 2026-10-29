@@ -85,3 +85,37 @@ class FakeFpcalc:
         duration, fingerprint = self.prints[name]
         out = json.dumps({"duration": duration, "fingerprint": fingerprint})
         return subprocess.CompletedProcess(arguments, 0, out, "")
+
+
+def fixture(name: str) -> Any:
+    return json.loads((FIXTURES / name).read_text(encoding="utf-8"))
+
+
+def catalogue(lookups: Mapping[str, Any]) -> FakeTransport:
+    """A transport answering like AcoustID and MusicBrainz from the recorded fixtures.
+
+    ``lookups`` maps a fingerprint to the AcoustID answer for it; MusicBrainz recordings
+    and releases come from ``recording-<id>.json`` and ``release-<id>.json``.
+    """
+    transport = FakeTransport()
+
+    def lookup(_url: str, data: Mapping[str, str] | None) -> Any:
+        assert data is not None
+        return lookups[data["fingerprint"]]
+
+    def entity(url: str, _data: Mapping[str, str] | None) -> Any:
+        kind, rest = url.removeprefix("https://musicbrainz.org/ws/2/").split("/", 1)
+        path = FIXTURES / f"{kind}-{rest.split('?', 1)[0]}.json"
+        if not path.exists():
+            return Response(404, b'{"error": "Not Found"}')
+        return fixture(path.name)
+
+    transport.route("https://api.acoustid.org/", lookup)
+    transport.route("https://musicbrainz.org/", entity)
+    return transport
+
+
+def answer(recording_id: str, *, score: float = 0.98, title: str, duration: float) -> Any:
+    """An AcoustID answer with one recording."""
+    recording = {"id": recording_id, "title": title, "duration": duration}
+    return {"status": "ok", "results": [{"score": score, "recordings": [recording]}]}
