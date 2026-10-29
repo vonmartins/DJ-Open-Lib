@@ -1,0 +1,94 @@
+{
+ "genres": [],
+ "relations": [],
+ "length": 305000,
+ "id": "82eaaf51-321f-4cc6-9fc0-ec55f637d2fc",
+ "artist-credit": [
+  {
+   "name": "Nanobyte",
+   "artist": {
+    "name": "Nanobyte",
+    "type": "Group",
+    "sort-name": "Nanobyte",
+    "disambiguation": "Anthony Camilleri and Simon Horne",
+    "country": "GB",
+    "type-id": "e431f5f6-b5d2-343d-8b36-72607fffb74b",
+    "id": "e5107db6-ed66-4118-a239-e71121a56c9e",
+    "genres": []
+   },
+   "joinphrase": ""
+  }
+ ],
+ "first-release-date": "2012-07-15",
+ "releases": [
+  {
+   "id": "faeabdc0-b3f6-45a7-88f1-d51ff21bb141",
+   "status": "Official",
+   "packaging": "None",
+   "country": "NZ",
+   "disambiguation": "",
+   "genres": [
+    {
+     "count": 2,
+     "id": "1b50083b-1afa-4778-82c8-548b309af783",
+     "disambiguation": "",
+     "name": "dubstep"
+    },
+    {
+     "name": "electronic",
+     "disambiguation": "",
+     "count": 2,
+     "id": "89255676-1f14-4dd8-bbad-fca839d6aff4"
+    }
+   ],
+   "barcode": "5055317228895",
+   "artist-credit": [
+    {
+     "joinphrase": "",
+     "artist": {
+      "name": "Nanobyte",
+      "country": "GB",
+      "disambiguation": "Anthony Camilleri and Simon Horne",
+      "type": "Group",
+      "sort-name": "Nanobyte",
+      "genres": [],
+      "type-id": "e431f5f6-b5d2-343d-8b36-72607fffb74b",
+      "id": "e5107db6-ed66-4118-a239-e71121a56c9e"
+     },
+     "name": "Nanobyte"
+    }
+   ],
+   "quality": "normal",
+   "title": "Kalyke EP",
+   "date": "2012-07-15",
+   "text-representation": {
+    "script": "Latn",
+    "language": "eng"
+   },
+   "release-events": [
+    {
+     "area": {
+      "type-id": null,
+      "id": "8524c7d9-f472-3890-a458-f28d5081d9c4",
+      "iso-3166-1-codes": [
+       "NZ"
+      ],
+      "type": null,
+      "sort-name": "New Zealand",
+      "disambiguation": "",
+      "name": "New Zealand"
+     },
+     "date": "2012-07-15"
+    }
+   ],
+   "status-id": "4e304316-386d-3409-af2e-78857eec5cfe",
+   "packaging-id": "119eba76-b343-3e02-a292-f0f00644bb9b"
+  }
+ ],
+ "disambiguation": "",
+ "video": false,
+ "title": "Tek-1",
+ "isrcs": [
+  "NZIN01200020"
+ ]
+}

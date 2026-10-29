@@ -9,6 +9,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Enriching tags (`djlib enrich`): tracks are fingerprinted with `fpcalc`, recognized
+  by AcoustID and tagged from MusicBrainz (title, artist, remixer, album, dates, label,
+  track and disc numbers; the genre only when empty), through a plan where each change
+  is marked `musicbrainz`. The first run normalizes; later runs keep edits made in
+  djlib. Ambiguous, unknown and disagreeing tracks are reported, never guessed.
+  Answers are cached in the djlib home (`--refresh` asks again), `--under FOLDER`
+  limits the run, and no other command uses the network.
 - Cleaning tags (`djlib fix`): ten bundled fixes (URLs, video ids, mojibake and HTML
   entities, full-width and odd characters, underscores, leading numbers, featured
   artists, remixers, titles from file names, and an opt-in case fix), tested against

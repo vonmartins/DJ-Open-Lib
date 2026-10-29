@@ -117,6 +117,40 @@ uv run djlib --home /tmp/djlib-try relocate ~/Elements/Music --apply
 - Walking a large or remote folder (sshfs, NAS) can take a while; `relocate`, `scan`
   and `--find-in` show how many files they have seen so far.
 
+### Enriching tags
+
+```sh
+uv run djlib --home /tmp/djlib-try enrich                    # show what would change
+uv run djlib --home /tmp/djlib-try enrich --under ~/Music/New --apply
+```
+
+`djlib enrich` recognizes each track by its sound and takes its tags from
+[MusicBrainz](https://musicbrainz.org). It needs `fpcalc` from Chromaprint
+(Arch: `pacman -S chromaprint`; Debian/Ubuntu: `apt install libchromaprint-tools`;
+macOS: `brew install chromaprint`; Windows: download it from
+[acoustid.org/chromaprint](https://acoustid.org/chromaprint)).
+
+- **What is sent:** the fingerprint of the first two minutes of each file and its
+  length go to [AcoustID](https://acoustid.org); the recognized recording and release
+  ids go to MusicBrainz. No file names, paths or tags are sent. This is the only
+  command that uses the network, and only when you run it.
+- **What changes:** the first time a track is enriched, it takes MusicBrainz's title,
+  artist, remixer, album, album artist, year, release date, label, and track and disc
+  numbers, so names are spelled the same across your library. The genre is filled only
+  when empty. MusicBrainz ids, the ISRC and the catalogue number are kept with the
+  track. Every change is shown in the plan, marked `(musicbrainz)`.
+- **Later runs:** fields you edit in djlib are kept; when both you and MusicBrainz
+  changed a field, your value stays and the plan lists the conflict.
+- **No guessing:** tracks with several possible recordings, recognized but not in
+  MusicBrainz, not recognized, or whose MusicBrainz id (from beets) points elsewhere,
+  are left unchanged and listed in the plan's warnings. Once applied, a re-run of an
+  unchanged library just says `Nothing to do.`
+- **Speed and cache:** MusicBrainz allows one request per second, so a first run takes
+  about two seconds per track. Fingerprints and answers are cached in `cache.db` in the
+  djlib home, so later runs are quick and work offline; `--refresh` asks again.
+
+Set `DJLIB_ACOUSTID_KEY` to use your own AcoustID application key.
+
 ### Cleaning tags
 
 ```sh

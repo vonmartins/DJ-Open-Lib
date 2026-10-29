@@ -1,0 +1,263 @@
+{
+ "cover-art-archive": {
+  "darkened": false,
+  "front": true,
+  "back": false,
+  "count": 1,
+  "artwork": true
+ },
+ "disambiguation": "",
+ "packaging": "None",
+ "release-events": [
+  {
+   "date": "2012-07-15",
+   "area": {
+    "name": "New Zealand",
+    "sort-name": "New Zealand",
+    "iso-3166-1-codes": [
+     "NZ"
+    ],
+    "type-id": null,
+    "type": null,
+    "disambiguation": "",
+    "id": "8524c7d9-f472-3890-a458-f28d5081d9c4"
+   }
+  }
+ ],
+ "status-id": "4e304316-386d-3409-af2e-78857eec5cfe",
+ "asin": null,
+ "packaging-id": "119eba76-b343-3e02-a292-f0f00644bb9b",
+ "barcode": "5055317228895",
+ "media": [
+  {
+   "track-offset": 0,
+   "position": 1,
+   "id": "8d27aa45-9bb0-3bdc-8ccc-c49fd253ece4",
+   "title": "",
+   "format-id": "907a28d9-b3b2-3ef6-89a8-7b18d91d4794",
+   "track-count": 4,
+   "format": "Digital Media",
+   "tracks": [
+    {
+     "recording": {
+      "disambiguation": "",
+      "title": "Kalyke",
+      "id": "4312e62b-99c6-4f1f-b599-231afbce443d",
+      "length": 439000,
+      "video": false,
+      "artist-credit": [
+       {
+        "joinphrase": "",
+        "artist": {
+         "type-id": "e431f5f6-b5d2-343d-8b36-72607fffb74b",
+         "country": "GB",
+         "id": "e5107db6-ed66-4118-a239-e71121a56c9e",
+         "disambiguation": "Anthony Camilleri and Simon Horne",
+         "type": "Group",
+         "name": "Nanobyte",
+         "sort-name": "Nanobyte"
+        },
+        "name": "Nanobyte"
+       }
+      ],
+      "first-release-date": "2012-07-15"
+     },
+     "number": "1",
+     "artist-credit": [
+      {
+       "name": "Nanobyte",
+       "joinphrase": "",
+       "artist": {
+        "type-id": "e431f5f6-b5d2-343d-8b36-72607fffb74b",
+        "type": "Group",
+        "disambiguation": "Anthony Camilleri and Simon Horne",
+        "country": "GB",
+        "id": "e5107db6-ed66-4118-a239-e71121a56c9e",
+        "sort-name": "Nanobyte",
+        "name": "Nanobyte"
+       }
+      }
+     ],
+     "length": 439000,
+     "position": 1,
+     "id": "18813307-5b59-4a12-9f9d-d03f1b427b38",
+     "title": "Kalyke"
+    },
+    {
+     "artist-credit": [
+      {
+       "name": "Nanobyte",
+       "joinphrase": "",
+       "artist": {
+        "disambiguation": "Anthony Camilleri and Simon Horne",
+        "type": "Group",
+        "country": "GB",
+        "id": "e5107db6-ed66-4118-a239-e71121a56c9e",
+        "type-id": "e431f5f6-b5d2-343d-8b36-72607fffb74b",
+        "sort-name": "Nanobyte",
+        "name": "Nanobyte"
+       }
+      }
+     ],
+     "number": "2",
+     "recording": {
+      "length": 305000,
+      "video": false,
+      "artist-credit": [
+       {
+        "joinphrase": "",
+        "artist": {
+         "name": "Nanobyte",
+         "sort-name": "Nanobyte",
+         "id": "e5107db6-ed66-4118-a239-e71121a56c9e",
+         "country": "GB",
+         "disambiguation": "Anthony Camilleri and Simon Horne",
+         "type": "Group",
+         "type-id": "e431f5f6-b5d2-343d-8b36-72607fffb74b"
+        },
+        "name": "Nanobyte"
+       }
+      ],
+      "first-release-date": "2012-07-15",
+      "disambiguation": "",
+      "title": "Tek-1",
+      "id": "82eaaf51-321f-4cc6-9fc0-ec55f637d2fc"
+     },
+     "length": 305000,
+     "title": "Tek-1",
+     "id": "9e736340-48ad-4635-ba91-b08a0322893a",
+     "position": 2
+    },
+    {
+     "length": 336000,
+     "position": 3,
+     "title": "Rogue",
+     "id": "f4f06352-4105-40a6-b775-446fb1b7fbfc",
+     "recording": {
+      "artist-credit": [
+       {
+        "name": "Nanobyte",
+        "artist": {
+         "sort-name": "Nanobyte",
+         "name": "Nanobyte",
+         "disambiguation": "Anthony Camilleri and Simon Horne",
+         "type": "Group",
+         "country": "GB",
+         "id": "e5107db6-ed66-4118-a239-e71121a56c9e",
+         "type-id": "e431f5f6-b5d2-343d-8b36-72607fffb74b"
+        },
+        "joinphrase": ""
+       }
+      ],
+      "first-release-date": "2012-07-15",
+      "length": 336000,
+      "video": false,
+      "title": "Rogue",
+      "id": "90a02c2c-8dfa-4e50-9206-53941c086bef",
+      "disambiguation": ""
+     },
+     "number": "3",
+     "artist-credit": [
+      {
+       "name": "Nanobyte",
+       "artist": {
+        "name": "Nanobyte",
+        "sort-name": "Nanobyte",
+        "type-id": "e431f5f6-b5d2-343d-8b36-72607fffb74b",
+        "country": "GB",
+        "id": "e5107db6-ed66-4118-a239-e71121a56c9e",
+        "disambiguation": "Anthony Camilleri and Simon Horne",
+        "type": "Group"
+       },
+       "joinphrase": ""
+      }
+     ]
+    },
+    {
+     "position": 4,
+     "title": "Lost Time",
+     "id": "261fadd5-3445-45c4-a6b7-2480d290bbe6",
+     "length": 449000,
+     "recording": {
+      "disambiguation": "",
+      "title": "Lost Time",
+      "id": "9b0cea49-02d8-4183-b061-dcce6241def3",
+      "length": 449000,
+      "video": false,
+      "artist-credit": [
+       {
+        "name": "Nanobyte",
+        "joinphrase": "",
+        "artist": {
+         "type-id": "e431f5f6-b5d2-343d-8b36-72607fffb74b",
+         "country": "GB",
+         "id": "e5107db6-ed66-4118-a239-e71121a56c9e",
+         "disambiguation": "Anthony Camilleri and Simon Horne",
+         "type": "Group",
+         "sort-name": "Nanobyte",
+         "name": "Nanobyte"
+        }
+       }
+      ],
+      "first-release-date": "2012-07-15"
+     },
+     "number": "4",
+     "artist-credit": [
+      {
+       "name": "Nanobyte",
+       "joinphrase": "",
+       "artist": {
+        "disambiguation": "Anthony Camilleri and Simon Horne",
+        "type": "Group",
+        "country": "GB",
+        "id": "e5107db6-ed66-4118-a239-e71121a56c9e",
+        "type-id": "e431f5f6-b5d2-343d-8b36-72607fffb74b",
+        "name": "Nanobyte",
+        "sort-name": "Nanobyte"
+       }
+      }
+     ]
+    }
+   ]
+  }
+ ],
+ "country": "NZ",
+ "title": "Kalyke EP",
+ "date": "2012-07-15",
+ "id": "faeabdc0-b3f6-45a7-88f1-d51ff21bb141",
+ "text-representation": {
+  "script": "Latn",
+  "language": "eng"
+ },
+ "quality": "normal",
+ "label-info": [
+  {
+   "catalog-number": "IMR006",
+   "label": {
+    "name": "Innamind Recordings",
+    "sort-name": "Innamind Recordings",
+    "disambiguation": "",
+    "type": null,
+    "id": "ccb403f7-a4e5-4fd3-9a42-5f5b0c8980e1",
+    "label-code": null,
+    "type-id": null
+   }
+  }
+ ],
+ "status": "Official",
+ "artist-credit": [
+  {
+   "name": "Nanobyte",
+   "joinphrase": "",
+   "artist": {
+    "name": "Nanobyte",
+    "sort-name": "Nanobyte",
+    "type-id": "e431f5f6-b5d2-343d-8b36-72607fffb74b",
+    "disambiguation": "Anthony Camilleri and Simon Horne",
+    "type": "Group",
+    "id": "e5107db6-ed66-4118-a239-e71121a56c9e",
+    "country": "GB"
+   }
+  }
+ ]
+}

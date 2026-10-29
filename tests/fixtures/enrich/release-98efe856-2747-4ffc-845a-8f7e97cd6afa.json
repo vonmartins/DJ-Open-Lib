@@ -1,0 +1,1129 @@
+{
+ "status": "Official",
+ "artist-credit": [
+  {
+   "joinphrase": "",
+   "artist": {
+    "name": "DFRNT",
+    "sort-name": "DFRNT",
+    "country": "GB",
+    "id": "33649b4e-9886-4b3f-869f-71e1448f371e",
+    "disambiguation": "",
+    "type": "Person",
+    "type-id": "b6e035f4-3ce9-331c-97df-83397230b0df"
+   },
+   "name": "DFRNT"
+  }
+ ],
+ "label-info": [
+  {
+   "label": {
+    "sort-name": "On The Edge",
+    "name": "On The Edge",
+    "type": "Original Production",
+    "disambiguation": "",
+    "id": "8b7225c4-ce69-4db5-a4bd-bae013237060",
+    "type-id": "7aaa37fe-2def-3476-b359-80245850062d",
+    "label-code": null
+   },
+   "catalog-number": "OTECD001"
+  }
+ ],
+ "text-representation": {
+  "language": "eng",
+  "script": "Latn"
+ },
+ "quality": "normal",
+ "title": "Metafiction",
+ "country": "GB",
+ "date": "2009-09",
+ "id": "98efe856-2747-4ffc-845a-8f7e97cd6afa",
+ "barcode": "5050693239121",
+ "media": [
+  {
+   "tracks": [
+    {
+     "position": 1,
+     "title": "Wake Up",
+     "id": "ba8e244d-58b7-3669-a4a6-b38567dffd3c",
+     "length": 393000,
+     "number": "1",
+     "recording": {
+      "video": false,
+      "length": 393000,
+      "first-release-date": "2009-09",
+      "artist-credit": [
+       {
+        "artist": {
+         "sort-name": "DFRNT",
+         "name": "DFRNT",
+         "type": "Person",
+         "disambiguation": "",
+         "id": "33649b4e-9886-4b3f-869f-71e1448f371e",
+         "country": "GB",
+         "type-id": "b6e035f4-3ce9-331c-97df-83397230b0df"
+        },
+        "joinphrase": "",
+        "name": "DFRNT"
+       }
+      ],
+      "disambiguation": "",
+      "id": "61cd9532-ab19-4ebc-94e8-cdd9d907f731",
+      "title": "Wake Up"
+     },
+     "artist-credit": [
+      {
+       "joinphrase": "",
+       "artist": {
+        "sort-name": "DFRNT",
+        "name": "DFRNT",
+        "country": "GB",
+        "id": "33649b4e-9886-4b3f-869f-71e1448f371e",
+        "type": "Person",
+        "disambiguation": "",
+        "type-id": "b6e035f4-3ce9-331c-97df-83397230b0df"
+       },
+       "name": "DFRNT"
+      }
+     ]
+    },
+    {
+     "id": "c986fc70-1784-3f64-9dc4-e449588d4fdb",
+     "title": "The Warmest",
+     "position": 2,
+     "length": 241000,
+     "artist-credit": [
+      {
+       "joinphrase": "",
+       "artist": {
+        "sort-name": "DFRNT",
+        "name": "DFRNT",
+        "id": "33649b4e-9886-4b3f-869f-71e1448f371e",
+        "country": "GB",
+        "type": "Person",
+        "disambiguation": "",
+        "type-id": "b6e035f4-3ce9-331c-97df-83397230b0df"
+       },
+       "name": "DFRNT"
+      }
+     ],
+     "number": "2",
+     "recording": {
+      "id": "652a9517-0f90-45e1-afbc-498d7d578c96",
+      "title": "The Warmest",
+      "disambiguation": "",
+      "first-release-date": "2009-09",
+      "artist-credit": [
+       {
+        "artist": {
+         "sort-name": "DFRNT",
+         "name": "DFRNT",
+         "type": "Person",
+         "disambiguation": "",
+         "country": "GB",
+         "id": "33649b4e-9886-4b3f-869f-71e1448f371e",
+         "type-id": "b6e035f4-3ce9-331c-97df-83397230b0df"
+        },
+        "joinphrase": "",
+        "name": "DFRNT"
+       }
+      ],
+      "video": false,
+      "length": 234000
+     }
+    },
+    {
+     "recording": {
+      "id": "8a7236a8-1a32-48be-a8ad-3bb3aae48059",
+      "title": "Tripped",
+      "disambiguation": "",
+      "first-release-date": "2009-09",
+      "artist-credit": [
+       {
+        "joinphrase": "",
+        "artist": {
+         "name": "DFRNT",
+         "sort-name": "DFRNT",
+         "type-id": "b6e035f4-3ce9-331c-97df-83397230b0df",
+         "disambiguation": "",
+         "type": "Person",
+         "country": "GB",
+         "id": "33649b4e-9886-4b3f-869f-71e1448f371e"
+        },
+        "name": "DFRNT"
+       }
+      ],
+      "length": 274000,
+      "video": false
+     },
+     "number": "3",
+     "artist-credit": [
+      {
+       "artist": {
+        "name": "DFRNT",
+        "sort-name": "DFRNT",
+        "type-id": "b6e035f4-3ce9-331c-97df-83397230b0df",
+        "id": "33649b4e-9886-4b3f-869f-71e1448f371e",
+        "country": "GB",
+        "type": "Person",
+        "disambiguation": ""
+       },
+       "joinphrase": "",
+       "name": "DFRNT"
+      }
+     ],
+     "length": 276000,
+     "position": 3,
+     "title": "Tripped",
+     "id": "842deafd-a946-3d2d-882a-ff5cdca9a951"
+    },
+    {
+     "artist-credit": [
+      {
+       "joinphrase": "",
+       "artist": {
+        "name": "DFRNT",
+        "sort-name": "DFRNT",
+        "type-id": "b6e035f4-3ce9-331c-97df-83397230b0df",
+        "type": "Person",
+        "disambiguation": "",
+        "country": "GB",
+        "id": "33649b4e-9886-4b3f-869f-71e1448f371e"
+       },
+       "name": "DFRNT"
+      }
+     ],
+     "recording": {
+      "video": false,
+      "length": 378000,
+      "artist-credit": [
+       {
+        "joinphrase": "",
+        "artist": {
+         "name": "DFRNT",
+         "sort-name": "DFRNT",
+         "type-id": "b6e035f4-3ce9-331c-97df-83397230b0df",
+         "id": "33649b4e-9886-4b3f-869f-71e1448f371e",
+         "country": "GB",
+         "type": "Person",
+         "disambiguation": ""
+        },
+        "name": "DFRNT"
+       }
+      ],
+      "first-release-date": "2009-09",
+      "disambiguation": "",
+      "title": "Therapy",
+      "id": "a33beca2-5b8a-4dbf-8c19-5f5d4352ec58"
+     },
+     "number": "4",
+     "length": 384000,
+     "id": "4f40a2df-d7bf-3560-9c9e-a9e28c3aa076",
+     "title": "Therapy",
+     "position": 4
+    },
+    {
+     "recording": {
+      "disambiguation": "",
+      "title": "Landscapes",
+      "id": "bd61249e-c617-4ef5-87b4-57a27367143a",
+      "video": false,
+      "length": 380000,
+      "artist-credit": [
+       {
+        "name": "DFRNT",
+        "artist": {
+         "name": "DFRNT",
+         "sort-name": "DFRNT",
+         "country": "GB",
+         "id": "33649b4e-9886-4b3f-869f-71e1448f371e",
+         "type": "Person",
+         "disambiguation": "",
+         "type-id": "b6e035f4-3ce9-331c-97df-83397230b0df"
+        },
+        "joinphrase": ""
+       }
+      ],
+      "first-release-date": "2009-09"
+     },
+     "number": "5",
+     "artist-credit": [
+      {
+       "artist": {
+        "sort-name": "DFRNT",
+        "name": "DFRNT",
+        "type-id": "b6e035f4-3ce9-331c-97df-83397230b0df",
+        "type": "Person",
+        "disambiguation": "",
+        "country": "GB",
+        "id": "33649b4e-9886-4b3f-869f-71e1448f371e"
+       },
+       "joinphrase": "",
+       "name": "DFRNT"
+      }
+     ],
+     "position": 5,
+     "title": "Landscapes",
+     "id": "628c1eff-9621-3ffe-a803-d568db2c8f73",
+     "length": 380000
+    },
+    {
+     "number": "6",
+     "recording": {
+      "video": false,
+      "length": 317000,
+      "artist-credit": [
+       {
+        "artist": {
+         "type-id": "b6e035f4-3ce9-331c-97df-83397230b0df",
+         "disambiguation": "",
+         "type": "Person",
+         "country": "GB",
+         "id": "33649b4e-9886-4b3f-869f-71e1448f371e",
+         "sort-name": "DFRNT",
+         "name": "DFRNT"
+        },
+        "joinphrase": "",
+        "name": "DFRNT"
+       }
+      ],
+      "first-release-date": "2009-09",
+      "disambiguation": "",
+      "title": "Epitome",
+      "id": "43a4ec5b-7dcc-4ac3-834a-56a7b2866f7b"
+     },
+     "artist-credit": [
+      {
+       "name": "DFRNT",
+       "artist": {
+        "name": "DFRNT",
+        "sort-name": "DFRNT",
+        "disambiguation": "",
+        "type": "Person",
+        "id": "33649b4e-9886-4b3f-869f-71e1448f371e",
+        "country": "GB",
+        "type-id": "b6e035f4-3ce9-331c-97df-83397230b0df"
+       },
+       "joinphrase": ""
+      }
+     ],
+     "position": 6,
+     "title": "Epitome",
+     "id": "e9004539-06a2-3ec3-af51-ad5c87e6987b",
+     "length": 318000
+    },
+    {
+     "recording": {
+      "artist-credit": [
+       {
+        "name": "DFRNT",
+        "artist": {
+         "sort-name": "DFRNT",
+         "name": "DFRNT",
+         "disambiguation": "",
+         "type": "Person",
+         "country": "GB",
+         "id": "33649b4e-9886-4b3f-869f-71e1448f371e",
+         "type-id": "b6e035f4-3ce9-331c-97df-83397230b0df"
+        },
+        "joinphrase": ""
+       }
+      ],
+      "first-release-date": "2009-09",
+      "length": 310000,
+      "video": false,
+      "title": "The Next Step",
+      "id": "3bc99581-1342-4fc7-b233-d06092c0bcaf",
+      "disambiguation": ""
+     },
+     "number": "7",
+     "artist-credit": [
+      {
+       "name": "DFRNT",
+       "joinphrase": "",
+       "artist": {
+        "type-id": "b6e035f4-3ce9-331c-97df-83397230b0df",
+        "type": "Person",
+        "disambiguation": "",
+        "id": "33649b4e-9886-4b3f-869f-71e1448f371e",
+        "country": "GB",
+        "name": "DFRNT",
+        "sort-name": "DFRNT"
+       }
+      }
+     ],
+     "position": 7,
+     "title": "The Next Step",
+     "id": "561e5082-7734-3cfe-8673-a8a3e188669f",
+     "length": 310000
+    },
+    {
+     "artist-credit": [
+      {
+       "joinphrase": "",
+       "artist": {
+        "sort-name": "DFRNT",
+        "name": "DFRNT",
+        "type": "Person",
+        "disambiguation": "",
+        "country": "GB",
+        "id": "33649b4e-9886-4b3f-869f-71e1448f371e",
+        "type-id": "b6e035f4-3ce9-331c-97df-83397230b0df"
+       },
+       "name": "DFRNT"
+      }
+     ],
+     "recording": {
+      "video": false,
+      "length": 334000,
+      "artist-credit": [
+       {
+        "name": "DFRNT",
+        "artist": {
+         "country": "GB",
+         "id": "33649b4e-9886-4b3f-869f-71e1448f371e",
+         "disambiguation": "",
+         "type": "Person",
+         "type-id": "b6e035f4-3ce9-331c-97df-83397230b0df",
+         "sort-name": "DFRNT",
+         "name": "DFRNT"
+        },
+        "joinphrase": ""
+       }
+      ],
+      "first-release-date": "2009-09",
+      "disambiguation": "",
+      "title": "Dark Jazz",
+      "id": "14f29567-03cd-47e6-9608-670d782b5dd2"
+     },
+     "number": "8",
+     "title": "Dark Jazz",
+     "id": "9769035a-390f-3fad-ad9c-16fca2922e0e",
+     "position": 8,
+     "length": 339000
+    },
+    {
+     "title": "Aftermath",
+     "id": "2b23c33e-3e25-3a33-b9a9-cfac69aae950",
+     "position": 9,
+     "length": 288000,
+     "artist-credit": [
+      {
+       "artist": {
+        "name": "DFRNT",
+        "sort-name": "DFRNT",
+        "country": "GB",
+        "id": "33649b4e-9886-4b3f-869f-71e1448f371e",
+        "type": "Person",
+        "disambiguation": "",
+        "type-id": "b6e035f4-3ce9-331c-97df-83397230b0df"
+       },
+       "joinphrase": "",
+       "name": "DFRNT"
+      }
+     ],
+     "recording": {
+      "disambiguation": "",
+      "title": "Aftermath",
+      "id": "bba934ce-cc1c-497f-a7a5-f2d1b934108c",
+      "length": 288000,
+      "video": false,
+      "artist-credit": [
+       {
+        "name": "DFRNT",
+        "joinphrase": "",
+        "artist": {
+         "sort-name": "DFRNT",
+         "name": "DFRNT",
+         "type-id": "b6e035f4-3ce9-331c-97df-83397230b0df",
+         "disambiguation": "",
+         "type": "Person",
+         "id": "33649b4e-9886-4b3f-869f-71e1448f371e",
+         "country": "GB"
+        }
+       }
+      ],
+      "first-release-date": "2009-09"
+     },
+     "number": "9"
+    },
+    {
+     "artist-credit": [
+      {
+       "joinphrase": "",
+       "artist": {
+        "sort-name": "DFRNT",
+        "name": "DFRNT",
+        "type-id": "b6e035f4-3ce9-331c-97df-83397230b0df",
+        "country": "GB",
+        "id": "33649b4e-9886-4b3f-869f-71e1448f371e",
+        "disambiguation": "",
+        "type": "Person"
+       },
+       "name": "DFRNT"
+      }
+     ],
+     "recording": {
+      "video": false,
+      "length": 243000,
+      "first-release-date": "2009-09",
+      "artist-credit": [
+       {
+        "joinphrase": "",
+        "artist": {
+         "type": "Person",
+         "disambiguation": "",
+         "country": "GB",
+         "id": "33649b4e-9886-4b3f-869f-71e1448f371e",
+         "type-id": "b6e035f4-3ce9-331c-97df-83397230b0df",
+         "name": "DFRNT",
+         "sort-name": "DFRNT"
+        },
+        "name": "DFRNT"
+       }
+      ],
+      "disambiguation": "",
+      "id": "9d1a3ad3-5ba7-490c-beed-a2958d3cfdb1",
+      "title": "Winter"
+     },
+     "number": "10",
+     "title": "Winter",
+     "id": "f769a57b-943a-33be-9c08-c2fae0736f33",
+     "position": 10,
+     "length": 243000
+    },
+    {
+     "artist-credit": [
+      {
+       "name": "DFRNT",
+       "joinphrase": "",
+       "artist": {
+        "sort-name": "DFRNT",
+        "name": "DFRNT",
+        "type-id": "b6e035f4-3ce9-331c-97df-83397230b0df",
+        "id": "33649b4e-9886-4b3f-869f-71e1448f371e",
+        "country": "GB",
+        "disambiguation": "",
+        "type": "Person"
+       }
+      }
+     ],
+     "recording": {
+      "disambiguation": "",
+      "title": "Decay",
+      "id": "ac5ec320-b5f4-458c-88cf-9da1dcdc98a3",
+      "video": false,
+      "length": 283000,
+      "artist-credit": [
+       {
+        "name": "DFRNT",
+        "artist": {
+         "type-id": "b6e035f4-3ce9-331c-97df-83397230b0df",
+         "disambiguation": "",
+         "type": "Person",
+         "id": "33649b4e-9886-4b3f-869f-71e1448f371e",
+         "country": "GB",
+         "name": "DFRNT",
+         "sort-name": "DFRNT"
+        },
+        "joinphrase": ""
+       }
+      ],
+      "first-release-date": "2009-09"
+     },
+     "number": "11",
+     "id": "e948e312-00d7-32e7-bd37-c68340fed722",
+     "title": "Decay",
+     "position": 11,
+     "length": 283000
+    },
+    {
+     "position": 12,
+     "id": "f4bb75a8-dc1a-3582-b698-51c68b9a33f3",
+     "title": "Headspace",
+     "length": 279000,
+     "recording": {
+      "video": false,
+      "length": 276000,
+      "artist-credit": [
+       {
+        "artist": {
+         "sort-name": "DFRNT",
+         "name": "DFRNT",
+         "id": "33649b4e-9886-4b3f-869f-71e1448f371e",
+         "country": "GB",
+         "type": "Person",
+         "disambiguation": "",
+         "type-id": "b6e035f4-3ce9-331c-97df-83397230b0df"
+        },
+        "joinphrase": "",
+        "name": "DFRNT"
+       }
+      ],
+      "first-release-date": "2009-09",
+      "disambiguation": "",
+      "title": "Headspace",
+      "id": "261dcc67-b2f3-4105-9ce8-34aae96863e3"
+     },
+     "number": "12",
+     "artist-credit": [
+      {
+       "name": "DFRNT",
+       "artist": {
+        "sort-name": "DFRNT",
+        "name": "DFRNT",
+        "type-id": "b6e035f4-3ce9-331c-97df-83397230b0df",
+        "type": "Person",
+        "disambiguation": "",
+        "id": "33649b4e-9886-4b3f-869f-71e1448f371e",
+        "country": "GB"
+       },
+       "joinphrase": ""
+      }
+     ]
+    },
+    {
+     "artist-credit": [
+      {
+       "name": "DFRNT",
+       "artist": {
+        "type-id": "b6e035f4-3ce9-331c-97df-83397230b0df",
+        "disambiguation": "",
+        "type": "Person",
+        "id": "33649b4e-9886-4b3f-869f-71e1448f371e",
+        "country": "GB",
+        "sort-name": "DFRNT",
+        "name": "DFRNT"
+       },
+       "joinphrase": ""
+      }
+     ],
+     "recording": {
+      "disambiguation": "",
+      "title": "Lounge",
+      "id": "203ca0e4-b2a6-4576-81d1-485b1fc44ffa",
+      "video": false,
+      "length": 333000,
+      "artist-credit": [
+       {
+        "name": "DFRNT",
+        "joinphrase": "",
+        "artist": {
+         "disambiguation": "",
+         "type": "Person",
+         "id": "33649b4e-9886-4b3f-869f-71e1448f371e",
+         "country": "GB",
+         "type-id": "b6e035f4-3ce9-331c-97df-83397230b0df",
+         "sort-name": "DFRNT",
+         "name": "DFRNT"
+        }
+       }
+      ],
+      "first-release-date": "2009-09"
+     },
+     "number": "13",
+     "title": "Lounge",
+     "id": "8f23bfa3-a7d9-3e68-b126-7239db710198",
+     "position": 13,
+     "length": 333000
+    },
+    {
+     "number": "14",
+     "recording": {
+      "title": "Sound Asleep",
+      "id": "8a47bd71-4075-4b6f-8f70-f511be40570a",
+      "disambiguation": "",
+      "artist-credit": [
+       {
+        "artist": {
+         "sort-name": "DFRNT",
+         "name": "DFRNT",
+         "type-id": "b6e035f4-3ce9-331c-97df-83397230b0df",
+         "country": "GB",
+         "id": "33649b4e-9886-4b3f-869f-71e1448f371e",
+         "disambiguation": "",
+         "type": "Person"
+        },
+        "joinphrase": "",
+        "name": "DFRNT"
+       }
+      ],
+      "first-release-date": "2009-09",
+      "length": 363000,
+      "video": false
+     },
+     "artist-credit": [
+      {
+       "name": "DFRNT",
+       "artist": {
+        "sort-name": "DFRNT",
+        "name": "DFRNT",
+        "country": "GB",
+        "id": "33649b4e-9886-4b3f-869f-71e1448f371e",
+        "type": "Person",
+        "disambiguation": "",
+        "type-id": "b6e035f4-3ce9-331c-97df-83397230b0df"
+       },
+       "joinphrase": ""
+      }
+     ],
+     "length": 363000,
+     "position": 14,
+     "title": "Sound Asleep",
+     "id": "3ce832c9-c54b-399b-ac01-2d6adc0615e6"
+    }
+   ],
+   "format": "CD",
+   "track-count": 14,
+   "title": "",
+   "format-id": "9712d52a-4509-3d4b-a1a2-67c88c643e31",
+   "id": "f881029c-2923-3549-824e-b4443f077a41",
+   "position": 1,
+   "track-offset": 0
+  },
+  {
+   "format": "CD",
+   "track-count": 9,
+   "tracks": [
+    {
+     "position": 1,
+     "title": "An Early Place",
+     "id": "7ce3a381-7313-3699-8456-e0146eec2371",
+     "length": 301000,
+     "recording": {
+      "first-release-date": "2009-09",
+      "artist-credit": [
+       {
+        "name": "DFRNT",
+        "joinphrase": "",
+        "artist": {
+         "type": "Person",
+         "disambiguation": "",
+         "id": "33649b4e-9886-4b3f-869f-71e1448f371e",
+         "country": "GB",
+         "type-id": "b6e035f4-3ce9-331c-97df-83397230b0df",
+         "name": "DFRNT",
+         "sort-name": "DFRNT"
+        }
+       }
+      ],
+      "length": 301000,
+      "video": false,
+      "id": "d6abec63-f522-48ea-bf22-0fe813d6be8e",
+      "title": "An Early Place",
+      "disambiguation": ""
+     },
+     "number": "1",
+     "artist-credit": [
+      {
+       "artist": {
+        "type-id": "b6e035f4-3ce9-331c-97df-83397230b0df",
+        "country": "GB",
+        "id": "33649b4e-9886-4b3f-869f-71e1448f371e",
+        "disambiguation": "",
+        "type": "Person",
+        "sort-name": "DFRNT",
+        "name": "DFRNT"
+       },
+       "joinphrase": "",
+       "name": "DFRNT"
+      }
+     ]
+    },
+    {
+     "recording": {
+      "artist-credit": [
+       {
+        "name": "DFRNT",
+        "artist": {
+         "name": "DFRNT",
+         "sort-name": "DFRNT",
+         "country": "GB",
+         "id": "33649b4e-9886-4b3f-869f-71e1448f371e",
+         "disambiguation": "",
+         "type": "Person",
+         "type-id": "b6e035f4-3ce9-331c-97df-83397230b0df"
+        },
+        "joinphrase": ""
+       }
+      ],
+      "first-release-date": "2009-09",
+      "video": false,
+      "length": 396000,
+      "title": "On the Move",
+      "id": "de529ac1-f1c8-4bd4-b6d2-397f09abf429",
+      "disambiguation": ""
+     },
+     "number": "2",
+     "artist-credit": [
+      {
+       "joinphrase": "",
+       "artist": {
+        "sort-name": "DFRNT",
+        "name": "DFRNT",
+        "type": "Person",
+        "disambiguation": "",
+        "id": "33649b4e-9886-4b3f-869f-71e1448f371e",
+        "country": "GB",
+        "type-id": "b6e035f4-3ce9-331c-97df-83397230b0df"
+       },
+       "name": "DFRNT"
+      }
+     ],
+     "position": 2,
+     "id": "c7878687-f770-393d-91f4-a4b34874091b",
+     "title": "On the Move",
+     "length": 396000
+    },
+    {
+     "position": 3,
+     "id": "a3a972be-ec0a-303c-a97e-0311efba3e2a",
+     "title": "Pressure Drop",
+     "length": 313000,
+     "number": "3",
+     "recording": {
+      "length": 313000,
+      "video": false,
+      "artist-credit": [
+       {
+        "artist": {
+         "name": "DFRNT",
+         "sort-name": "DFRNT",
+         "type": "Person",
+         "disambiguation": "",
+         "id": "33649b4e-9886-4b3f-869f-71e1448f371e",
+         "country": "GB",
+         "type-id": "b6e035f4-3ce9-331c-97df-83397230b0df"
+        },
+        "joinphrase": "",
+        "name": "DFRNT"
+       }
+      ],
+      "first-release-date": "2009-09",
+      "disambiguation": "",
+      "title": "Pressure Drop",
+      "id": "887402dc-5024-4027-b8f1-f5b9f27c10e0"
+     },
+     "artist-credit": [
+      {
+       "name": "DFRNT",
+       "joinphrase": "",
+       "artist": {
+        "type": "Person",
+        "disambiguation": "",
+        "id": "33649b4e-9886-4b3f-869f-71e1448f371e",
+        "country": "GB",
+        "type-id": "b6e035f4-3ce9-331c-97df-83397230b0df",
+        "sort-name": "DFRNT",
+        "name": "DFRNT"
+       }
+      }
+     ]
+    },
+    {
+     "id": "0779b156-39cf-3344-ad8a-f0397e392987",
+     "title": "Throwback",
+     "position": 4,
+     "length": 342000,
+     "artist-credit": [
+      {
+       "name": "DFRNT",
+       "artist": {
+        "type-id": "b6e035f4-3ce9-331c-97df-83397230b0df",
+        "id": "33649b4e-9886-4b3f-869f-71e1448f371e",
+        "country": "GB",
+        "disambiguation": "",
+        "type": "Person",
+        "name": "DFRNT",
+        "sort-name": "DFRNT"
+       },
+       "joinphrase": ""
+      }
+     ],
+     "recording": {
+      "artist-credit": [
+       {
+        "name": "DFRNT",
+        "artist": {
+         "type": "Person",
+         "disambiguation": "",
+         "id": "33649b4e-9886-4b3f-869f-71e1448f371e",
+         "country": "GB",
+         "type-id": "b6e035f4-3ce9-331c-97df-83397230b0df",
+         "name": "DFRNT",
+         "sort-name": "DFRNT"
+        },
+        "joinphrase": ""
+       }
+      ],
+      "first-release-date": "2009-09",
+      "length": 342000,
+      "video": false,
+      "title": "Throwback",
+      "id": "1e989562-4c4c-4acd-9168-461efe419ebf",
+      "disambiguation": ""
+     },
+     "number": "4"
+    },
+    {
+     "artist-credit": [
+      {
+       "artist": {
+        "sort-name": "DFRNT",
+        "name": "DFRNT",
+        "type-id": "b6e035f4-3ce9-331c-97df-83397230b0df",
+        "country": "GB",
+        "id": "33649b4e-9886-4b3f-869f-71e1448f371e",
+        "disambiguation": "",
+        "type": "Person"
+       },
+       "joinphrase": "",
+       "name": "DFRNT"
+      }
+     ],
+     "recording": {
+      "artist-credit": [
+       {
+        "name": "DFRNT",
+        "artist": {
+         "name": "DFRNT",
+         "sort-name": "DFRNT",
+         "type-id": "b6e035f4-3ce9-331c-97df-83397230b0df",
+         "id": "33649b4e-9886-4b3f-869f-71e1448f371e",
+         "country": "GB",
+         "type": "Person",
+         "disambiguation": ""
+        },
+        "joinphrase": ""
+       }
+      ],
+      "first-release-date": "2009-09",
+      "video": false,
+      "length": 426000,
+      "title": "Therapy (Quantec remix)",
+      "id": "5ed9ce78-db7c-4d27-b6fd-0c0a242b79ee",
+      "disambiguation": ""
+     },
+     "number": "5",
+     "length": 431000,
+     "title": "Therapy (Quantec remix)",
+     "id": "7ea23f3d-479b-3339-ad30-476890271c70",
+     "position": 5
+    },
+    {
+     "position": 6,
+     "title": "Tripped (Synkro remix)",
+     "id": "ac1bc01f-7b47-3ec7-8b11-6164701ff277",
+     "length": 404000,
+     "recording": {
+      "video": false,
+      "length": 398000,
+      "first-release-date": "2009-09",
+      "artist-credit": [
+       {
+        "name": "DFRNT",
+        "joinphrase": "",
+        "artist": {
+         "name": "DFRNT",
+         "sort-name": "DFRNT",
+         "disambiguation": "",
+         "type": "Person",
+         "id": "33649b4e-9886-4b3f-869f-71e1448f371e",
+         "country": "GB",
+         "type-id": "b6e035f4-3ce9-331c-97df-83397230b0df"
+        }
+       }
+      ],
+      "disambiguation": "",
+      "id": "a89f7c00-972b-493b-ad87-ff0c5c00a82a",
+      "title": "Tripped (Synkro remix)"
+     },
+     "number": "6",
+     "artist-credit": [
+      {
+       "name": "DFRNT",
+       "joinphrase": "",
+       "artist": {
+        "name": "DFRNT",
+        "sort-name": "DFRNT",
+        "type-id": "b6e035f4-3ce9-331c-97df-83397230b0df",
+        "country": "GB",
+        "id": "33649b4e-9886-4b3f-869f-71e1448f371e",
+        "type": "Person",
+        "disambiguation": ""
+       }
+      }
+     ]
+    },
+    {
+     "recording": {
+      "id": "794e5c74-9bc4-41ed-b0ed-d1daa4c97c32",
+      "title": "Dark Jazz (DJ Madd Darker remix)",
+      "disambiguation": "",
+      "first-release-date": "2009-09",
+      "artist-credit": [
+       {
+        "artist": {
+         "sort-name": "DFRNT",
+         "name": "DFRNT",
+         "disambiguation": "",
+         "type": "Person",
+         "country": "GB",
+         "id": "33649b4e-9886-4b3f-869f-71e1448f371e",
+         "type-id": "b6e035f4-3ce9-331c-97df-83397230b0df"
+        },
+        "joinphrase": "",
+        "name": "DFRNT"
+       }
+      ],
+      "length": 277000,
+      "video": false
+     },
+     "number": "7",
+     "artist-credit": [
+      {
+       "joinphrase": "",
+       "artist": {
+        "type-id": "b6e035f4-3ce9-331c-97df-83397230b0df",
+        "country": "GB",
+        "id": "33649b4e-9886-4b3f-869f-71e1448f371e",
+        "disambiguation": "",
+        "type": "Person",
+        "name": "DFRNT",
+        "sort-name": "DFRNT"
+       },
+       "name": "DFRNT"
+      }
+     ],
+     "length": 283000,
+     "position": 7,
+     "id": "1c12ffc3-2e8a-3c2e-b7b0-6a03634306ed",
+     "title": "Dark Jazz (DJ Madd Darker remix)"
+    },
+    {
+     "position": 8,
+     "id": "38475ae5-e90e-3f19-a677-819e3db400a5",
+     "title": "Tripped (Ital Tek remix)",
+     "length": 331000,
+     "recording": {
+      "artist-credit": [
+       {
+        "artist": {
+         "sort-name": "DFRNT",
+         "name": "DFRNT",
+         "type-id": "b6e035f4-3ce9-331c-97df-83397230b0df",
+         "id": "33649b4e-9886-4b3f-869f-71e1448f371e",
+         "country": "GB",
+         "disambiguation": "",
+         "type": "Person"
+        },
+        "joinphrase": "",
+        "name": "DFRNT"
+       }
+      ],
+      "first-release-date": "2009-09",
+      "length": 325000,
+      "video": false,
+      "title": "Tripped (Ital Tek remix)",
+      "id": "06f56b11-e302-4f61-8d21-6b2c36981830",
+      "disambiguation": ""
+     },
+     "number": "8",
+     "artist-credit": [
+      {
+       "artist": {
+        "name": "DFRNT",
+        "sort-name": "DFRNT",
+        "type-id": "b6e035f4-3ce9-331c-97df-83397230b0df",
+        "country": "GB",
+        "id": "33649b4e-9886-4b3f-869f-71e1448f371e",
+        "type": "Person",
+        "disambiguation": ""
+       },
+       "joinphrase": "",
+       "name": "DFRNT"
+      }
+     ]
+    },
+    {
+     "recording": {
+      "id": "b03469f1-8ae8-4e57-a73d-1bb81db98783",
+      "title": "Headspace (Scuba remix)",
+      "disambiguation": "",
+      "first-release-date": "2009-09",
+      "artist-credit": [
+       {
+        "name": "DFRNT",
+        "artist": {
+         "sort-name": "DFRNT",
+         "name": "DFRNT",
+         "type-id": "b6e035f4-3ce9-331c-97df-83397230b0df",
+         "type": "Person",
+         "disambiguation": "",
+         "id": "33649b4e-9886-4b3f-869f-71e1448f371e",
+         "country": "GB"
+        },
+        "joinphrase": ""
+       }
+      ],
+      "length": 370880,
+      "video": false
+     },
+     "number": "9",
+     "artist-credit": [
+      {
+       "artist": {
+        "name": "DFRNT",
+        "sort-name": "DFRNT",
+        "type-id": "b6e035f4-3ce9-331c-97df-83397230b0df",
+        "disambiguation": "",
+        "type": "Person",
+        "id": "33649b4e-9886-4b3f-869f-71e1448f371e",
+        "country": "GB"
+       },
+       "joinphrase": "",
+       "name": "DFRNT"
+      }
+     ],
+     "position": 9,
+     "id": "b556eeb9-d9e1-3eb5-a66d-d495d3ce58ec",
+     "title": "Headspace (Scuba remix)",
+     "length": 371000
+    }
+   ],
+   "position": 2,
+   "format-id": "9712d52a-4509-3d4b-a1a2-67c88c643e31",
+   "title": "",
+   "id": "42696269-ee95-374e-91d6-54324618abf9",
+   "track-offset": 0
+  }
+ ],
+ "packaging-id": null,
+ "asin": "B002P8M4FE",
+ "release-events": [
+  {
+   "area": {
+    "iso-3166-1-codes": [
+     "GB"
+    ],
+    "name": "United Kingdom",
+    "sort-name": "United Kingdom",
+    "id": "8a754a16-0027-3a29-b6d7-2b40ea0481ed",
+    "type": null,
+    "disambiguation": "",
+    "type-id": null
+   },
+   "date": "2009-09"
+  }
+ ],
+ "status-id": "4e304316-386d-3409-af2e-78857eec5cfe",
+ "packaging": null,
+ "cover-art-archive": {
+  "artwork": true,
+  "count": 1,
+  "front": true,
+  "back": false,
+  "darkened": false
+ },
+ "disambiguation": ""
+}

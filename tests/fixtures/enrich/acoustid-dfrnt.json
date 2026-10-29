@@ -1,0 +1,22 @@
+{
+ "results": [
+  {
+   "id": "66f7d452-82e4-4483-86e6-6385998f59ad",
+   "recordings": [
+    {
+     "artists": [
+      {
+       "id": "33649b4e-9886-4b3f-869f-71e1448f371e",
+       "name": "DFRNT"
+      }
+     ],
+     "duration": 370.88,
+     "id": "b03469f1-8ae8-4e57-a73d-1bb81db98783",
+     "title": "Headspace (Scuba remix)"
+    }
+   ],
+   "score": 0.988067
+  }
+ ],
+ "status": "ok"
+}
