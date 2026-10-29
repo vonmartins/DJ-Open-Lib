@@ -12,6 +12,7 @@ CORE_PACKAGES = [
     "djlib.adapters",
     "djlib.sources",
     "djlib.enrich",
+    "djlib.duplicates",
     "djlib.planning",
 ]
 
