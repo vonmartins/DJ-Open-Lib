@@ -22,7 +22,7 @@ from djlib.rules.fixes import (
 from support.rules_corpus import CORPUS, Case, clean, load
 from support.text import clean_text, dirty_text
 
-TABLES = sorted(p.stem for p in CORPUS.glob("*.yaml") if p.stem != "clean")
+TABLES = sorted(p.stem for p in CORPUS.glob("*.yaml") if not p.stem.startswith(("clean", "_")))
 CASES = [case for name in TABLES for case in load(name)]
 DEFAULTS = [fix for fix in FIXES if fix.on]
 
