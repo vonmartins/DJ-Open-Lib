@@ -1,0 +1,29 @@
+fix: fix_case
+change:
+  - {in: "whisper of the trees", out: "Whisper of the Trees", why: lower case}
+  - {in: "WHISPER OF THE TREES", out: "Whisper of the Trees", why: upper case}
+  - {in: "the long way home", out: "The Long Way Home", why: first small word capitalized}
+  - {in: "rocky iv soundtrack", out: "Rocky IV Soundtrack", why: Roman numeral}
+  - {in: "part ii of the story", out: "Part II of the Story", why: Roman numeral II}
+  - {in: "mix 2001 edition", out: "Mix 2001 Edition", why: digits kept}
+  - {in: "spider-man theme", out: "Spider-Man Theme", why: hyphenated words}
+  - {in: "(untitled) dreams", out: "(Untitled) Dreams", why: leading parenthesis}
+  - {in: "don't stop believing", out: "Don't Stop Believing", why: apostrophe}
+  - {in: "café del mar", out: "Café Del Mar", why: accents; only English small words stay lower case}
+  - {in: "HUMBLE.", out: "Humble.", why: styled titles change when the fix is enabled, which is why it is off by default}
+  - {in: "dj kicks vol iv", out: "DJ Kicks Vol IV", options: {keep: [DJ]}, why: keep list}
+  - {in: "GRUPPA KROVI", out: "Gruppa Krovi", why: transliterated}
+  - {in: "группа крови", out: "Группа Крови", why: Cyrillic}
+  - {track: {album: "greatest hits", title: "X"}, expected: {album: "Greatest Hits"}, why: albums by default}
+  - {track: {artist: "MNDSCP", title: "X"}, expected: {artist: "Mndscp"}, options: {fields: [artist]}, why: artists only when asked}
+keep:
+  - {in: "Whisper of the Trees", why: mixed case}
+  - {in: "DNA.", why: no word longer than three letters}
+  - {in: "UK", why: short}
+  - {in: "bad", why: short}
+  - {in: "7 up", why: no word longer than three letters}
+  - {in: "1979", why: no letters}
+  - {in: "行くぜっ！怪盗少女", why: no cased letters}
+  - {in: "iPhone Song", why: mixed case}
+  - {in: "The XX", why: mixed case}
+  - {track: {artist: "MNDSCP", title: "X"}, why: artists are not touched by default}

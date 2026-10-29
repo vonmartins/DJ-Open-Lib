@@ -1,0 +1,25 @@
+fix: extract_remixer
+change:
+  - {track: {title: "The Code (Tom Ray Remix)"}, expected: {remixer: "Tom Ray"}, why: parentheses, title kept}
+  - {track: {title: "The Code [Tom Ray Remix]"}, expected: {remixer: "Tom Ray"}, why: brackets}
+  - {track: {title: "The Code (Tom Ray remix)"}, expected: {remixer: "Tom Ray"}, why: lower-case remix}
+  - {track: {title: "The Code (Tom Ray Rmx)"}, expected: {remixer: "Tom Ray"}, why: Rmx}
+  - {track: {title: "The Code (Tom Ray Re-Edit)"}, expected: {remixer: "Tom Ray"}, why: Re-Edit}
+  - {track: {title: "The Code (Tom Ray Reedit)"}, expected: {remixer: "Tom Ray"}, why: Reedit}
+  - {track: {title: "Insanity (Sector 5 Vs. D-Kay remix)"}, expected: {remixer: "Sector 5 Vs. D-Kay"}, why: several names kept as written}
+  - {track: {title: "The Code (feat. Mira) (Tom Ray Remix)"}, expected: {remixer: "Tom Ray"}, why: last group}
+  - {track: {title: "The Code (Tom Ray Remix) (Live)"}, expected: {remixer: "Tom Ray"}, why: remix group not last}
+  - {track: {title: "Песня (Гость Remix)"}, expected: {remixer: "Гость"}, why: Cyrillic name}
+  - {track: {title: "The Code (DJ Shadow's Remix)"}, expected: {remixer: "DJ Shadow's"}, why: possessive kept as written}
+keep:
+  - {track: {title: "The Code (Remix)"}, why: no name}
+  - {track: {title: "The Code (Club Remix)"}, why: a version word, not a name}
+  - {track: {title: "The Code (Extended Remix)"}, why: a version word}
+  - {track: {title: "The Code (Original Remix)"}, why: a version word}
+  - {track: {title: "The Code (Radio Edit)"}, why: not a remix}
+  - {track: {title: "The Code (VIP Remix)"}, why: version word}
+  - {track: {title: 'The Code (12" Remix)'}, why: format word}
+  - {track: {title: "The Code (Tom Ray Remix)", remixer: "Someone"}, why: remixer already set}
+  - {track: {title: "Remix Culture"}, why: no group}
+  - {track: {title: "The Code - Tom Ray Remix"}, why: not in a group}
+  - {track: {title: "The Code (Original Mix)"}, why: mix, not remix}

@@ -1,0 +1,27 @@
+fix: extract_featured
+change:
+  - {track: {artist: "Echo Unit", title: "Storm (feat. Mira)"}, expected: {artist: "Echo Unit feat. Mira", title: "Storm"}, why: guest in parentheses}
+  - {track: {artist: "Echo Unit", title: "Storm feat. Mira"}, expected: {artist: "Echo Unit feat. Mira", title: "Storm"}, why: guest at the end}
+  - {track: {artist: "Echo Unit", title: "Storm ft. Mira"}, expected: {artist: "Echo Unit feat. Mira", title: "Storm"}, why: ft. at the end}
+  - {track: {artist: "Echo Unit", title: "Storm (ft. Mira)"}, expected: {artist: "Echo Unit feat. Mira", title: "Storm"}, why: ft. in parentheses}
+  - {track: {artist: "Echo Unit", title: "Storm [feat. Mira]"}, expected: {artist: "Echo Unit feat. Mira", title: "Storm"}, why: brackets}
+  - {track: {artist: "Echo Unit", title: "Storm (featuring Mira)"}, expected: {artist: "Echo Unit feat. Mira", title: "Storm"}, why: featuring in parentheses}
+  - {track: {artist: "Echo Unit", title: "Storm (feat Mira)"}, expected: {artist: "Echo Unit feat. Mira", title: "Storm"}, why: feat without a dot in parentheses}
+  - {track: {artist: "Echo Unit", title: "Storm (feat. Mira) (Tom Ray Remix)"}, expected: {artist: "Echo Unit feat. Mira", title: "Storm (Tom Ray Remix)"}, why: before a remix}
+  - {track: {artist: "Echo Unit", title: "Storm (feat. Mira & Kon)"}, expected: {artist: "Echo Unit feat. Mira & Kon", title: "Storm"}, why: several guests}
+  - {track: {artist: "Echo Unit feat. Mira", title: "Storm (feat. Mira)"}, expected: {title: "Storm"}, why: guest already in the artist}
+  - {track: {artist: "Echo Unit feat. Mira", title: "Storm (feat. Kon)"}, expected: {artist: "Echo Unit feat. Mira & Kon", title: "Storm"}, why: another guest is joined with &}
+  - {track: {artist: "Группа", title: "Песня (feat. Гость)"}, expected: {artist: "Группа feat. Гость", title: "Песня"}, why: Cyrillic}
+  - {track: {artist: "Echo Unit", title: "STORM (FEAT. MIRA)"}, expected: {artist: "Echo Unit feat. MIRA", title: "STORM"}, why: upper case}
+keep:
+  - {track: {artist: "Little Feat", title: "Dixie Chicken"}, why: band name}
+  - {track: {artist: "Echo Unit", title: "The Featuring Act"}, why: featuring as a word}
+  - {track: {artist: "Echo Unit", title: "Feat of Clay"}, why: feat as a word}
+  - {track: {artist: "Echo Unit", title: "Defeat"}, why: inside a word}
+  - {track: {artist: "Echo Unit", title: "Featuring"}, why: one word}
+  - {track: {artist: "Echo Unit", title: "Storm"}, why: no guest}
+  - {track: {title: "Storm (feat. Mira)"}, why: no artist to move it to}
+  - {track: {artist: "Echo Unit", title: "(feat. Mira)"}, why: nothing would be left of the title}
+  - {track: {artist: "Echo Unit", title: "Storm feat Mira"}, why: feat without a dot outside parentheses}
+  - {track: {artist: "Echo Unit", title: "Storm (Fit for Purpose)"}, why: similar letters}
+  - {track: {artist: "Drake feat. Rihanna", title: "Take Care"}, why: guest only in the artist}

@@ -1,0 +1,30 @@
+fix: remove_urls
+change:
+  - {in: "Sunrise Overlook 320 (freebeats.com)", out: "Sunrise Overlook 320", why: bare domain in parentheses}
+  - {in: "Glue [www.example.com]", out: "Glue", why: www domain in brackets}
+  - {in: "Glue - www.example.com", out: "Glue", why: www domain after a dash}
+  - {in: "Glue https://example.com/track?id=1", out: "Glue", why: https URL at the end}
+  - {in: "http://example.net Glue", out: "Glue", why: http URL at the start}
+  - {in: "Glue (https://example.com)", out: "Glue", why: URL in parentheses}
+  - {in: "Glue [promo.ru]", out: "Glue", why: Russian domain in brackets}
+  - {in: "Glue (beatport.com/track/1)", out: "Glue", why: domain with a path}
+  - {in: "Glue | www.site.org", out: "Glue", why: pipe separator left behind is removed}
+  - {in: "Glue_(freebeats.com)", out: "Glue", why: underscore before the domain}
+  - {in: "Cyb_Orc_Sunchase_320__(freebeats.com)", out: "Cyb_Orc_Sunchase_320", why: file-name title with a site}
+  - {track: {artist: "DJ Name (djname.com)", title: "X"}, expected: {artist: "DJ Name"}, why: applies to artists}
+  - {track: {album: "Mixtape www.mixtapes.net", title: "X"}, expected: {album: "Mixtape"}, why: applies to albums}
+keep:
+  - {in: "Glue (Downloaded from music.blog.co.uk)", why: a domain inside a longer phrase is not a bare domain}
+  - {in: "Dot Com Blues", why: words, not a domain}
+  - {in: "Visit the Website", why: no URL}
+  - {in: "www", why: lone word}
+  - {in: "http", why: lone word}
+  - {in: "Fred again..", why: dots in an artist-style name}
+  - {in: "will.i.am", why: dots in a name}
+  - {in: "Mr. Oizo", why: abbreviation}
+  - {in: "Born Slippy .NUXX", why: dot before a word}
+  - {in: "Glue (Original Mix)", why: plain parentheses}
+  - {in: "Opus 9 No. 2", why: abbreviations}
+  - {in: "D.A.N.C.E.", why: dotted letters}
+  - {in: "3.14159", why: decimal number}
+  - {in: "v2.0", why: version}
