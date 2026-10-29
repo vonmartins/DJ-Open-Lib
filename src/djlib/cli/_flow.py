@@ -12,6 +12,7 @@ import typer
 
 from djlib.adapters.errors import AdapterError
 from djlib.cli._home import DATABASE, SNAPSHOTS
+from djlib.enrich import EnrichError
 from djlib.planning import (
     ApplyFailedError,
     ApplyResult,
@@ -28,7 +29,15 @@ from djlib.snapshots import SnapshotError, SnapshotStore
 from djlib.store import Store, StoreError
 
 # Failures users can act on: one line on stderr, exit code 1, no traceback.
-EXPECTED_ERRORS = (AdapterError, OSError, PlanError, RuleError, SnapshotError, StoreError)
+EXPECTED_ERRORS = (
+    AdapterError,
+    EnrichError,
+    OSError,
+    PlanError,
+    RuleError,
+    SnapshotError,
+    StoreError,
+)
 
 
 @dataclass(frozen=True, slots=True)
