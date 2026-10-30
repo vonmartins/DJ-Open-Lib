@@ -271,6 +271,10 @@ example. The same rules hold for all of them:
   (`-p`) to a playlist or a folder of playlists, such as `Sets/Friday`. Both can be
   repeated where it makes sense.
 - Paths may start with `~`. A folder that does not exist is an error.
+- In a terminal, output is colored and slow work (folder walks, `enrich`) shows its
+  progress on standard error. Color is off when the output is not a terminal, with
+  `--no-color` (`djlib --no-color fix`) or with `NO_COLOR=1`; `FORCE_COLOR=1` turns it
+  on. Color never changes the text itself, so piped output stays the same.
 
 | Command | What it does |
 | --- | --- |
