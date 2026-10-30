@@ -23,7 +23,7 @@ def test_folder_walk(monkeypatch: pytest.MonkeyPatch) -> None:
     progress(Path("/music"), 312)
     progress.clear()
 
-    assert "Searching: 312 files  /music" in stderr.getvalue()
+    assert f"Searching: 312 files  {Path('/music')}" in stderr.getvalue()
     assert stderr.getvalue().endswith("\x1b[2K")  # erased
     progress.clear()  # a second clear does nothing
 

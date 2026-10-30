@@ -115,6 +115,9 @@ def test_keys_need_more_than_16_colors(
 
     _console.echo_rows([[("6m", _console.key_kind("6m"))]])
 
+    # The legacy Windows console has 16 colors whatever the environment says.
+    if _console.console().color_system == "windows":
+        colored = False
     assert ("\x1b[1;38;2;" in stream.getvalue()) is colored
     assert ESCAPE.sub("", stream.getvalue()) == "6m\n"
 
