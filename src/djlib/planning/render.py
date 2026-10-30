@@ -41,51 +41,79 @@ _TRACK_ORDER = ("added", "updated", "moved", "missing", "present", "merged")
 # Text
 
 
+# A piece of text and its kind (such as "added", "heading" or "warning"), which a
+# terminal may show in color. Kinds name meanings, never colors. A line is one or more.
+Span = tuple[str, str | None]
+Line = tuple[Span, ...]
+
+
+def _line(text: str, kind: str | None = None) -> Line:
+    return ((text, kind),)
+
+
 def render_text(plan: Plan, *, limit: int = 20) -> str:
     """The plan for a terminal, listing at most ``limit`` items per section."""
-    lines = [plan.title]
+    return "".join(
+        "".join(text for text, _ in line) + "\n" for line in plan_lines(plan, limit=limit)
+    )
+
+
+def plan_lines(plan: Plan, *, limit: int = 20) -> list[Line]:
+    """The lines of :func:`render_text`, each made of pieces of a kind."""
+    lines: list[Line] = [_line(plan.title, "heading")]
     if plan.empty:
-        lines.append("Nothing to do.")
+        lines.append(_line("Nothing to do."))
         lines.extend(_warnings(plan, limit))
-        return "\n".join(lines) + "\n"
+        return lines
     if plan.tracks or plan.refreshed or plan.rebased:
-        lines.append(_track_summary(plan))
+        lines.append(_line(_track_summary(plan), "heading"))
         lines.extend(_bounded(plan.tracks, limit, _track_lines, "tracks"))
     if plan.nodes or plan.untouched_nodes:
-        lines.append(_node_summary(plan))
+        lines.append(_line(_node_summary(plan), "heading"))
         lines.extend(_bounded(plan.nodes, limit, _node_lines, "playlists"))
     if plan.files:
         actions = Counter(f.action for f in plan.files)
-        lines.append("Files: " + ", ".join(f"{n} to {a}" for a, n in sorted(actions.items())))
+        summary = "Files: " + ", ".join(f"{n} to {a}" for a, n in sorted(actions.items()))
+        lines.append(_line(summary, "heading"))
         lines.extend(_bounded(plan.files, limit, _file_lines, "files"))
     if plan.trash:
         total = sum(f.size for f in plan.trash)
-        lines.append(f"Files to move to the trash: {len(plan.trash)} ({file_size(total)})")
+        lines.append(
+            _line(f"Files to move to the trash: {len(plan.trash)} ({file_size(total)})", "heading")
+        )
         lines.extend(
-            _bounded(plan.trash, limit, lambda f: [f"  - {f.path}  ({file_size(f.size)})"], "files")
+            _bounded(
+                plan.trash,
+                limit,
+                lambda f: [_line(f"  - {f.path}  ({file_size(f.size)})", "trash")],
+                "files",
+            )
         )
     if plan.conflicts:
         export = isinstance(plan.action, ExportAction)
         kept, other = ("target", "the target") if export else ("library", "the file")
-        lines.append(f"Conflicts, {kept} value kept: {len(plan.conflicts)}")
+        lines.append(_line(f"Conflicts, {kept} value kept: {len(plan.conflicts)}", "heading"))
         lines.extend(
             _bounded(
                 plan.conflicts,
                 limit,
                 lambda c: [
-                    f"  {c.name}: {c.field} is {text_value(c.field, c.library_value)} in"
-                    f" the library, {text_value(c.field, c.file_value)} in {other}"
+                    _line(
+                        f"  {c.name}: {c.field} is {text_value(c.field, c.library_value)} in"
+                        f" the library, {text_value(c.field, c.file_value)} in {other}",
+                        "warning",
+                    )
                 ],
                 "conflicts",
             )
         )
     if plan.losses:
-        lines.append(f"Losses: {len(plan.losses)}")
+        lines.append(_line(f"Losses: {len(plan.losses)}", "heading"))
         for loss in plan.losses:
             examples = f" (e.g. {', '.join(loss.examples)})" if loss.examples else ""
-            lines.append(f"  - {loss.description}: {loss.count}{examples}")
+            lines.append(_line(f"  - {loss.description}: {loss.count}{examples}", "warning"))
     lines.extend(_warnings(plan, limit))
-    return "\n".join(lines) + "\n"
+    return lines
 
 
 def _track_summary(plan: Plan) -> str:
@@ -106,31 +134,38 @@ def _node_summary(plan: Plan) -> str:
     return "Playlists: " + ", ".join(parts)
 
 
-def _track_lines(change: TrackChange) -> list[str]:
-    symbol = _SYMBOLS[change.change]
+def _track_lines(change: TrackChange) -> list[Line]:
+    symbol, kind = _SYMBOLS[change.change], change.change
+    lines: list[Line]
     if change.change == "moved":
-        lines = [f"  {symbol} {change.name}  {change.old_path} → {change.path}"]
+        lines = [_line(f"  {symbol} {change.name}  {change.old_path} → {change.path}", kind)]
     elif change.change == "merged":
-        return [f"  {symbol} {change.name}  {change.path} → merged into {change.merged_into}"]
+        merged = f"  {symbol} {change.name}  {change.path} → merged into {change.merged_into}"
+        return [_line(merged, kind)]
     else:
-        lines = [f"  {symbol} {change.name}  {change.path}"]
+        lines = [_line(f"  {symbol} {change.name}  {change.path}", kind)]
     if change.change == "added":
         return lines  # one line each; the JSON rendering lists their fields
     lines.extend(
-        f"      {f.field}: {text_value(f.field, f.before)} → {text_value(f.field, f.after)}"
-        + (f"  ({f.by})" if f.by else "")
+        (
+            (f"      {f.field}: ", None),
+            (text_value(f.field, f.before), "before"),
+            (" → ", "notice"),
+            (text_value(f.field, f.after), "after"),
+            *(((f"  ({f.by})", "notice"),) if f.by else ()),
+        )
         for f in change.fields
     )
     return lines
 
 
-def _node_lines(change: NodeChange) -> list[str]:
+def _node_lines(change: NodeChange) -> list[Line]:
     path = show_path(change.path)
     if change.change == "removed":
-        return [f"  - {path} ({change.kind})"]
+        return [_line(f"  - {path} ({change.kind})", "removed")]
     if change.change == "added":
         size = f", {len(change.entries_added)} entries" if change.kind == "playlist" else ""
-        return [f"  + {path} ({change.kind}{size})"]
+        return [_line(f"  + {path} ({change.kind}{size})", "added")]
     details: list[str] = []
     if change.entries_added:
         details.append(f"{len(change.entries_added)} entries added")
@@ -140,28 +175,28 @@ def _node_lines(change: NodeChange) -> list[str]:
         details.append("reordered")
     if change.renamed_from is not None:
         details.append(f"renamed from {show_path(change.renamed_from)}")
-    return [f"  ~ {path} ({change.kind}): {', '.join(details) or 'changed'}"]
+    return [_line(f"  ~ {path} ({change.kind}): {', '.join(details) or 'changed'}", "updated")]
 
 
-def _file_lines(change: FileChange) -> list[str]:
-    return [f"  {change.action} {change.path}"]
+def _file_lines(change: FileChange) -> list[Line]:
+    return [_line(f"  {change.action} {change.path}", "updated")]
 
 
-def _warnings(plan: Plan, limit: int) -> list[str]:
+def _warnings(plan: Plan, limit: int) -> list[Line]:
     if not plan.warnings:
         return []
     return [
-        f"Warnings: {len(plan.warnings)}",
-        *_bounded(plan.warnings, limit, lambda w: [f"  {w}"], "warnings"),
+        _line(f"Warnings: {len(plan.warnings)}", "heading"),
+        *_bounded(plan.warnings, limit, lambda w: [_line(f"  {w}", "warning")], "warnings"),
     ]
 
 
 def _bounded(
-    items: Sequence[_T], limit: int, lines: Callable[[_T], list[str]], noun: str
-) -> list[str]:
+    items: Sequence[_T], limit: int, lines: Callable[[_T], list[Line]], noun: str
+) -> list[Line]:
     shown = [line for item in items[:limit] for line in lines(item)]
     if len(items) > limit:
-        shown.append(f"  … and {len(items) - limit} more {noun}")
+        shown.append(_line(f"  … and {len(items) - limit} more {noun}", "notice"))
     return shown
 
 
@@ -174,10 +209,17 @@ def file_size(size: int) -> str:
     return f"{size / 1_000_000_000:.2f} GB"
 
 
+def bpm_text(bpm: float) -> str:
+    """A tempo with at most two decimals and no trailing zeros: 128, 127.5, 174.25."""
+    return f"{round(bpm, 2):g}"
+
+
 def text_value(name: str, value: object) -> str:
     """A field value as people read it."""
     if value is None:
         return "—"
+    if name == "bpm" and isinstance(value, float):
+        return bpm_text(value)
     if isinstance(value, Key):
         return f"{value.open_key()} ({value.musical()})"
     if isinstance(value, float):

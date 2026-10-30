@@ -20,6 +20,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `djlib` exports the stable names.
 - Help texts in one format, with an example per command, grouped in the root help, which
   also states the dry-run rule and the exit codes (0, 1 and 2).
+- Colored output in terminals (plan changes by kind, warnings, errors, headers), off when
+  the output is not a terminal, with `--no-color` or with `NO_COLOR`; `FORCE_COLOR`
+  turns it on. Color never changes the text. Plans show each field's value before in
+  red and after in green; `djlib list` and `djlib show` color keys by their place on
+  the key wheel (in terminals with 256 colors or more). `djlib dupes`, `djlib snapshot
+  list` and `djlib status` print aligned columns, aligned by screen width so titles with
+  wide characters no longer shift them.
+- Progress displays on standard error in terminals: a spinner with the files found
+  while walking folders, and a bar for `djlib enrich`.
 
 - Merging duplicates (`djlib dupes`): tracks that are the same song (same MusicBrainz
   recording, or same normalized artist and title with lengths within 3 seconds; versions
@@ -115,6 +124,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   writes nothing without `--apply`, like the other commands. It also accepts `--json`.
 - Every path argument and option expands `~`. A folder that does not exist is reported
   as such by every command.
+- `djlib list` shows paths relative to the folder all the listed tracks share, named on
+  the last line (`46 tracks in ~/Music/`); `--json` keeps the full paths.
+- BPM is shown with at most two decimals and no trailing zeros (`128`, `127.5`) in every
+  command; `djlib list` showed `128.0`.
 
 - Plan JSON version 2: track changes and conflicts name the track under `name`
   (was `label`, easy to confuse with the record label), and added tracks list every

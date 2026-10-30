@@ -10,7 +10,7 @@ from typing import Annotated
 
 import typer
 
-from djlib.cli import export, imports, snapshot
+from djlib.cli import _console, export, imports, snapshot
 from djlib.cli.browse import list_tracks, playlists, show
 from djlib.cli.dupes import dupes
 from djlib.cli.enrich import enrich
@@ -65,6 +65,10 @@ def root(
             show_default=False,
         ),
     ] = None,
+    no_color: Annotated[
+        bool,
+        typer.Option("--no-color", help="Print without color. Also: NO_COLOR=1."),
+    ] = False,
     _version: Annotated[
         bool,
         typer.Option(
@@ -76,6 +80,7 @@ def root(
     ] = False,
 ) -> None:
     """Free, local-first, scriptable DJ library manager."""
+    _console.set_no_color(no_color)
     ctx.obj = Home(resolve_home(home))
     if ctx.invoked_subcommand is None:
         typer.echo(ctx.get_help())

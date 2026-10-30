@@ -77,6 +77,6 @@ def test_progress_in_a_terminal(tmp_path: Path, monkeypatch: pytest.MonkeyPatch)
     result = invoke(tmp_path, str(tmp_path / "Elements"))
 
     assert result.exit_code == 0, result.stderr
-    assert "Searching " in result.stderr and ": 1 files" in result.stderr
-    assert result.stderr.endswith("\r\x1b[K")  # cleared before the plan
+    assert "Searching: 1 files" in result.stderr
+    assert result.stderr.endswith("\x1b[2K")  # erased before the plan
     assert "Searching" not in result.stdout

@@ -7,12 +7,19 @@ import pytest
 from typer.testing import CliRunner, Result
 
 from djlib.cli import app
+from djlib.cli.browse import common_folder, home_short
 from djlib.model.cue import Cue, CueKind
+from djlib.model.paths import normalize_path
 from djlib.model.playlist import Folder, Playlist
 from djlib.model.track import Track
 from djlib.store import Store
 
 runner = CliRunner()
+
+
+def shown(folder: Path) -> str:
+    """A folder as ``list`` names it (``~`` on Windows, where temporary folders are in it)."""
+    return home_short(normalize_path(str(folder)))
 
 
 def invoke(tmp_path: Path, *arguments: str) -> Result:
@@ -90,7 +97,7 @@ def test_list_filtered(tmp_path: Path, music: Path) -> None:
     assert result.exit_code == 0, result.stderr
     assert "Rise" in result.stdout
     assert "Fall" not in result.stdout
-    assert result.stdout.endswith("1 track\n")
+    assert result.stdout.endswith(f"1 track in {shown(music / 'techno')}/\n")
 
 
 def test_list_ordered_and_as_json(tmp_path: Path, music: Path) -> None:
@@ -185,3 +192,55 @@ def test_read_only_commands_change_nothing(tmp_path: Path, music: Path) -> None:
 
     assert database.read_bytes() == before
     assert not (tmp_path / "home" / "snapshots").exists()
+
+
+def test_status_lists_snapshots_in_columns(tmp_path: Path, music: Path) -> None:
+    invoke(tmp_path, "scan", str(music), "--apply", "--yes")
+
+    lines = invoke(tmp_path, "status").stdout.splitlines()
+
+    row = lines[lines.index("Last snapshots:") + 1]
+    assert row.startswith("  library  000001-")
+    assert row.endswith(f"scan {music}")
+
+
+def test_same_bpm_in_list_and_show(tmp_path: Path, music: Path) -> None:
+    listed = invoke(tmp_path, "list", "--where", "title=Fall").stdout
+    shown = invoke(tmp_path, "show", str(music / "techno" / "b.mp3")).stdout
+
+    assert "  128  " in listed
+    assert "128.0" not in listed
+    assert "  bpm            128\n" in shown
+
+
+def test_list_paths_under_the_common_folder(tmp_path: Path, music: Path) -> None:
+    lines = invoke(tmp_path, "list").stdout.splitlines()
+
+    assert lines[1].endswith("  techno/b.mp3")
+    assert lines[2].endswith("  house/c.mp3")
+    assert lines[-1] == f"3 tracks in {shown(music)}/"
+    document = json.loads(invoke(tmp_path, "list", "--json").stdout)
+    assert document["tracks"][0]["path"] == normalize_path(str(music / "techno" / "b.mp3"))
+
+
+@pytest.mark.parametrize(
+    ("paths", "folder"),
+    [
+        (["/m/techno/a.mp3", "/m/house/b.mp3"], "/m"),
+        (["/m/techno/a.mp3"], "/m/techno"),
+        (["/music/a.mp3", "/data/b.mp3"], None),
+        (["/a.mp3"], None),
+        (["C:/Music/a.mp3", "C:/Music/x/b.mp3"], "C:/Music"),
+        (["C:/a.mp3", "D:/b.mp3"], None),
+    ],
+)
+def test_common_folder(paths: list[str], folder: str | None) -> None:
+    assert common_folder(paths) == folder
+
+
+def test_home_is_written_with_a_tilde(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
+    monkeypatch.setattr(Path, "home", lambda: tmp_path)
+    home = tmp_path.as_posix()
+
+    assert home_short(f"{home}/Music/a.mp3") == "~/Music/a.mp3"
+    assert home_short(f"{home}x/a.mp3") == f"{home}x/a.mp3"

@@ -5,7 +5,7 @@ from typing import Annotated
 
 import typer
 
-from djlib.cli import _options
+from djlib.cli import _console, _options
 from djlib.cli._flow import confirm, home_of, reported_errors, stdin_is_interactive
 from djlib.model.unmapped import JSONValue
 from djlib.snapshots import Snapshot
@@ -41,11 +41,14 @@ def list_snapshots(
         typer.echo(json.dumps(document, ensure_ascii=False, indent=2))
         return
     if not snapshots:
-        typer.echo("No snapshots.")
+        _console.echo("No snapshots.")
         return
-    for snapshot in snapshots:
-        created = snapshot.created_at.strftime("%Y-%m-%d %H:%M:%S UTC")
-        typer.echo(f"{snapshot.target}  {snapshot.id}  {created}  {snapshot.reason or ''}".rstrip())
+    rows = [
+        (s.target, s.id, s.created_at.strftime("%Y-%m-%d %H:%M:%S UTC"), s.reason or "")
+        for s in snapshots
+    ]
+    lines = _console.columns([("TARGET", "ID", "TIME", "REASON"), *rows])
+    _console.echo_lines([(lines[0], "header"), *((line, None) for line in lines[1:])])
 
 
 @app.command("restore")
@@ -75,11 +78,19 @@ def restore(
         store = home_of(ctx).snapshots
         snapshot = store.get(target, snapshot_id)
         if not as_json:
-            typer.echo(
-                f"Restore {target} to snapshot {snapshot.id} ({snapshot.reason or 'no reason'}):"
+            reason = snapshot.reason or "no reason"
+            heading = f"Restore {target} to snapshot {snapshot.id} ({reason}):"
+            _console.echo_lines(
+                [
+                    (heading, "heading"),
+                    *(
+                        (f"  put back {r.path}", "updated")
+                        if r.present
+                        else (f"  remove {r.path}", "removed")
+                        for r in snapshot.files
+                    ),
+                ]
             )
-            for record in snapshot.files:
-                typer.echo(f"  {'put back' if record.present else 'remove'} {record.path}")
         result: dict[str, JSONValue] | None = None
         if apply:
             if as_json and not (yes or stdin_is_interactive()):
@@ -92,13 +103,16 @@ def restore(
     if as_json:
         typer.echo(json.dumps(_restore_json(snapshot, result), ensure_ascii=False, indent=2))
     elif result is None:
-        typer.echo("Dry run: nothing was restored. Run again with --apply to restore it.")
+        _console.echo(
+            "Dry run: nothing was restored. Run again with --apply to restore it.", "notice"
+        )
     elif result["status"] == "declined":
-        typer.echo("Not restored.")
+        _console.echo("Not restored.", "notice")
     else:
-        typer.echo(
+        _console.echo(
             f"Restored. Snapshot {result['pre_restore']} holds the state from just before"
-            " the restore."
+            " the restore.",
+            "added",
         )
 
 

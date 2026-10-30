@@ -5,7 +5,8 @@ import json
 import typer
 
 from djlib import query
-from djlib.cli import _options
+from djlib.cli import _console, _options
+from djlib.cli._console import Line
 from djlib.cli._flow import home_of, reported_errors
 from djlib.model.unmapped import JSONValue
 
@@ -48,26 +49,32 @@ def status(ctx: typer.Context, as_json: _options.Json = False) -> None:
         }
         typer.echo(json.dumps(document, ensure_ascii=False, indent=2))
         return
-    lines = [f"Home: {home.path}" + ("" if home.exists else "  (no library yet)")]
+    lines: list[Line] = [
+        (f"Home: {home.path}" + ("" if home.exists else "  (no library yet)"), None)
+    ]
     tracks = f"Tracks: {summary.tracks}"
     if summary.missing:
         tracks += f" ({summary.missing} missing on this computer)"
-    lines.append(tracks)
+    lines.append((tracks, "missing" if summary.missing else None))
     lines.append(
-        f"Playlists: {summary.playlists}, smartlists: {summary.smartlists},"
-        f" folders: {summary.folders}"
+        (
+            f"Playlists: {summary.playlists}, smartlists: {summary.smartlists},"
+            f" folders: {summary.folders}",
+            None,
+        )
     )
-    lines.append("Imported from:" + ("" if summary.sources else " nothing yet"))
-    lines.extend(f"  {s.name}  {s.imported_at.strftime(_TIME)}" for s in summary.sources)
-    lines.append("Last snapshots:" + ("" if summary.snapshots else " none"))
-    lines.extend(
-        f"  {s.target}  {s.id}  {s.created_at.strftime(_TIME)}  {s.reason or ''}".rstrip()
-        for s in summary.snapshots
-    )
+    lines.append(("Imported from:" + ("" if summary.sources else " nothing yet"), "heading"))
+    sources = [(s.name, s.imported_at.strftime(_TIME)) for s in summary.sources]
+    lines.extend((line, None) for line in _console.columns(sources, indent="  "))
+    lines.append(("Last snapshots:" + ("" if summary.snapshots else " none"), "heading"))
+    snapshots = [
+        (s.target, s.id, s.created_at.strftime(_TIME), s.reason or "") for s in summary.snapshots
+    ]
+    lines.extend((line, None) for line in _console.columns(snapshots, indent="  "))
     groups = summary.duplicate_groups
     if groups:
         noun = "group" if groups == 1 else "groups"
-        lines.append(f"Duplicates: {groups} {noun}; see djlib dupes")
+        lines.append((f"Duplicates: {groups} {noun}; see djlib dupes", "warning"))
     else:
-        lines.append("Duplicates: none")
-    typer.echo("\n".join(lines))
+        lines.append(("Duplicates: none", None))
+    _console.echo_lines(lines)
