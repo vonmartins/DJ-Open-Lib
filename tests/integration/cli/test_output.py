@@ -92,7 +92,9 @@ def test_long_paths_are_printed_whole(tmp_path: Path) -> None:
 
 
 def test_help_lists_no_color() -> None:
-    assert "--no-color" in runner.invoke(app, ["--help"], env={"NO_COLOR": "1"}).stdout
+    help_text = runner.invoke(app, ["--help"], env={"NO_COLOR": "1"}).stdout
+
+    assert "--no-color" in ESCAPE.sub("", help_text)  # Typer styles help on its own in CI
 
 
 def test_field_changes_show_before_and_after(tmp_path: Path) -> None:
