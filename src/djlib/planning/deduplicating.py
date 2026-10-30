@@ -1,5 +1,6 @@
 """Reporting duplicate tracks, and planning their merge into the track kept from each group."""
 
+import os
 from collections import Counter
 from collections.abc import Iterator, Mapping, Sequence
 from dataclasses import dataclass
@@ -11,6 +12,7 @@ from djlib.duplicates.grouping import find_groups
 from djlib.duplicates.merging import merge
 from djlib.duplicates.ranking import Facts, rank
 from djlib.model.ids import TrackId
+from djlib.model.paths import normalize_path
 from djlib.model.playlist import Folder, Node, Playlist
 from djlib.model.track import Track
 from djlib.planning.diff import diff_tracks
@@ -55,8 +57,13 @@ class MergePlan:
     warnings: tuple[str, ...]
 
 
-def find_duplicates(store: Store) -> tuple[Group, ...]:
-    """The library's duplicate groups, except those marked as not duplicates. Read-only."""
+def find_duplicates(store: Store, under: str | os.PathLike[str] | None = None) -> tuple[Group, ...]:
+    """The library's duplicate groups, except those marked as not duplicates. Read-only.
+
+    With ``under``, only the groups that have a track under that folder, with all their
+    tracks: the copy elsewhere is what makes them duplicates.
+    """
+    prefix = None if under is None else normalize_path(os.fspath(under)).rstrip("/") + "/"
     library = store.load_library()
     counts = Counter(
         entry for playlist in _playlists(library.playlists) for entry in set(playlist.entries)
@@ -66,6 +73,8 @@ def find_duplicates(store: Store) -> tuple[Group, ...]:
     for tracks in find_groups(library.tracks.values()):
         key = frozenset(t.id for t in tracks)
         if any(key <= ignored for ignored in marked):
+            continue
+        if prefix is not None and not any(t.path.startswith(prefix) for t in tracks):
             continue
         facts = {
             t.id: Facts(present=Path(t.path_origin).exists(), playlists=counts[t.id])
@@ -84,6 +93,7 @@ def plan_merge(
     decisions: Mapping[GroupKey, Decision] | None = None,
     *,
     keep_files: bool = False,
+    under: str | os.PathLike[str] | None = None,
 ) -> MergePlan:
     """Merge each group into its suggested track, or as ``decisions`` say. Changes nothing."""
     decisions = decisions or {}
@@ -91,7 +101,7 @@ def plan_merge(
     changes: list[TrackChange] = []
     trash: list[TrashFile] = []
     in_apps: dict[str, list[Track]] = {}
-    for group in find_duplicates(store):
+    for group in find_duplicates(store, under):
         decision = decisions.get(group.key)
         if decision == "skip":
             continue

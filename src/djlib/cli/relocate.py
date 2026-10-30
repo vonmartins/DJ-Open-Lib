@@ -5,21 +5,25 @@ from typing import Annotated
 
 import typer
 
-from djlib.cli import _options
-from djlib.cli._flow import fail, run
+from djlib.cli import _options, _paths
+from djlib.cli._flow import reported_errors, run
 
 
 def relocate(
     ctx: typer.Context,
-    folder: Annotated[Path, typer.Argument(help="Folder where the files are now.")],
+    folder: Annotated[
+        Path, typer.Argument(help="Folder where the files are now.", show_default=False)
+    ],
     apply: _options.Apply = False,
     yes: _options.Yes = False,
     as_json: _options.Json = False,
 ) -> None:
-    """Plan new paths under FOLDER for the tracks whose files do not exist here.
+    """Find, under a folder, the files of the tracks that are missing on this computer.
 
     Files are found by name; nothing on disk is moved, renamed or read.
+
+    Example: djlib relocate /mnt/usb/Music --apply
     """
-    if not folder.is_dir():
-        fail(f"{folder} is not a directory")
-    run(ctx, lambda engine: engine.plan_relocate(folder), apply=apply, yes=yes, as_json=as_json)
+    with reported_errors(as_json):
+        root = _paths.folder(folder)
+    run(ctx, lambda engine: engine.plan_relocate(root), apply=apply, yes=yes, as_json=as_json)

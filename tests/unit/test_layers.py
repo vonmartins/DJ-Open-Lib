@@ -14,6 +14,7 @@ CORE_PACKAGES = [
     "djlib.enrich",
     "djlib.duplicates",
     "djlib.planning",
+    "djlib.query",
 ]
 
 

@@ -158,3 +158,20 @@ def test_plan_changes_nothing_then_merged_twice(engine: Engine, store: Store, mu
     assert Path(mp3.path_origin).exists() and Path(flac.path_origin).exists()
     engine.apply(plan, assume_yes)
     assert engine.plan_merge().empty
+
+
+def test_under_keeps_whole_groups_with_a_track_there(
+    engine: Engine, store: Store, music: Path
+) -> None:
+    (music / "new").mkdir()
+    (music / "old").mkdir()
+    new = add(store, music, "new/a.mp3", bitrate=320)
+    old = add(store, music, "old/a.mp3", bitrate=128)
+    add(store, music, "old/c.mp3", title="Lounge", duration_us=200_000_000)
+    add(store, music, "old/d.mp3", title="Lounge", duration_us=201_000_000)
+
+    groups = engine.find_duplicates(under=music / "new")
+
+    assert [{c.track.id for c in g.copies} for g in groups] == [{new.id, old.id}]
+    plan = engine.plan_merge(under=music / "new")
+    assert {c.track_id for c in plan.tracks if c.change == "merged"} == {old.id}

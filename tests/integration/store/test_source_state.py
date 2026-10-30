@@ -175,3 +175,14 @@ def test_version_three_database_upgrades_with_backup(tmp_path: Path) -> None:
         assert schema_version(store._db) == bundled_migrations()[-1].version  # pyright: ignore[reportPrivateUsage]
         assert store.source(SOURCE) is None
     assert len(list(tmp_path.glob("library.db.v3-*.bak"))) == 1
+
+
+def test_sources_listed(store: Store) -> None:
+    track = Track(path_origin="/music/a.mp3", title="A")
+    other = Track(path_origin="/music/b.mp3", title="B")
+    store.add_track(other)
+    store.apply_operations(imported(track, Folder(name="Mixxx")))
+
+    assert [(s.name, s.imported_at) for s in store.sources()] == [(SOURCE, NOW)]
+    assert store.sources_of(track.id) == [SOURCE]
+    assert store.sources_of(other.id) == []

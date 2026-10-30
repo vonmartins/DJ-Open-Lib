@@ -147,7 +147,7 @@ def test_under_must_be_a_folder(tmp_path: Path) -> None:
     result = invoke(tmp_path, "--under", str(tmp_path / "nowhere"))
 
     assert result.exit_code == 1
-    assert "is not a directory" in result.stderr
+    assert "nowhere does not exist" in result.stderr
 
 
 def test_new_home_creates_nothing(tmp_path: Path, transport: FakeTransport) -> None:

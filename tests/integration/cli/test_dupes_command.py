@@ -157,3 +157,55 @@ def test_keep_path_is_normalized(tmp_path: Path) -> None:
     document = json.loads(result.stdout)
     (merged,) = [t for t in document["tracks"] if t["change"] == "merged"]
     assert merged["path"] == normalize_path(str(files["Numb.flac"]))
+
+
+def test_skip_and_ignore_without_a_terminal(tmp_path: Path, trashed: list[str]) -> None:
+    files = library(tmp_path, "Ash", "Bloom", "Coil")
+
+    result = invoke(
+        tmp_path,
+        "--merge",
+        "--skip",
+        str(files["Ash.mp3"]),
+        "--ignore",
+        str(files["Bloom.flac"]),
+        "--apply",
+        "--yes",
+    )
+
+    assert result.exit_code == 0, result.stderr
+    assert paths(tmp_path) == ["Ash.flac", "Ash.mp3", "Bloom.flac", "Bloom.mp3", "Coil.flac"]
+    report = json.loads(invoke(tmp_path, "--json").stdout)
+    assert [g["name"] for g in report["groups"]] == ["Phaeleh - Ash"]
+
+
+def test_two_answers_for_one_group(tmp_path: Path) -> None:
+    files = library(tmp_path, "Ash")
+
+    result = invoke(
+        tmp_path, "--merge", "--keep", str(files["Ash.mp3"]), "--skip", str(files["Ash.flac"])
+    )
+
+    assert result.exit_code == 1
+    assert "Phaeleh - Ash" in result.stderr
+
+
+def test_skip_is_the_default_answer(tmp_path: Path, interactive: None) -> None:
+    files = library(tmp_path, "Ash")
+
+    result = invoke(tmp_path, "--merge", "--skip", str(files["Ash.mp3"]), "--apply", answers="\n")
+
+    assert "Keep [s]" in result.stdout
+    assert paths(tmp_path) == ["Ash.flac", "Ash.mp3"]
+
+
+def test_under_keeps_groups_with_a_track_there(tmp_path: Path) -> None:
+    files = library(tmp_path, "Ash")
+    elsewhere = tmp_path / "elsewhere"
+
+    inside = invoke(tmp_path, "--under", str(files["Ash.flac"].parent), "--json")
+    elsewhere.mkdir()
+    outside = invoke(tmp_path, "--under", str(elsewhere), "--json")
+
+    assert len(json.loads(inside.stdout)["groups"][0]["tracks"]) == 2
+    assert json.loads(outside.stdout)["groups"] == []

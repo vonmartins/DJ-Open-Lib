@@ -139,10 +139,13 @@ class Engine:
             warnings=imported.warnings,
         )
 
-    def plan_fix(self, ruleset: RuleSet) -> Plan:
-        """Plan the edits that ``ruleset``'s fixes and rules make to the library's tracks."""
+    def plan_fix(self, ruleset: RuleSet, under: str | os.PathLike[str] | None = None) -> Plan:
+        """Plan the edits that ``ruleset``'s fixes and rules make to the library's tracks.
+
+        With ``under``, only to the tracks under that folder.
+        """
         revision = self.store.revision()
-        fixed = plan_fix(self.store, ruleset)
+        fixed = plan_fix(self.store, ruleset, under)
         return Plan(
             target=LIBRARY_TARGET,
             title="fix tags",
@@ -151,12 +154,19 @@ class Engine:
             warnings=fixed.warnings,
         )
 
-    def find_duplicates(self) -> tuple[Group, ...]:
-        """The library's duplicate groups, each with its suggested track first. Read-only."""
-        return find_duplicates(self.store)
+    def find_duplicates(self, under: str | os.PathLike[str] | None = None) -> tuple[Group, ...]:
+        """The library's duplicate groups, each with its suggested track first. Read-only.
+
+        With ``under``, only the groups with a track under that folder.
+        """
+        return find_duplicates(self.store, under)
 
     def plan_merge(
-        self, decisions: Mapping[GroupKey, Decision] | None = None, *, keep_files: bool = False
+        self,
+        decisions: Mapping[GroupKey, Decision] | None = None,
+        *,
+        keep_files: bool = False,
+        under: str | os.PathLike[str] | None = None,
     ) -> Plan:
         """Plan merging each duplicate group into one track, trashing the others' files.
 
@@ -164,7 +174,7 @@ class Engine:
         groups keep their suggested track. ``keep_files`` leaves every file in place.
         """
         revision = self.store.revision()
-        merged = plan_merge(self.store, decisions, keep_files=keep_files)
+        merged = plan_merge(self.store, decisions, keep_files=keep_files, under=under)
         return Plan(
             target=LIBRARY_TARGET,
             title="merge duplicates",

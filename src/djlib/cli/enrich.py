@@ -1,14 +1,12 @@
 """``djlib enrich``: tags from MusicBrainz for tracks AcoustID recognizes by their sound."""
 
 import sys
-from pathlib import Path
 from typing import Annotated
 
 import typer
 
-from djlib.cli import _options
-from djlib.cli._flow import fail, home_of, run, stderr_is_interactive
-from djlib.cli._home import CACHE
+from djlib.cli import _options, _paths
+from djlib.cli._flow import home_of, reported_errors, run, stderr_is_interactive
 from djlib.enrich.cache import Cache
 from djlib.enrich.service import Services
 from djlib.planning import Engine, Plan
@@ -39,10 +37,7 @@ class StepProgress:
 
 def enrich(
     ctx: typer.Context,
-    under: Annotated[
-        Path | None,
-        typer.Option("--under", help="Only the tracks under this folder.", show_default=False),
-    ] = None,
+    under: _options.Under = None,
     refresh: Annotated[
         bool,
         typer.Option("--refresh", help="Ask AcoustID and MusicBrainz again, ignoring the cache."),
@@ -51,25 +46,25 @@ def enrich(
     yes: _options.Yes = False,
     as_json: _options.Json = False,
 ) -> None:
-    """Plan tags from MusicBrainz for the tracks AcoustID recognizes by their sound.
+    """Fill in tags from MusicBrainz for the tracks AcoustID recognizes by their sound.
 
-    Sends each file's fingerprint (from fpcalc) to AcoustID, then asks MusicBrainz.
+    Sends each file's fingerprint (from fpcalc) to AcoustID, then asks MusicBrainz. The
+    only command that uses the network; answers are cached in the djlib home. Edits made
+    in djlib are kept, and audio files are never touched.
 
-    The only command that uses the network. Answers are cached in the djlib home.
-
-    Edits made in djlib are kept. Audio files are never touched.
+    Example: djlib enrich --under ~/Music/new
     """
-    if under is not None and not under.is_dir():
-        fail(f"{under} is not a directory")
+    with reported_errors(as_json):
+        folder = _paths.optional_folder(under)
     home = home_of(ctx)
     # A home without a library has nothing to enrich: do not create one for the cache.
-    cache_path = home.path / CACHE if home.database.exists() else None
+    cache_path = home.cache_file if home.exists else None
 
     def make_plan(engine: Engine) -> Plan:
         progress = StepProgress() if stderr_is_interactive() else None
         with Cache(cache_path, refresh=refresh) as cache:
             try:
-                return engine.plan_enrich(services(cache), under=under, steps=progress)
+                return engine.plan_enrich(services(cache), under=folder, steps=progress)
             finally:
                 if progress is not None:
                     progress.clear()

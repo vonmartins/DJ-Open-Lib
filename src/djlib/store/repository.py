@@ -416,6 +416,28 @@ class Store:
             imported_at=datetime.datetime.fromisoformat(row[1]),
         )
 
+    def sources(self) -> list[SourceInfo]:
+        """Every source imported into the library, by name."""
+        rows = self._db.execute(
+            "SELECT name, root_node_id, imported_at FROM sources ORDER BY name"
+        ).fetchall()
+        return [
+            SourceInfo(
+                name=name,
+                root_node_id=None if root is None else NodeId(uuid.UUID(root)),
+                imported_at=datetime.datetime.fromisoformat(imported_at),
+            )
+            for name, root, imported_at in rows
+        ]
+
+    def sources_of(self, track_id: TrackId) -> list[str]:
+        """The names of the sources ``track_id`` was imported from, sorted."""
+        rows = self._db.execute(
+            "SELECT DISTINCT source FROM source_values WHERE track_id = ? ORDER BY source",
+            (str(track_id),),
+        ).fetchall()
+        return [name for (name,) in rows]
+
     def source_values(self, name: str) -> dict[TrackId, dict[str, JSONValue]]:
         """The merge base per track: what the last import from ``name`` read."""
         rows = self._db.execute(
