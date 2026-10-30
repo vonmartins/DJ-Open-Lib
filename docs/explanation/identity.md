@@ -1,6 +1,6 @@
 # Track identity
 
-A DJ library outlives folders, disks and computers. djlib therefore separates *which track this is* from *where its file is*.
+A DJ library outlives folders, disks and computers. tunedex therefore separates *which track this is* from *where its file is*.
 
 ## The id
 
@@ -21,17 +21,17 @@ The path as the source wrote it is kept too, as `path_origin`.
 
 ## Recognizing a track again
 
-When a scan or an import sees a file, djlib has to decide whether it is a track it already knows.
+When a scan or an import sees a file, tunedex has to decide whether it is a track it already knows.
 
 - **A folder scan** matches by path. A file that disappeared from one place and appeared in another, with the same size and quick hash, is recognized as **moved**, not as one track removed and another added.
-- **An import** matches by path the first time. djlib then remembers the source's own id for the item, such as the Mixxx track id or the beets item id, and uses it from then on. A track whose path you fix in djlib therefore stays linked to its Mixxx or beets item.
+- **An import** matches by path the first time. tunedex then remembers the source's own id for the item, such as the Mixxx track id or the beets item id, and uses it from then on. A track whose path you fix in tunedex therefore stays linked to its Mixxx or beets item.
 - **[`relocate`](../guides/relocate.md)** changes only the path of a known track, so everything else about it stays.
 
 ## Your edits and theirs
 
-djlib remembers the values each source gave a track the last time. When the source changes a field later:
+tunedex remembers the values each source gave a track the last time. When the source changes a field later:
 
-- if you did not edit that field in djlib, the source's new value is taken;
+- if you did not edit that field in tunedex, the source's new value is taken;
 - if you did, your value stays, and the plan lists a **conflict** so that you can decide.
 
-This is how you can keep using Mixxx or beets alongside djlib and re-import whenever you like, without losing work on either side.
+This is how you can keep using Mixxx or beets alongside tunedex and re-import whenever you like, without losing work on either side.

@@ -1,15 +1,15 @@
 # Exporting to Mixxx
 
-Write djlib's library to Mixxx: tracks, tags, cues, loops, beat grids, playlists and crates.
+Write tunedex's library to Mixxx: tracks, tags, cues, loops, beat grids, playlists and crates.
 
-**Quit Mixxx first.** djlib refuses to write while Mixxx runs.
+**Quit Mixxx first.** tunedex refuses to write while Mixxx runs.
 
 ```sh
-djlib export mixxx                               # Mixxx's own library: show the plan
-djlib export mixxx --apply
-djlib export mixxx ~/mixxx-test --apply          # another profile
-djlib export mixxx --playlist Techno/Peak        # only some playlists
-djlib export mixxx --modified --apply            # only playlists changed since the last export
+tunedex export mixxx                               # Mixxx's own library: show the plan
+tunedex export mixxx --apply
+tunedex export mixxx ~/mixxx-test --apply          # another profile
+tunedex export mixxx --playlist Techno/Peak        # only some playlists
+tunedex export mixxx --modified --apply            # only playlists changed since the last export
 ```
 
 ## What is written
@@ -26,8 +26,8 @@ djlib export mixxx --modified --apply            # only playlists changed since 
 
 ## Conflicts
 
-A field edited in Mixxx since the last import is left as Mixxx has it, and the plan shows a conflict. Import first to bring the Mixxx value into djlib.
+A field edited in Mixxx since the last import is left as Mixxx has it, and the plan shows a conflict. Import first to bring the Mixxx value into tunedex.
 
 ## Undoing an export
 
-The previous database is kept as a snapshot. With Mixxx closed, `djlib snapshot restore` puts it back; see [snapshots and restore](snapshots.md).
+The previous database is kept as a snapshot. With Mixxx closed, `tunedex snapshot restore` puts it back; see [snapshots and restore](snapshots.md).

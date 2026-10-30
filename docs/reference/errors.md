@@ -8,14 +8,14 @@
 | `1` | An expected error: something the user can act on, such as a missing folder or a target that changed. The message is printed on standard error. |
 | `2` | Wrong usage: an unknown option, a missing argument or an invalid value. Typer prints the usage and the problem on standard error. |
 
-Any other code, with a traceback, is a bug. Please [report it](https://github.com/vonmartins/DJ-Open-Lib/issues).
+Any other code, with a traceback, is a bug. Please [report it](https://github.com/vonmartins/tunedex/issues).
 
 ## Error messages
 
 Without `--json`, an expected error is one line on standard error:
 
 ```console
-$ djlib export m3u /tmp/out --playlist Nope
+$ tunedex export m3u /tmp/out --playlist Nope
 error: no playlist or folder at 'Nope'
 ```
 
@@ -37,8 +37,8 @@ With `--json`, standard output stays empty and standard error holds one JSON doc
 | `unknown_playlist` | `--playlist` names no playlist or folder. The message suggests close names. |
 | `stale_target` | A file the plan would write changed after the plan was made. Nothing was written; make the plan again. |
 | `apply_failed` | Writing failed after it started. See [below](#apply_failed). |
-| `not_a_library` | The database in the home is not a djlib library. |
-| `library_too_new` | The library was written by a newer djlib. Upgrade djlib. |
+| `not_a_library` | The database in the home is not a tunedex library. |
+| `library_too_new` | The library was written by a newer tunedex. Upgrade tunedex. |
 | `invalid_rule` | A rule, condition or fix in a rules file or in `--where` is invalid. The message says where. |
 | `adapter_error` | A source or target file cannot be read or understood, such as a damaged Mixxx database. |
 | `enrich_error` | `enrich` cannot run: `fpcalc` is missing, a service is unreachable, or a service gave a bad answer. |
@@ -67,6 +67,6 @@ The error document has three more fields:
 
 | Field | Meaning |
 |---|---|
-| `target` | The [target](json.md#djlib-plan) that was being written. |
+| `target` | The [target](json.md#tunedex-plan) that was being written. |
 | `snapshot` | The snapshot taken before writing. |
-| `restored` | `true` when djlib put the target back as it was. `false` when it could not: restore it with `djlib snapshot restore <target> <snapshot> --apply`. |
+| `restored` | `true` when tunedex put the target back as it was. `false` when it could not: restore it with `tunedex snapshot restore <target> <snapshot> --apply`. |

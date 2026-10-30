@@ -3,14 +3,14 @@
 When files are not where the library expects them, because a disk is mounted elsewhere, the library was made on another computer or a folder was renamed, `relocate` finds them again.
 
 ```sh
-djlib list --missing                    # the tracks whose files are not here
-djlib relocate /mnt/usb/Music           # show where they would point
-djlib relocate /mnt/usb/Music --apply
+tunedex list --missing                    # the tracks whose files are not here
+tunedex relocate /mnt/usb/Music           # show where they would point
+tunedex relocate /mnt/usb/Music --apply
 ```
 
 ## How files are found
 
-djlib looks under the folder you name for files with the same name as each missing track's file. There is nothing to configure, and you do it once.
+tunedex looks under the folder you name for files with the same name as each missing track's file. There is nothing to configure, and you do it once.
 
 - When several files have the same name, the one under the same folders as before wins.
 - If that does not settle it, the track is left alone and the plan says so.

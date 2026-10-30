@@ -1,8 +1,8 @@
-site_name: djlib
+site_name: tunedex
 site_description: Free, local-first, scriptable DJ library manager.
-site_url: https://vonmartins.github.io/DJ-Open-Lib/
-repo_url: https://github.com/vonmartins/DJ-Open-Lib
-repo_name: vonmartins/DJ-Open-Lib
+site_url: https://vonmartins.github.io/tunedex/
+repo_url: https://github.com/vonmartins/tunedex
+repo_name: vonmartins/tunedex
 edit_uri: edit/dev/docs/
 
 theme:
@@ -71,7 +71,7 @@ nav:
       - Exporting to Mixxx: guides/export-mixxx.md
       - Exporting to M3U: guides/export-m3u.md
       - Snapshots and restore: guides/snapshots.md
-      - Using djlib from another program: guides/from-another-program.md
+      - Using tunedex from another program: guides/from-another-program.md
   - Reference:
       - Commands: reference/cli.md
       - JSON formats: reference/json.md

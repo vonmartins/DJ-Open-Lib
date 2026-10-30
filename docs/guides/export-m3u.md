@@ -3,11 +3,11 @@
 Write the library's playlists as `.m3u8` files, which almost every player and DJ app can open.
 
 ```sh
-djlib export m3u ~/Playlists                          # show the plan
-djlib export m3u ~/Playlists --apply
-djlib export m3u ~/Playlists --playlist Techno/Peak   # only some playlists
-djlib export m3u ~/Playlists --modified --apply       # only playlists changed since the last export
-djlib export m3u ~/Playlists --relative-paths --apply
+tunedex export m3u ~/Playlists                          # show the plan
+tunedex export m3u ~/Playlists --apply
+tunedex export m3u ~/Playlists --playlist Techno/Peak   # only some playlists
+tunedex export m3u ~/Playlists --modified --apply       # only playlists changed since the last export
+tunedex export m3u ~/Playlists --relative-paths --apply
 ```
 
 ## What is written

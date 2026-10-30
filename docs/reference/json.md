@@ -6,14 +6,14 @@ Every document starts with `format`, which names it, and `version`. A new versio
 
 | Format | Version | Printed by |
 |---|---|---|
-| [`djlib-plan`](#djlib-plan) | 3 | `scan`, `relocate`, `fix`, `enrich`, `dupes --merge`, `import mixxx`, `import beets`, `export m3u`, `export mixxx` |
-| [`djlib-status`](#djlib-status) | 1 | `status` |
-| [`djlib-tracks`](#djlib-tracks) | 1 | `list` |
-| [`djlib-track`](#djlib-track) | 1 | `show` |
-| [`djlib-playlists`](#djlib-playlists) | 1 | `playlists` |
-| [`djlib-dupes`](#djlib-dupes) | 1 | `dupes` |
-| [`djlib-snapshots`](#djlib-snapshots) | 1 | `snapshot list` |
-| [`djlib-restore`](#djlib-restore) | 1 | `snapshot restore` |
+| [`tunedex-plan`](#tunedex-plan) | 3 | `scan`, `relocate`, `fix`, `enrich`, `dupes --merge`, `import mixxx`, `import beets`, `export m3u`, `export mixxx` |
+| [`tunedex-status`](#tunedex-status) | 1 | `status` |
+| [`tunedex-tracks`](#tunedex-tracks) | 1 | `list` |
+| [`tunedex-track`](#tunedex-track) | 1 | `show` |
+| [`tunedex-playlists`](#tunedex-playlists) | 1 | `playlists` |
+| [`tunedex-dupes`](#tunedex-dupes) | 1 | `dupes` |
+| [`tunedex-snapshots`](#tunedex-snapshots) | 1 | `snapshot list` |
+| [`tunedex-restore`](#tunedex-restore) | 1 | `snapshot restore` |
 
 Conventions in every format:
 
@@ -22,13 +22,13 @@ Conventions in every format:
 - **Paths** are absolute paths on this computer, as text.
 - **Unknown values** are `null`; a field is never left out.
 
-## `djlib-plan`
+## `tunedex-plan`
 
 **Version 3.** Every command that changes something prints its plan. Without `--apply` this is a dry run and `result` is `null`. With `--apply`, the same document also carries the result.
 
 ```json
 {
-  "format": "djlib-plan",
+  "format": "tunedex-plan",
   "version": 3,
   "target": "m3u-568b52ce5ecb",
   "title": "export m3u to /home/ana/playlists",
@@ -83,7 +83,7 @@ Conventions in every format:
 
 | Field | Type | Meaning |
 |---|---|---|
-| `target` | string | What the plan changes: `library` for the djlib library, or `<adapter>-<12 hex digits>` for an export target. Snapshots are kept per target. |
+| `target` | string | What the plan changes: `library` for the tunedex library, or `<adapter>-<12 hex digits>` for an export target. Snapshots are kept per target. |
 | `title` | string | A one-line description of the plan. |
 | `location` | string or null | The folder or file the plan writes to; `null` for the library. |
 | `empty` | boolean | `true` when there is nothing to do. |
@@ -96,7 +96,7 @@ Conventions in every format:
 | `trash` | array | Audio files the apply would move to the system trash (`dupes --merge`): `path` and `bytes`. |
 | `losses` | array of [losses](#loss) | What the target cannot keep. |
 | `warnings` | array of strings | Things to know before applying. |
-| `conflicts` | array of [conflicts](#conflict) | Fields edited in djlib whose tag also changed in the file (scans). djlib's value is kept. |
+| `conflicts` | array of [conflicts](#conflict) | Fields edited in tunedex whose tag also changed in the file (scans). tunedex's value is kept. |
 | `result` | [result](#result) or null | What the apply did; `null` in a dry run. |
 
 ### Track change
@@ -148,7 +148,7 @@ Conventions in every format:
 |---|---|---|
 | `track_id`, `path`, `name` | strings | The track. |
 | `field` | string | The field. |
-| `library_value` | any | The value in djlib, which is kept. |
+| `library_value` | any | The value in tunedex, which is kept. |
 | `file_value` | any | The value now in the file's tags. |
 
 ### Result
@@ -162,15 +162,15 @@ Conventions in every format:
 | `files_trashed` | integer | Audio files moved to the system trash. |
 | `warnings` | array of strings | Problems that did not stop the apply, such as a file that could not be trashed. |
 
-## `djlib-status`
+## `tunedex-status`
 
 **Version 1.** A summary of the library.
 
 ```json
 {
-  "format": "djlib-status",
+  "format": "tunedex-status",
   "version": 1,
-  "home": "/home/ana/.local/share/djlib",
+  "home": "/home/ana/.local/share/tunedex",
   "library_exists": true,
   "tracks": 4,
   "missing": 0,
@@ -198,15 +198,15 @@ Conventions in every format:
 | `playlists`, `smartlists`, `folders` | integers | Nodes in the playlist tree. |
 | `sources` | array | Each source imported from, with `name` and `imported_at`. |
 | `snapshots` | array | The newest snapshot of each target: `target`, `id`, `created_at`, `reason`. |
-| `duplicate_groups` | integer | Groups that `djlib dupes` would report. |
+| `duplicate_groups` | integer | Groups that `tunedex dupes` would report. |
 
-## `djlib-tracks`
+## `tunedex-tracks`
 
 **Version 1.** The tracks that match the filters, by artist and title.
 
 ```json
 {
-  "format": "djlib-tracks",
+  "format": "tunedex-tracks",
   "version": 1,
   "tracks": [
     {
@@ -260,15 +260,15 @@ The example is shortened: every [track](#track) field is always present.
 | `tags` | array of strings | Free tags. |
 | `cues` | array | Cues and loops: `kind` (`hot`, `memory` or `loop`), `start_us`, `slot` (the hot-cue pad, or `null`), `name`, `color`, `end_us` (loops only), `active`, `unmapped`. |
 | `beatgrid` | object or null | `markers`: each with `position_us`, `bpm`, and `beat`, its place in the bar (1–4). Several markers mean tempo changes. |
-| `unmapped` | object | Fields a source has that djlib does not model. They are kept so they can be written back. |
+| `unmapped` | object | Fields a source has that tunedex does not model. They are kept so they can be written back. |
 
-## `djlib-track`
+## `tunedex-track`
 
 **Version 1.** One track, with where it is used.
 
 ```json
 {
-  "format": "djlib-track",
+  "format": "tunedex-track",
   "version": 1,
   "track": {"id": "50a8cc13-633d-4e86-b983-5d263d6c0c09", "path": "/home/ana/Music/techno/a.mp3"},
   "present": true,
@@ -284,13 +284,13 @@ The example is shortened: every [track](#track) field is always present.
 | `playlists` | array of strings | Paths of the playlists and smartlists that hold the track, in tree order. |
 | `sources` | array of strings | The sources it was imported from, sorted. |
 
-## `djlib-playlists`
+## `tunedex-playlists`
 
 **Version 1.** The playlist tree, depth first.
 
 ```json
 {
-  "format": "djlib-playlists",
+  "format": "tunedex-playlists",
   "version": 1,
   "nodes": [
     {"name": "Sets", "kind": "folder", "depth": 0, "tracks": null, "path": "Sets"},
@@ -308,13 +308,13 @@ The example is shortened: every [track](#track) field is always present.
 | `nodes[].tracks` | integer or null | Tracks in a playlist or selected by a smartlist; `null` for folders. |
 | `nodes[].path` | string | The path that `--playlist` takes, such as `Sets/Friday`. |
 
-## `djlib-dupes`
+## `tunedex-dupes`
 
 **Version 1.** Groups of tracks that are the same song. The suggested track to keep comes first.
 
 ```json
 {
-  "format": "djlib-dupes",
+  "format": "tunedex-dupes",
   "version": 1,
   "groups": [
     {
@@ -355,13 +355,13 @@ The example is shortened: every [track](#track) field is always present.
 | `groups[].reason` | string | Why the first track is suggested over the second: `file present`, `lossless`, `bitrate`, `cues`, `beat grid`, `playlists`, `oldest` or `path`. |
 | `groups[].tracks` | array | The tracks, best first. Each has `track_id`, `path`, `format`, `bitrate`, `duration_us`, `cues` (a count), `playlists` (a count), `present` and `suggested`. |
 
-## `djlib-snapshots`
+## `tunedex-snapshots`
 
 **Version 1.** The snapshots of every target, newest first within each target.
 
 ```json
 {
-  "format": "djlib-snapshots",
+  "format": "tunedex-snapshots",
   "version": 1,
   "snapshots": [
     {
@@ -369,7 +369,7 @@ The example is shortened: every [track](#track) field is always present.
       "id": "000001-20261030T193927Z",
       "created_at": "2026-10-30T19:39:27.271558+00:00",
       "reason": "export m3u to /home/ana/playlists",
-      "djlib_version": "0.1.0",
+      "tunedex_version": "0.1.0",
       "files": ["/home/ana/playlists/Sets/Friday.m3u8", "/home/ana/playlists/Sets/Saturday.m3u8"]
     }
   ]
@@ -382,16 +382,16 @@ The example is shortened: every [track](#track) field is always present.
 | `snapshots[].id` | string | The id that `snapshot restore` takes. |
 | `snapshots[].created_at` | string | When it was taken. |
 | `snapshots[].reason` | string | The plan it was taken before. |
-| `snapshots[].djlib_version` | string | The djlib version that took it. |
+| `snapshots[].tunedex_version` | string | The tunedex version that took it. |
 | `snapshots[].files` | array of strings | The files it holds. |
 
-## `djlib-restore`
+## `tunedex-restore`
 
 **Version 1.** What restoring a snapshot does. Without `--apply`, `result` is left out.
 
 ```json
 {
-  "format": "djlib-restore",
+  "format": "tunedex-restore",
   "version": 1,
   "target": "m3u-568b52ce5ecb",
   "snapshot": "000001-20261030T193927Z",

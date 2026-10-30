@@ -5,12 +5,12 @@ Free, local-first, scriptable DJ library manager.
 **Usage**:
 
 ```console
-$ djlib [OPTIONS] COMMAND [ARGS]...
+$ tunedex [OPTIONS] COMMAND [ARGS]...
 ```
 
 **Options**:
 
-* `--home <path>`: Directory for the library and the snapshots. Default: $DJLIB_HOME, else the user data directory.
+* `--home <path>`: Directory for the library and the snapshots. Default: $TUNEDEX_HOME, else the user data directory.
 * `--no-color`: Print without color. Also: NO_COLOR=1.
 * `--version`: Show the version and exit.
 * `--help`: Show this message and exit.
@@ -21,7 +21,7 @@ Commands that change something show a plan and write nothing unless --apply is g
 
 * `status`: Show a summary of the library: tracks,...
 * `list`: List the library's tracks, one per line,...
-* `show`: Show everything djlib knows about one track.
+* `show`: Show everything tunedex knows about one...
 * `playlists`: Show the playlist tree, with the number of...
 * `scan`: Add, update, move and mark missing the...
 * `relocate`: Find, under a folder, the files of the...
@@ -32,16 +32,16 @@ Commands that change something show a plan and write nothing unless --apply is g
 * `export`: Export the library to another format or app.
 * `snapshot`: List and restore snapshots.
 
-## `djlib status`
+## `tunedex status`
 
 Show a summary of the library: tracks, playlists, sources, snapshots, duplicates.
 
-Example: djlib status
+Example: tunedex status
 
 **Usage**:
 
 ```console
-$ djlib status [OPTIONS]
+$ tunedex status [OPTIONS]
 ```
 
 **Options**:
@@ -49,16 +49,16 @@ $ djlib status [OPTIONS]
 * `--json`: Print only a JSON document on stdout.
 * `--help`: Show this message and exit.
 
-## `djlib list`
+## `tunedex list`
 
 List the library's tracks, one per line, by artist and title.
 
-Example: djlib list --where "genre=Techno" --where "bpm>130"
+Example: tunedex list --where "genre=Techno" --where "bpm>130"
 
 **Usage**:
 
 ```console
-$ djlib list [OPTIONS]
+$ tunedex list [OPTIONS]
 ```
 
 **Options**:
@@ -70,18 +70,18 @@ $ djlib list [OPTIONS]
 * `--json`: Print only a JSON document on stdout.
 * `--help`: Show this message and exit.
 
-## `djlib show`
+## `tunedex show`
 
-Show everything djlib knows about one track.
+Show everything tunedex knows about one track.
 
 Its tags, cues, loops, beat grid, playlists and the apps it was imported from.
 
-Example: djlib show ~/Music/techno/a.flac
+Example: tunedex show ~/Music/techno/a.flac
 
 **Usage**:
 
 ```console
-$ djlib show [OPTIONS] {TRACK}
+$ tunedex show [OPTIONS] {TRACK}
 ```
 
 **Arguments**:
@@ -93,16 +93,16 @@ $ djlib show [OPTIONS] {TRACK}
 * `--json`: Print only a JSON document on stdout.
 * `--help`: Show this message and exit.
 
-## `djlib playlists`
+## `tunedex playlists`
 
 Show the playlist tree, with the number of tracks of each playlist.
 
-Example: djlib playlists
+Example: tunedex playlists
 
 **Usage**:
 
 ```console
-$ djlib playlists [OPTIONS]
+$ tunedex playlists [OPTIONS]
 ```
 
 **Options**:
@@ -110,18 +110,18 @@ $ djlib playlists [OPTIONS]
 * `--json`: Print only a JSON document on stdout.
 * `--help`: Show this message and exit.
 
-## `djlib scan`
+## `tunedex scan`
 
 Add, update, move and mark missing the tracks of a music folder.
 
 Tags are read from the files; the files are never changed.
 
-Example: djlib scan ~/Music --apply
+Example: tunedex scan ~/Music --apply
 
 **Usage**:
 
 ```console
-$ djlib scan [OPTIONS] {folder}
+$ tunedex scan [OPTIONS] {folder}
 ```
 
 **Arguments**:
@@ -135,18 +135,18 @@ $ djlib scan [OPTIONS] {folder}
 * `--json`: Print only a JSON document on stdout.
 * `--help`: Show this message and exit.
 
-## `djlib relocate`
+## `tunedex relocate`
 
 Find, under a folder, the files of the tracks that are missing on this computer.
 
 Files are found by name; nothing on disk is moved, renamed or read.
 
-Example: djlib relocate /mnt/usb/Music --apply
+Example: tunedex relocate /mnt/usb/Music --apply
 
 **Usage**:
 
 ```console
-$ djlib relocate [OPTIONS] {folder}
+$ tunedex relocate [OPTIONS] {folder}
 ```
 
 **Arguments**:
@@ -160,7 +160,7 @@ $ djlib relocate [OPTIONS] {folder}
 * `--json`: Print only a JSON document on stdout.
 * `--help`: Show this message and exit.
 
-## `djlib fix`
+## `tunedex fix`
 
 Clean the tags of the library's tracks with the bundled fixes and your rules.
 
@@ -168,17 +168,17 @@ Fixes remove URLs, video ids and odd characters, and move featured artists and
 remixers to their fields. Each change names the fix or rule that made it. Only the
 library changes; audio files are never touched.
 
-Example: djlib fix --only remove_urls --under ~/Music/new
+Example: tunedex fix --only remove_urls --under ~/Music/new
 
 **Usage**:
 
 ```console
-$ djlib fix [OPTIONS]
+$ tunedex fix [OPTIONS]
 ```
 
 **Options**:
 
-* `--rules <path>`: Rules file. Default: rules.yaml in the djlib home if it exists, else the bundled fixes.
+* `--rules <path>`: Rules file. Default: rules.yaml in the tunedex home if it exists, else the bundled fixes.
 * `--only <str>`: Only this fix or rule id; repeatable, or separated by commas.
 * `--under <path>`: Only the tracks under this folder.
 * `--apply`: Apply the plan (asks for confirmation).
@@ -186,20 +186,20 @@ $ djlib fix [OPTIONS]
 * `--json`: Print only a JSON document on stdout.
 * `--help`: Show this message and exit.
 
-## `djlib enrich`
+## `tunedex enrich`
 
 Fill in tags from MusicBrainz for the tracks AcoustID recognizes by their sound.
 
 Sends each file's fingerprint (from fpcalc) to AcoustID, then asks MusicBrainz. The
-only command that uses the network; answers are cached in the djlib home. Edits made
-in djlib are kept, and audio files are never touched.
+only command that uses the network; answers are cached in the tunedex home. Edits made
+in tunedex are kept, and audio files are never touched.
 
-Example: djlib enrich --under ~/Music/new
+Example: tunedex enrich --under ~/Music/new
 
 **Usage**:
 
 ```console
-$ djlib enrich [OPTIONS]
+$ tunedex enrich [OPTIONS]
 ```
 
 **Options**:
@@ -211,7 +211,7 @@ $ djlib enrich [OPTIONS]
 * `--json`: Print only a JSON document on stdout.
 * `--help`: Show this message and exit.
 
-## `djlib dupes`
+## `tunedex dupes`
 
 Report tracks that are the same song, and suggest which one to keep.
 
@@ -219,12 +219,12 @@ With --merge --apply, asks about each group, then shows one plan: the kept track
 the others' tags, cues, playlists and plays, and their files go to the system trash.
 --keep, --skip and --ignore answer for a group without asking.
 
-Example: djlib dupes --merge --keep ~/Music/a.flac --apply
+Example: tunedex dupes --merge --keep ~/Music/a.flac --apply
 
 **Usage**:
 
 ```console
-$ djlib dupes [OPTIONS]
+$ tunedex dupes [OPTIONS]
 ```
 
 **Options**:
@@ -240,14 +240,14 @@ $ djlib dupes [OPTIONS]
 * `--json`: Print only a JSON document on stdout.
 * `--help`: Show this message and exit.
 
-## `djlib import`
+## `tunedex import`
 
 Import tracks and playlists from another app.
 
 **Usage**:
 
 ```console
-$ djlib import [OPTIONS] COMMAND [ARGS]...
+$ tunedex import [OPTIONS] COMMAND [ARGS]...
 ```
 
 **Options**:
@@ -259,19 +259,19 @@ $ djlib import [OPTIONS] COMMAND [ARGS]...
 * `mixxx`: Import a Mixxx library: tracks, cues,...
 * `beets`: Import the tracks of a beets library and...
 
-### `djlib import mixxx`
+### `tunedex import mixxx`
 
 Import a Mixxx library: tracks, cues, loops, grids, playlists and crates.
 
 Mixxx's files are only read. Its playlists and crates go to a "Mixxx" folder in
-djlib, which later imports replace.
+tunedex, which later imports replace.
 
-Example: djlib import mixxx --apply
+Example: tunedex import mixxx --apply
 
 **Usage**:
 
 ```console
-$ djlib import mixxx [OPTIONS] [database]
+$ tunedex import mixxx [OPTIONS] [database]
 ```
 
 **Arguments**:
@@ -286,18 +286,18 @@ $ djlib import mixxx [OPTIONS] [database]
 * `--json`: Print only a JSON document on stdout.
 * `--help`: Show this message and exit.
 
-### `djlib import beets`
+### `tunedex import beets`
 
 Import the tracks of a beets library and their tags.
 
 beets' database and the music files are only read. Albums do not become playlists.
 
-Example: djlib import beets ~/Music/.beets.db --apply
+Example: tunedex import beets ~/Music/.beets.db --apply
 
 **Usage**:
 
 ```console
-$ djlib import beets [OPTIONS] [library]
+$ tunedex import beets [OPTIONS] [library]
 ```
 
 **Arguments**:
@@ -313,14 +313,14 @@ $ djlib import beets [OPTIONS] [library]
 * `--json`: Print only a JSON document on stdout.
 * `--help`: Show this message and exit.
 
-## `djlib export`
+## `tunedex export`
 
 Export the library to another format or app.
 
 **Usage**:
 
 ```console
-$ djlib export [OPTIONS] COMMAND [ARGS]...
+$ tunedex export [OPTIONS] COMMAND [ARGS]...
 ```
 
 **Options**:
@@ -332,18 +332,18 @@ $ djlib export [OPTIONS] COMMAND [ARGS]...
 * `m3u`: Write the library's playlists as M3U8...
 * `mixxx`: Write the library to a Mixxx library.
 
-### `djlib export m3u`
+### `tunedex export m3u`
 
 Write the library's playlists as M3U8 files under a folder.
 
 Folders become subfolders. The folder is created when the plan is applied.
 
-Example: djlib export m3u ~/Playlists -p Techno --apply
+Example: tunedex export m3u ~/Playlists -p Techno --apply
 
 **Usage**:
 
 ```console
-$ djlib export m3u [OPTIONS] {FOLDER}
+$ tunedex export m3u [OPTIONS] {FOLDER}
 ```
 
 **Arguments**:
@@ -360,7 +360,7 @@ $ djlib export m3u [OPTIONS] {FOLDER}
 * `--json`: Print only a JSON document on stdout.
 * `--help`: Show this message and exit.
 
-### `djlib export mixxx`
+### `tunedex export mixxx`
 
 Write the library to a Mixxx library. Quit Mixxx first.
 
@@ -368,12 +368,12 @@ Tracks, cues, loops, grids, playlists and crates are written. Fields edited in M
 since the last import are left as they are and shown as conflicts. Nothing in Mixxx
 is deleted.
 
-Example: djlib export mixxx --modified --apply
+Example: tunedex export mixxx --modified --apply
 
 **Usage**:
 
 ```console
-$ djlib export mixxx [OPTIONS] [database]
+$ tunedex export mixxx [OPTIONS] [database]
 ```
 
 **Arguments**:
@@ -389,14 +389,14 @@ $ djlib export mixxx [OPTIONS] [database]
 * `--json`: Print only a JSON document on stdout.
 * `--help`: Show this message and exit.
 
-## `djlib snapshot`
+## `tunedex snapshot`
 
 List and restore snapshots.
 
 **Usage**:
 
 ```console
-$ djlib snapshot [OPTIONS] COMMAND [ARGS]...
+$ tunedex snapshot [OPTIONS] COMMAND [ARGS]...
 ```
 
 **Options**:
@@ -408,16 +408,16 @@ $ djlib snapshot [OPTIONS] COMMAND [ARGS]...
 * `list`: List snapshots, newest first, with their...
 * `restore`: Put the files of a target back as they...
 
-### `djlib snapshot list`
+### `tunedex snapshot list`
 
 List snapshots, newest first, with their target, id, time and reason.
 
-Example: djlib snapshot list library
+Example: tunedex snapshot list library
 
 **Usage**:
 
 ```console
-$ djlib snapshot list [OPTIONS] [target]
+$ tunedex snapshot list [OPTIONS] [target]
 ```
 
 **Arguments**:
@@ -429,24 +429,24 @@ $ djlib snapshot list [OPTIONS] [target]
 * `--json`: Print only a JSON document on stdout.
 * `--help`: Show this message and exit.
 
-### `djlib snapshot restore`
+### `tunedex snapshot restore`
 
 Put the files of a target back as they were in a snapshot.
 
 Shows the files it would put back or remove; --apply restores them. The current
 state is saved in a new snapshot first, so a restore can be undone.
 
-Example: djlib snapshot restore library 000012-20261029T120000Z --apply
+Example: tunedex snapshot restore library 000012-20261029T120000Z --apply
 
 **Usage**:
 
 ```console
-$ djlib snapshot restore [OPTIONS] {target} {ID}
+$ tunedex snapshot restore [OPTIONS] {target} {ID}
 ```
 
 **Arguments**:
 
-* `target`: Target name, as shown by djlib snapshot list.  [required]
+* `target`: Target name, as shown by tunedex snapshot list.  [required]
 * `ID`: Snapshot identifier.  [required]
 
 **Options**:
