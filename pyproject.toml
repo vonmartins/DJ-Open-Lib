@@ -25,6 +25,7 @@ dependencies = [
 ]
 
 [project.urls]
+Documentation = "https://vonmartins.github.io/DJ-Open-Lib/"
 Repository = "https://github.com/vonmartins/DJ-Open-Lib"
 
 [project.scripts]
@@ -42,6 +43,10 @@ dev = [
     "pytest>=9.1.1",
     "ruff>=0.17.2",
     "types-pyyaml>=6.0.12.20260906",
+]
+docs = [
+    "mkdocstrings-python>=2.0.10",
+    "zensical>=0.0.73",
 ]
 
 [tool.ruff]

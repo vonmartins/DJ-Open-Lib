@@ -12,6 +12,8 @@ class StaleTargetError(PlanError):
 
 
 class UnknownPlaylistError(PlanError):
+    """No playlist or folder is at the given path; ``suggestions`` holds close names."""
+
     def __init__(self, path: str, suggestions: Sequence[str] = ()) -> None:
         self.path = path
         self.suggestions = tuple(suggestions)

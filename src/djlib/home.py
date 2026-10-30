@@ -40,6 +40,8 @@ def resolve_home(path: str | os.PathLike[str] | None = None) -> Path:
 
 @dataclass(frozen=True, slots=True)
 class Home:
+    """A djlib home directory: the library database and the snapshots."""
+
     path: Path
 
     @property

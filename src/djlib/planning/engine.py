@@ -42,6 +42,7 @@ from djlib.sources.folder_scan import scan_folder
 from djlib.store import Store, StoreError
 
 Confirm = Callable[[Plan], bool]
+"""Asked with the plan before applying it; returns whether to go ahead."""
 Trash = Callable[[str], None]
 
 

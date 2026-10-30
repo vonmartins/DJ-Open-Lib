@@ -109,6 +109,8 @@ class ExportAction:
 
 @dataclass(frozen=True, slots=True, kw_only=True)
 class Plan:
+    """Every change a command would make, computed without writing anything."""
+
     target: str
     """Snapshot target name: ``library`` or ``<adapter>-<12 hex digits>``."""
     title: str
@@ -152,6 +154,8 @@ class Plan:
 
 @dataclass(frozen=True, slots=True, kw_only=True)
 class ApplyResult:
+    """What applying a plan did: applied, declined, or nothing to do."""
+
     status: ApplyStatus
     snapshot: str | None = None
     files_written: int = 0

@@ -79,11 +79,15 @@ def _entries(library: Library, node: Playlist | Smartlist | Folder) -> Iterable[
 
 @dataclass(frozen=True, slots=True)
 class TrackView:
+    """One track with where it is used: its playlists and the sources it came from."""
+
     track: Track
     present: bool
+    """Whether the file is on this computer."""
     playlists: tuple[str, ...]
     """Paths of the playlists and smartlists that hold the track, in tree order."""
     sources: tuple[str, ...]
+    """The names of the sources the track was imported from, sorted."""
 
 
 def find_track(store: Store, ref: str) -> Track:
@@ -102,6 +106,7 @@ def find_track(store: Store, ref: str) -> Track:
 
 
 def track_view(store: Store, ref: str) -> TrackView:
+    """The track whose id or path is ``ref``, with its playlists and sources."""
     track = find_track(store, ref)
     library = store.load_library()
     playlists = tuple(
@@ -117,6 +122,8 @@ def track_view(store: Store, ref: str) -> TrackView:
 
 @dataclass(frozen=True, slots=True)
 class Status:
+    """Counts that summarize the library, its sources and its snapshots."""
+
     tracks: int
     missing: int
     playlists: int
@@ -129,6 +136,7 @@ class Status:
 
 
 def status(store: Store, snapshots: SnapshotStore) -> Status:
+    """The summary that ``djlib status`` shows."""
     library = store.load_library()
     kinds = [kind_of(placed.node) for placed in walk(library)]
     newest = (snapshots.list(target) for target in snapshots.targets())
@@ -149,6 +157,8 @@ def status(store: Store, snapshots: SnapshotStore) -> Status:
 
 @dataclass(frozen=True, slots=True)
 class TreeNode:
+    """A folder, playlist or smartlist in the playlist tree."""
+
     name: str
     kind: NodeKind
     depth: int
