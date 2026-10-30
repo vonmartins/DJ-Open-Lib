@@ -143,7 +143,7 @@ def run(
             if progress is not None:
                 progress.clear()
         if not as_json:
-            _console.echo_lines(plan_lines(plan))
+            _console.echo_rows(plan_lines(plan))
         result = None
         if apply:
             result = _apply(home, engine, plan, yes=yes, as_json=as_json)

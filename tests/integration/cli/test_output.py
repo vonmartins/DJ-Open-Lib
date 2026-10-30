@@ -5,6 +5,7 @@ import re
 from pathlib import Path
 
 import pytest
+from rich.cells import cell_len
 from typer.testing import CliRunner, Result
 
 from djlib.cli import app
@@ -92,3 +93,33 @@ def test_long_paths_are_printed_whole(tmp_path: Path) -> None:
 
 def test_help_lists_no_color() -> None:
     assert "--no-color" in runner.invoke(app, ["--help"], env={"NO_COLOR": "1"}).stdout
+
+
+def test_field_changes_show_before_and_after(tmp_path: Path) -> None:
+    home = tmp_path / "home"
+    home.mkdir()
+    with Store.open(home / "library.db") as store:
+        store.add_track(Track(path_origin="/music/a.mp3", title="Rise (www.freebeats.com)"))
+
+    out = djlib(home, "fix", color=True).stdout
+
+    assert "\x1b[31m'Rise (www.freebeats.com)'\x1b[0m" in out
+    assert "\x1b[32m'Rise'\x1b[0m" in out
+    assert "      title: 'Rise (www.freebeats.com)' → 'Rise'" in ESCAPE.sub("", out)
+
+
+def test_list_columns(tmp_path: Path) -> None:
+    home = tmp_path / "home"
+    home.mkdir()
+    wide = "Trip (Ko\uff1aRa Remix)"  # with a full-width colon, two cells wide
+    with Store.open(home / "library.db") as store:
+        store.add_track(Track(path_origin="/m/a.mp3", artist="Arno", title=wide, bpm=140.0))
+        store.add_track(Track(path_origin="/m/b.mp3", artist="Velk", title="Z", bpm=138.0))
+
+    out = djlib(home, "list", color=True).stdout
+    plain = ESCAPE.sub("", out).splitlines()
+
+    assert "\x1b[36m140" in out  # BPM in cyan
+    assert "\x1b[1m" not in out.splitlines()[1]  # the title is not bold
+    first, second = plain[1], plain[2]
+    assert cell_len(first[: first.index("140")]) == cell_len(second[: second.index("138")])

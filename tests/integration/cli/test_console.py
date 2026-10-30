@@ -1,5 +1,6 @@
 """When the command line uses color (specs/cli-presentation)."""
 
+import colorsys
 import io
 import re
 from collections.abc import Iterator
@@ -88,3 +89,39 @@ def test_columns() -> None:
         "  library   000002  scan /music",
         "  m3u:/out  000001",
     ]
+
+
+def hue(style: str) -> float:
+    red, green, blue = (int(style[-6:][i : i + 2], 16) / 255 for i in (0, 2, 4))
+    return colorsys.rgb_to_hls(red, green, blue)[0]
+
+
+def test_key_wheel_colors() -> None:
+    minor, major, next_minor = (_console.key_style(k) for k in ("6m", "6d", "7m"))
+
+    assert hue(minor) == pytest.approx(hue(major), abs=0.01)
+    assert hue(minor) != pytest.approx(hue(next_minor), abs=0.01)
+    assert minor != major
+
+
+@pytest.mark.parametrize(("colorterm", "colored"), [("truecolor", True), ("", False)])
+def test_keys_need_more_than_16_colors(
+    colorterm: str, colored: bool, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    monkeypatch.setenv("FORCE_COLOR", "1")
+    monkeypatch.setenv("COLORTERM", colorterm)
+    monkeypatch.setenv("TERM", "xterm")
+    monkeypatch.setattr("sys.stdout", stream := io.StringIO())
+
+    _console.echo_rows([[("6m", _console.key_kind("6m"))]])
+
+    assert ("\x1b[1;38;2;" in stream.getvalue()) is colored
+    assert ESCAPE.sub("", stream.getvalue()) == "6m\n"
+
+
+def test_wide_characters_are_padded_by_screen_width() -> None:
+    wide = "R\uff1aK"  # a full-width colon takes two cells
+
+    assert _console.pad(wide, 6) == wide + "  "
+    assert _console.cut(wide + "ora", 5) == wide + "…"
+    assert _console.columns([(wide, "a"), ("RKL", "b")]) == [f"{wide}  a", "RKL   b"]

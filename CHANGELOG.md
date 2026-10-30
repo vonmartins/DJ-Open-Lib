@@ -22,8 +22,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   also states the dry-run rule and the exit codes (0, 1 and 2).
 - Colored output in terminals (plan changes by kind, warnings, errors, headers), off when
   the output is not a terminal, with `--no-color` or with `NO_COLOR`; `FORCE_COLOR`
-  turns it on. Color never changes the text. `djlib dupes`, `djlib snapshot list` and
-  `djlib status` print aligned columns.
+  turns it on. Color never changes the text. Plans show each field's value before in
+  red and after in green; `djlib list` and `djlib show` color keys by their place on
+  the key wheel (in terminals with 256 colors or more). `djlib dupes`, `djlib snapshot
+  list` and `djlib status` print aligned columns, aligned by screen width so titles with
+  wide characters no longer shift them.
 - Progress displays on standard error in terminals: a spinner with the files found
   while walking folders, and a bar for `djlib enrich`.
 

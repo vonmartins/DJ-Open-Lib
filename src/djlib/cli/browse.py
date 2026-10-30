@@ -7,6 +7,7 @@ from pathlib import Path
 from typing import Annotated
 
 import typer
+from rich.cells import cell_len
 
 from djlib import query
 from djlib.adapters.losses import display_name
@@ -14,6 +15,7 @@ from djlib.cli import _console, _options, _paths
 from djlib.cli._console import Line
 from djlib.cli._flow import home_of, reported_errors
 from djlib.model.encoding import to_json
+from djlib.model.key import Key
 from djlib.model.paths import normalize_path
 from djlib.model.track import Track
 from djlib.model.unmapped import JSONValue
@@ -69,18 +71,18 @@ def list_tracks(
         }
         typer.echo(json.dumps(document, ensure_ascii=False, indent=2))
         return
-    _console.echo_lines(_track_table(tracks))
+    _console.echo_rows(_track_table(tracks))
 
 
-def _track_table(tracks: Sequence[Track]) -> list[Line]:
+def _track_table(tracks: Sequence[Track]) -> list[list[Line]]:
     if not tracks:
-        return [("No tracks.", None)]
+        return [[("No tracks.", None)]]
     folder = common_folder([t.path for t in tracks])
     skip = 0 if folder is None else len(folder) + 1
     rows = [
         (
-            _cut(t.artist or "", 28),
-            _cut(t.title or Path(t.path).name, 40),
+            _console.cut(t.artist or "", 28),
+            _console.cut(t.title or Path(t.path).name, 40),
             bpm_text(t.bpm) if t.bpm else "",
             t.key.open_key() if t.key else "",
             text_value("duration_us", t.duration_us) if t.duration_us else "",
@@ -89,27 +91,30 @@ def _track_table(tracks: Sequence[Track]) -> list[Line]:
         for t in tracks
     ]
     header = ("ARTIST", "TITLE", "BPM", "KEY", "TIME", "PATH")
-    widths = [max(len(row[i]) for row in (header, *rows)) for i in range(5)]
+    widths = [max(cell_len(row[i]) for row in (header, *rows)) for i in range(5)]
     right = (False, False, True, True, True)
-    lines = [
-        "  ".join(
+
+    def cells(row: Sequence[str]) -> list[str]:
+        padded = [_console.pad(c, widths[i], right=right[i]) for i, c in enumerate(row[:5])]
+        return [*padded, row[5]]
+
+    lines: list[list[Line]] = [[("  ".join(cells(header)), "header")]]
+    for row in rows:
+        artist, title, bpm, key, time, path = cells(row)
+        lines.append(
             [
-                *(
-                    cell.rjust(widths[i]) if right[i] else cell.ljust(widths[i])
-                    for i, cell in enumerate(row[:5])
-                ),
-                row[5],
+                (f"{artist}  {title}  ", None),
+                (bpm, "bpm"),
+                ("  ", None),
+                (key, _console.key_kind(row[3]) if row[3] else None),
+                ("  ", None),
+                (f"{time}  {path}", "secondary"),
             ]
         )
-        for row in (header, *rows)
-    ]
     noun = "track" if len(tracks) == 1 else "tracks"
     where = "" if folder is None else f" in {home_short(folder)}/"
-    return [
-        (lines[0], "header"),
-        *((line, None) for line in lines[1:]),
-        (f"{len(tracks)} {noun}{where}", "notice"),
-    ]
+    lines.append([(f"{len(tracks)} {noun}{where}", "notice")])
+    return lines
 
 
 def common_folder(paths: Sequence[str]) -> str | None:
@@ -133,10 +138,6 @@ def home_short(path: str) -> str:
     if path == home or path.startswith(home + "/"):
         return "~" + path[len(home) :]
     return path
-
-
-def _cut(text: str, width: int) -> str:
-    return text if len(text) <= width else text[: width - 1] + "…"
 
 
 def show(
@@ -171,38 +172,41 @@ def show(
         }
         typer.echo(json.dumps(document, ensure_ascii=False, indent=2))
         return
-    _console.echo_lines(_track_text(view))
+    _console.echo_rows(_track_text(view))
 
 
-def _track_text(view: query.TrackView) -> list[Line]:
+def _track_text(view: query.TrackView) -> list[list[Line]]:
     track = view.track
     path = f"  {'path':<14} {track.path_origin}"
-    lines: list[Line] = [
-        (display_name(track), "heading"),
-        (path, None) if view.present else (f"{path}  (missing on this computer)", "missing"),
-        (f"  {'id':<14} {track.id}", None),
+    lines: list[list[Line]] = [
+        [(display_name(track), "heading")],
+        [(path, None) if view.present else (f"{path}  (missing on this computer)", "missing")],
+        [(f"  {'id':<14} {track.id}", None)],
     ]
     for field in dataclasses.fields(track):
         value = getattr(track, field.name)
         if field.name in _NOT_LISTED or value is None or value in ("", ()):
             continue
         shown = value if isinstance(value, str) else text_value(field.name, value)
-        lines.append((f"  {field.name.removesuffix('_us'):<14} {shown}", None))
+        kind = _console.key_kind(value.open_key()) if isinstance(value, Key) else None
+        lines.append([(f"  {field.name.removesuffix('_us'):<14} ", None), (shown, kind)])
     if track.cues:
-        lines.append(("Cues:", "heading"))
+        lines.append([("Cues:", "heading")])
         for cue in sorted(track.cues, key=lambda c: c.start_us):
             at = text_value("start_us", cue.start_us)
             if cue.end_us is not None:
                 at += f"-{text_value('end_us', cue.end_us)}"
             slot = "" if cue.slot is None else f" {cue.slot + 1}"
-            lines.append((f"  {cue.kind.value}{slot:<3} {at:<11} {cue.name or ''}".rstrip(), None))
+            lines.append(
+                [(f"  {cue.kind.value}{slot:<3} {at:<11} {cue.name or ''}".rstrip(), None)]
+            )
     if track.beatgrid is not None:
         first = track.beatgrid.markers[0]
         markers = len(track.beatgrid.markers)
         noun = "marker" if markers == 1 else "markers"
-        lines.append((f"Beat grid: {markers} {noun}, from {bpm_text(first.bpm)} BPM", None))
-    lines.append((f"Playlists: {', '.join(view.playlists) or 'none'}", None))
-    lines.append((f"Imported from: {', '.join(view.sources) or 'none'}", None))
+        lines.append([(f"Beat grid: {markers} {noun}, from {bpm_text(first.bpm)} BPM", None)])
+    lines.append([(f"Playlists: {', '.join(view.playlists) or 'none'}", None)])
+    lines.append([(f"Imported from: {', '.join(view.sources) or 'none'}", None)])
     return lines
 
 
