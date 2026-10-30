@@ -2,6 +2,7 @@
 
 import time
 
+from djlib.model.library import Library
 from djlib.model.track import Track
 from djlib.planning import Engine
 from djlib.store import Store
@@ -10,9 +11,10 @@ COUNT = 10_000
 
 
 def test_dupes_timings(engine: Engine, store: Store) -> None:
+    tracks = []
     for i in range(COUNT):
         song = i // 2 if i % 10 == 0 else i  # one in ten tracks has a copy
-        store.add_track(
+        tracks.append(
             Track(
                 path_origin=f"/music/{i:05d}.mp3",
                 artist=f"Artist {song % 97}",
@@ -20,6 +22,7 @@ def test_dupes_timings(engine: Engine, store: Store) -> None:
                 duration_us=300_000_000 + song,
             )
         )
+    store.replace_library(Library.build(tracks))  # one transaction: commits are slow on Windows
 
     started = time.perf_counter()
     groups = engine.find_duplicates()
