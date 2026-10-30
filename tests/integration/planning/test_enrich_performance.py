@@ -5,6 +5,7 @@ from pathlib import Path
 
 from djlib.enrich.cache import Cache
 from djlib.enrich.service import Services
+from djlib.model.library import Library
 from djlib.model.track import Track
 from djlib.planning import Engine
 from djlib.store import Store
@@ -17,11 +18,13 @@ def test_enrich_timings(engine: Engine, store: Store, tmp_path: Path) -> None:
     music = tmp_path / "music"
     music.mkdir()
     prints: dict[str, tuple[float, str]] = {}
+    tracks = []
     for i in range(COUNT):
         name = f"{i:04d}.mp3"
         (music / name).write_bytes(b"audio")
         prints[name] = (370.9, f"fp-{i}")
-        store.add_track(Track(path_origin=str(music / name), title=f"Track {i}"))
+        tracks.append(Track(path_origin=str(music / name), title=f"Track {i}"))
+    store.replace_library(Library.build(tracks))  # one transaction: commits are slow on Windows
     answer = fixture("acoustid-dfrnt.json")
     transport = catalogue({fp: answer for _duration, fp in prints.values()})
     clock = FakeClock()

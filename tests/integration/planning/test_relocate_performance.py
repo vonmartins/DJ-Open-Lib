@@ -3,6 +3,7 @@
 import time
 from pathlib import Path
 
+from djlib.model.library import Library
 from djlib.model.track import Track
 from djlib.planning import Engine, assume_yes
 from djlib.store import Store
@@ -16,8 +17,12 @@ def test_relocate_timings(tmp_path: Path, engine: Engine, store: Store) -> None:
         folder = music / f"Artist {i % 500:03d}"
         folder.mkdir(parents=True, exist_ok=True)
         (folder / f"{i:05d}.mp3").write_bytes(b"")
-    for i in range(COUNT):
-        store.add_track(Track(path_origin=f"/mnt/server/music/Artist {i % 500:03d}/{i:05d}.mp3"))
+    store.replace_library(  # one transaction: commits are slow on Windows
+        Library.build(
+            Track(path_origin=f"/mnt/server/music/Artist {i % 500:03d}/{i:05d}.mp3")
+            for i in range(COUNT)
+        )
+    )
 
     started = time.perf_counter()
     plan = engine.plan_relocate(music)
