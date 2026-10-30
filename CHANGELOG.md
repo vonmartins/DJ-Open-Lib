@@ -9,6 +9,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- A documentation site at <https://vonmartins.github.io/DJ-Open-Lib/>: install, a
+  tutorial, guides, the reference of every command, JSON format, error code and Python
+  name, and explanations of how djlib works. The README is now a short overview.
 - Browsing the library: `djlib status` (summary), `djlib list` (tracks, filtered with
   `--where "FIELD OP VALUE"`, `--under`, `--playlist` and `--missing`), `djlib show
   TRACK` (one track, by path or id) and `djlib playlists` (the tree with track counts),
