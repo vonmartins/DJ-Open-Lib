@@ -68,7 +68,11 @@ def test_report(tmp_path: Path) -> None:
 
     assert result.exit_code == 0, result.stderr
     assert "Phaeleh - Numb  (keep 1: lossless)" in result.stdout
-    assert "MP3   320 kbps" in result.stdout
+    first, second = (line for line in result.stdout.splitlines() if line.startswith("  "))
+    assert first.startswith("  1  *  FLAC")
+    assert second.startswith("  2     MP3")
+    assert "320 kbps" in second
+    assert first.index("/") == second.index("/")  # the paths line up
     assert paths(tmp_path) == ["Numb.flac", "Numb.mp3"]
     document = json.loads(invoke(tmp_path, "--json").stdout)
     assert document["format"] == "djlib-dupes"

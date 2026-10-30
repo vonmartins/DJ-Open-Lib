@@ -20,3 +20,10 @@ def no_network(monkeypatch: pytest.MonkeyPatch) -> Iterator[None]:
     monkeypatch.setattr(socket, "getaddrinfo", blocked)
     monkeypatch.setattr(socket, "create_connection", blocked)
     yield
+
+
+@pytest.fixture(autouse=True)
+def plain_environment(monkeypatch: pytest.MonkeyPatch) -> None:
+    """Color depends on the environment; tests that want it set it themselves."""
+    monkeypatch.delenv("NO_COLOR", raising=False)
+    monkeypatch.delenv("FORCE_COLOR", raising=False)

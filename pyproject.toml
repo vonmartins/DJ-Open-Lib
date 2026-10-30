@@ -19,6 +19,7 @@ classifiers = [
 dependencies = [
     "mutagen>=1.48.1",
     "pyyaml>=6.0.2",
+    "rich>=15.0.0",
     "send2trash>=1.8.3",
     "typer>=0.27.3",
 ]

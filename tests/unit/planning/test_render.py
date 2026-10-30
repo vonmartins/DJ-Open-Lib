@@ -3,6 +3,8 @@ import hashlib
 import json
 from pathlib import Path
 
+import pytest
+
 from djlib.adapters.contract import FileChange, Loss, WritePlan
 from djlib.adapters.m3u import M3UAdapter
 from djlib.model.cue import Cue, CueKind
@@ -19,7 +21,15 @@ from djlib.planning.model import (
     Plan,
     TrackChange,
 )
-from djlib.planning.render import JSON_FORMAT, JSON_VERSION, json_value, render_text, to_json
+from djlib.planning.render import (
+    JSON_FORMAT,
+    JSON_VERSION,
+    bpm_text,
+    json_value,
+    render_text,
+    text_value,
+    to_json,
+)
 from djlib.sources.scan_plan import MarkMissing
 
 TRACK = Track(path_origin="/music/a.mp3", artist="Bicep", title="Glue")
@@ -246,3 +256,11 @@ def test_added_track_fields_only_in_json() -> None:
         {"field": "title", "before": None, "after": "New", "by": None},
         {"field": "bpm", "before": None, "after": 128.0, "by": None},
     ]
+
+
+@pytest.mark.parametrize(
+    ("bpm", "shown"), [(128.0, "128"), (127.5, "127.5"), (174.254, "174.25"), (99.999, "100")]
+)
+def test_bpm_text(bpm: float, shown: str) -> None:
+    assert bpm_text(bpm) == shown
+    assert text_value("bpm", bpm) == shown

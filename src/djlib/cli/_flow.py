@@ -5,12 +5,13 @@ import contextvars
 import json
 import sys
 from collections.abc import Callable, Generator
-from pathlib import Path
 from typing import NoReturn
 
 import typer
 
 from djlib.adapters.errors import AdapterError
+from djlib.cli import _console
+from djlib.cli._progress import FolderProgress
 from djlib.enrich import EnrichError
 from djlib.home import Home
 from djlib.model.unmapped import JSONValue
@@ -23,9 +24,9 @@ from djlib.planning import (
     StaleTargetError,
     UnknownPlaylistError,
     assume_yes,
-    render_text,
     to_json,
 )
+from djlib.planning.render import plan_lines
 from djlib.rules import RuleError
 from djlib.snapshots import SnapshotError
 from djlib.store import NotADjlibDatabaseError, NotFoundError, SchemaTooNewError, StoreError
@@ -78,7 +79,7 @@ def fail(message: str, code: str = "invalid_argument", **details: JSONValue) -> 
         error: dict[str, JSONValue] = {"code": code, "message": message, **details}
         typer.echo(json.dumps({"error": error}, ensure_ascii=False), err=True)
     else:
-        typer.echo(f"error: {message}", err=True)
+        _console.echo_spans([("error:", "error"), (f" {message}", None)], err=True)
     raise typer.Exit(1)
 
 
@@ -124,24 +125,6 @@ def stderr_is_interactive() -> bool:
     return sys.stderr.isatty()
 
 
-class FolderProgress:
-    """Shows, on one line of standard error, how many files a folder walk has seen."""
-
-    def __init__(self) -> None:
-        self._shown = False
-
-    def __call__(self, folder: Path, seen: int) -> None:
-        sys.stderr.write(f"\r\033[KSearching {folder}: {seen} files")
-        sys.stderr.flush()
-        self._shown = True
-
-    def clear(self) -> None:
-        if self._shown:
-            sys.stderr.write("\r\033[K")
-            sys.stderr.flush()
-            self._shown = False
-
-
 def run(
     ctx: typer.Context,
     make_plan: Callable[[Engine], Plan],
@@ -160,7 +143,7 @@ def run(
             if progress is not None:
                 progress.clear()
         if not as_json:
-            typer.echo(render_text(plan), nl=False)
+            _console.echo_lines(plan_lines(plan))
         result = None
         if apply:
             result = _apply(home, engine, plan, yes=yes, as_json=as_json)
@@ -183,16 +166,19 @@ def _apply(home: Home, engine: Engine, plan: Plan, *, yes: bool, as_json: bool) 
 def _report(plan: Plan, result: ApplyResult | None) -> None:
     if result is None:
         if not plan.empty:
-            typer.echo("Dry run: nothing was written. Run again with --apply to apply it.")
+            _console.echo(
+                "Dry run: nothing was written. Run again with --apply to apply it.", "notice"
+            )
         return
     if result.status == "declined":
-        typer.echo("Not applied.")
+        _console.echo("Not applied.", "notice")
     elif result.status == "applied":
-        typer.echo(
-            f"Applied. Snapshot {result.snapshot} of {plan.target} holds the previous state."
+        _console.echo(
+            f"Applied. Snapshot {result.snapshot} of {plan.target} holds the previous state.",
+            "added",
         )
         if result.files_trashed:
             files = "file" if result.files_trashed == 1 else "files"
-            typer.echo(f"Moved {result.files_trashed} {files} to the system trash.")
+            _console.echo(f"Moved {result.files_trashed} {files} to the system trash.", "trash")
     for warning in result.warnings:
-        typer.echo(f"warning: {warning}", err=True)
+        _console.echo_spans([("warning:", "warning"), (f" {warning}", None)], err=True)

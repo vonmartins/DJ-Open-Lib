@@ -185,3 +185,22 @@ def test_read_only_commands_change_nothing(tmp_path: Path, music: Path) -> None:
 
     assert database.read_bytes() == before
     assert not (tmp_path / "home" / "snapshots").exists()
+
+
+def test_status_lists_snapshots_in_columns(tmp_path: Path, music: Path) -> None:
+    invoke(tmp_path, "scan", str(music), "--apply", "--yes")
+
+    lines = invoke(tmp_path, "status").stdout.splitlines()
+
+    row = lines[lines.index("Last snapshots:") + 1]
+    assert row.startswith("  library  000001-")
+    assert row.endswith(f"scan {music}")
+
+
+def test_same_bpm_in_list_and_show(tmp_path: Path, music: Path) -> None:
+    listed = invoke(tmp_path, "list", "--where", "title=Fall").stdout
+    shown = invoke(tmp_path, "show", str(music / "techno" / "b.mp3")).stdout
+
+    assert "  128  " in listed
+    assert "128.0" not in listed
+    assert "  bpm            128\n" in shown

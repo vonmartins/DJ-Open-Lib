@@ -1,12 +1,12 @@
 """``djlib enrich``: tags from MusicBrainz for tracks AcoustID recognizes by their sound."""
 
-import sys
 from typing import Annotated
 
 import typer
 
 from djlib.cli import _options, _paths
 from djlib.cli._flow import home_of, reported_errors, run, stderr_is_interactive
+from djlib.cli._progress import StepProgress
 from djlib.enrich.cache import Cache
 from djlib.enrich.service import Services
 from djlib.planning import Engine, Plan
@@ -15,24 +15,6 @@ from djlib.planning import Engine, Plan
 def services(cache: Cache) -> Services:
     """The real services; tests replace this function."""
     return Services.create(cache)
-
-
-class StepProgress:
-    """Shows, on one line of standard error, how many tracks were enriched so far."""
-
-    def __init__(self) -> None:
-        self._shown = False
-
-    def __call__(self, done: int, total: int) -> None:
-        sys.stderr.write(f"\r\033[KEnriching: {done}/{total} tracks")
-        sys.stderr.flush()
-        self._shown = True
-
-    def clear(self) -> None:
-        if self._shown:
-            sys.stderr.write("\r\033[K")
-            sys.stderr.flush()
-            self._shown = False
 
 
 def enrich(

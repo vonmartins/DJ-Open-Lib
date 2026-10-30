@@ -7,7 +7,8 @@ from typing import Annotated, Literal
 
 import typer
 
-from djlib.cli import _flow, _options, _paths
+from djlib.cli import _console, _flow, _options, _paths
+from djlib.cli._console import Line
 from djlib.cli._flow import fail, home_of, reported_errors, run
 from djlib.model.paths import normalize_path
 from djlib.model.unmapped import JSONValue
@@ -80,7 +81,7 @@ def dupes(
         if as_json:
             typer.echo(json.dumps(_report_json(groups), ensure_ascii=False, indent=2))
         else:
-            typer.echo(_report_text(groups), nl=False)
+            _console.echo_lines(_report_text(groups))
         return
     answers: list[tuple[str, Decision | Literal["keep"]]] = [
         *((_track_path(p), "keep") for p in keep or ()),
@@ -128,8 +129,13 @@ def _ask(groups: Sequence[Group], kept: dict[GroupKey, Decision]) -> dict[GroupK
         given = kept.get(group.key)
         default = group.copies[0].track.id if given in (None, "skip", "ignore") else given
         number = next(i for i, c in enumerate(group.copies, start=1) if c.track.id == default)
-        typer.echo(f"\nGroup {index}/{len(groups)}: {group.name}")
-        typer.echo("\n".join(_copy_lines(group, chosen=default)))
+        typer.echo("")
+        _console.echo_lines(
+            [
+                (f"Group {index}/{len(groups)}: {group.name}", "heading"),
+                *_copy_lines(group, chosen=default),
+            ]
+        )
         choices = "/".join(str(i) for i in range(1, len(group.copies) + 1))
         suggested = {"skip": "s", "ignore": "i"}.get(str(given), str(number))
         while True:
@@ -155,38 +161,45 @@ def _ask(groups: Sequence[Group], kept: dict[GroupKey, Decision]) -> dict[GroupK
     return decisions
 
 
-def _report_text(groups: Sequence[Group]) -> str:
+def _report_text(groups: Sequence[Group]) -> list[Line]:
     if not groups:
-        return "No duplicates.\n"
-    lines = [f"Duplicates: {len(groups)} group{'' if len(groups) == 1 else 's'}"]
+        return [("No duplicates.", None)]
+    lines: list[Line] = [
+        (f"Duplicates: {len(groups)} group{'' if len(groups) == 1 else 's'}", "heading")
+    ]
     for group in groups:
-        lines.append(f"{group.name}  (keep 1: {group.reason})")
+        lines.append((f"{group.name}  (keep 1: {group.reason})", "heading"))
         lines.extend(_copy_lines(group, chosen=group.copies[0].track.id))
-    lines.append("Run with --merge to plan merging them.")
-    return "\n".join(lines) + "\n"
+    lines.append(("Run with --merge to plan merging them.", "notice"))
+    return lines
 
 
-def _copy_lines(group: Group, *, chosen: Decision) -> list[str]:
-    return [
-        f"  {i} {'*' if c.track.id == chosen else ' '} {_details(c)}  {c.track.path}"
+def _copy_lines(group: Group, *, chosen: Decision) -> list[Line]:
+    """One line per copy, in columns; the chosen one marked with ``*``."""
+    rows = [
+        (str(i), "*" if c.track.id == chosen else " ", *_details(c), c.track.path)
         for i, c in enumerate(group.copies, start=1)
     ]
+    kinds = [
+        "chosen" if c.track.id == chosen else None if c.present else "missing" for c in group.copies
+    ]
+    return list(zip(_console.columns(rows, indent="  "), kinds, strict=True))
 
 
-def _details(copy: Copy) -> str:
+def _details(copy: Copy) -> tuple[str, ...]:
     track = copy.track
     kind = (track.file_format or "?").upper()
     rate = f"{track.bitrate} kbps" if track.bitrate else "? kbps"
     length = text_value("duration_us", track.duration_us)
+    cues = f"{len(track.cues)} cues"
     playlists = f"{copy.playlists} playlist" + ("" if copy.playlists == 1 else "s")
-    missing = "  missing" if not copy.present else ""
-    size = ""
+    size = "missing"
     if copy.present:
         try:
-            size = f"  {file_size(Path(track.path_origin).stat().st_size)}"
+            size = file_size(Path(track.path_origin).stat().st_size)
         except OSError:
-            size = ""
-    return f"{kind:4} {rate:>9}  {length:>5}  {len(track.cues)} cues  {playlists}{size}{missing}"
+            size = "?"
+    return kind, rate.rjust(9), length.rjust(5), cues, playlists, size
 
 
 def _report_json(groups: Sequence[Group]) -> dict[str, JSONValue]:

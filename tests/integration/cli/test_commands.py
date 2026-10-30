@@ -276,7 +276,11 @@ def test_snapshot_list(home: Path, music: Path) -> None:
     text = djlib("--home", home, "snapshot", "list").stdout
     document = json.loads(djlib("--home", home, "snapshot", "list", "library", "--json").stdout)
 
-    assert text.startswith("library  000001-")
+    header, row = text.splitlines()
+    assert header.split() == ["TARGET", "ID", "TIME", "REASON"]
+    assert row.startswith("library  000001-")
+    assert row.index("000001-") == header.index("ID")
+    assert row.index("scan ") == header.index("REASON")
     assert [s["target"] for s in document["snapshots"]] == ["library"]
     assert document["snapshots"][0]["reason"].startswith("scan ")
 
