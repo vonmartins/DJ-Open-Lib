@@ -85,3 +85,7 @@ def test_long_paths_are_printed_whole(tmp_path: Path) -> None:
 
     assert len(path) > 200
     assert any(line.endswith(f"  {path}") for line in out.splitlines())
+
+
+def test_help_lists_no_color() -> None:
+    assert "--no-color" in runner.invoke(app, ["--help"], env={"NO_COLOR": "1"}).stdout
