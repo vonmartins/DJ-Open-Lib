@@ -1,5 +1,6 @@
 """Colored output is the plain output plus escape codes (specs/cli-presentation)."""
 
+import json
 import re
 from pathlib import Path
 
@@ -7,6 +8,7 @@ import pytest
 from typer.testing import CliRunner, Result
 
 from djlib.cli import app
+from djlib.cli.browse import home_short
 from djlib.model.track import Track
 from djlib.store import Store
 from support.audio import tagged_copy
@@ -82,9 +84,10 @@ def test_long_paths_are_printed_whole(tmp_path: Path) -> None:
         store.add_track(Track(path_origin=path, title="Rise"))
 
     out = ESCAPE.sub("", djlib(home, "list", color=True).stdout)
+    stored = json.loads(djlib(home, "list", "--json", color=False).stdout)["tracks"][0]["path"]
 
     assert len(path) > 200
-    assert any(line.endswith(f"  {path}") for line in out.splitlines())
+    assert out.splitlines()[-1] == f"1 track in {home_short(stored.removesuffix('/a.mp3'))}/"
 
 
 def test_help_lists_no_color() -> None:

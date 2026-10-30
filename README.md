@@ -293,7 +293,9 @@ example. The same rules hold for all of them:
 
 `--where` takes `FIELD OP VALUE`, with the field names of the rules and the operators
 `=`, `!=`, `~` (contains), `!~`, `>`, `>=`, `<` and `<=`. Text comparisons ignore case.
-`genre=` matches tracks without a genre, and `genre!=` tracks with one.
+`genre=` matches tracks without a genre, and `genre!=` tracks with one. `list` shows
+paths relative to the folder the tracks share, named on its last line; `--json` has
+the full paths.
 
 ```sh
 djlib list --where "genre=Techno" --where "bpm>=128" --where "bpm<135"

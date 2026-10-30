@@ -121,6 +121,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   writes nothing without `--apply`, like the other commands. It also accepts `--json`.
 - Every path argument and option expands `~`. A folder that does not exist is reported
   as such by every command.
+- `djlib list` shows paths relative to the folder all the listed tracks share, named on
+  the last line (`46 tracks in ~/Music/`); `--json` keeps the full paths.
 - BPM is shown with at most two decimals and no trailing zeros (`128`, `127.5`) in every
   command; `djlib list` showed `128.0`.
 

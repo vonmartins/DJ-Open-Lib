@@ -14,6 +14,7 @@ from djlib.cli import _console, _options, _paths
 from djlib.cli._console import Line
 from djlib.cli._flow import home_of, reported_errors
 from djlib.model.encoding import to_json
+from djlib.model.paths import normalize_path
 from djlib.model.track import Track
 from djlib.model.unmapped import JSONValue
 from djlib.planning.render import bpm_text, text_value
@@ -74,6 +75,8 @@ def list_tracks(
 def _track_table(tracks: Sequence[Track]) -> list[Line]:
     if not tracks:
         return [("No tracks.", None)]
+    folder = common_folder([t.path for t in tracks])
+    skip = 0 if folder is None else len(folder) + 1
     rows = [
         (
             _cut(t.artist or "", 28),
@@ -81,7 +84,7 @@ def _track_table(tracks: Sequence[Track]) -> list[Line]:
             bpm_text(t.bpm) if t.bpm else "",
             t.key.open_key() if t.key else "",
             text_value("duration_us", t.duration_us) if t.duration_us else "",
-            t.path,
+            t.path[skip:] if folder else home_short(t.path),
         )
         for t in tracks
     ]
@@ -101,11 +104,35 @@ def _track_table(tracks: Sequence[Track]) -> list[Line]:
         for row in (header, *rows)
     ]
     noun = "track" if len(tracks) == 1 else "tracks"
+    where = "" if folder is None else f" in {home_short(folder)}/"
     return [
         (lines[0], "header"),
         *((line, None) for line in lines[1:]),
-        (f"{len(tracks)} {noun}", "notice"),
+        (f"{len(tracks)} {noun}{where}", "notice"),
     ]
+
+
+def common_folder(paths: Sequence[str]) -> str | None:
+    """The deepest folder holding every path, or None when only a drive root does.
+
+    Paths are normalized, with ``/`` on every system.
+    """
+    folders = [path.split("/")[:-1] for path in paths]
+    common: list[str] = []
+    for parts in zip(*folders, strict=False):
+        if any(part != parts[0] for part in parts):
+            break
+        common.append(parts[0])
+    # ["", "music"] is /music; ["C:", "Music"] is C:/Music; [""] and ["C:"] are roots.
+    return "/".join(common) if len(common) >= 2 else None
+
+
+def home_short(path: str) -> str:
+    """``path`` with ``~`` for the user's home directory."""
+    home = normalize_path(str(Path.home()))
+    if path == home or path.startswith(home + "/"):
+        return "~" + path[len(home) :]
+    return path
 
 
 def _cut(text: str, width: int) -> str:
