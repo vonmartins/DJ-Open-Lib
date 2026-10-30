@@ -7,6 +7,7 @@ import pytest
 from typer.testing import CliRunner, Result
 
 from djlib.cli import app
+from djlib.model.paths import normalize_path
 from djlib.model.track import Track
 from djlib.store import Store
 
@@ -121,7 +122,7 @@ def test_under_a_folder(tmp_path: Path) -> None:
 
     document = json.loads(invoke(tmp_path, "--under", str(new), "--json").stdout)
 
-    assert [t["path"] for t in document["tracks"]] == [str(new / "a.mp3")]
+    assert [t["path"] for t in document["tracks"]] == [normalize_path(str(new / "a.mp3"))]
 
 
 def test_under_expands_the_home_directory(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
