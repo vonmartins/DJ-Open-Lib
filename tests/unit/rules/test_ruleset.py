@@ -7,11 +7,11 @@ from pathlib import Path
 import pytest
 import yaml
 
-from djlib.model.key import Key, Mode
-from djlib.model.track import Track
-from djlib.rules import RuleError
-from djlib.rules.ruleset import defaults, load, parse
-from djlib.rules.runner import run
+from tunedex.model.key import Key, Mode
+from tunedex.model.track import Track
+from tunedex.rules import RuleError
+from tunedex.rules.ruleset import defaults, load, parse
+from tunedex.rules.runner import run
 
 
 def rules(text: str):

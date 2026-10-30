@@ -5,11 +5,13 @@ from pathlib import Path
 
 import pytest
 
-from djlib.model.cue import Cue, CueKind
-from djlib.model.playlist import Playlist
-from djlib.model.track import Track
-from djlib.sources.folder_scan import scan_folder
-from djlib.sources.scan_plan import (
+from support.adapter_contract import tree_state
+from support.audio import tagged_copy, write_tags
+from tunedex.model.cue import Cue, CueKind
+from tunedex.model.playlist import Playlist
+from tunedex.model.track import Track
+from tunedex.sources.folder_scan import scan_folder
+from tunedex.sources.scan_plan import (
     AddTrack,
     MarkMissing,
     MarkPresent,
@@ -18,9 +20,7 @@ from djlib.sources.scan_plan import (
     ScanPlan,
     UpdateTrack,
 )
-from djlib.store import Store
-from support.adapter_contract import tree_state
-from support.audio import tagged_copy, write_tags
+from tunedex.store import Store
 
 NOW = datetime.datetime(2026, 10, 27, 12, 0, tzinfo=datetime.UTC)
 
@@ -139,7 +139,7 @@ def test_tag_edited_in_the_file(store: Store, music: Path) -> None:
     assert track is not None and track.title == "New title"
 
 
-def test_edited_in_djlib_only(store: Store, music: Path) -> None:
+def test_edited_in_tunedex_only(store: Store, music: Path) -> None:
     scan_and_apply(store, music)
     track = store.find_track_by_path(str(music / "a.mp3"))
     assert track is not None

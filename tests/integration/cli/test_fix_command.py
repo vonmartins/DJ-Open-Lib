@@ -1,4 +1,4 @@
-"""``djlib fix`` (specs/cli)."""
+"""``tunedex fix`` (specs/cli)."""
 
 import json
 from pathlib import Path
@@ -6,10 +6,10 @@ from pathlib import Path
 import pytest
 from typer.testing import CliRunner, Result
 
-from djlib.cli import app
-from djlib.model.paths import normalize_path
-from djlib.model.track import Track
-from djlib.store import Store
+from tunedex.cli import app
+from tunedex.model.paths import normalize_path
+from tunedex.model.track import Track
+from tunedex.store import Store
 
 runner = CliRunner()
 

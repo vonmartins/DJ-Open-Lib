@@ -1,14 +1,14 @@
 import hashlib
 from pathlib import Path
 
-from djlib.adapters.contract import WriteOptions
-from djlib.adapters.m3u import M3UAdapter
-from djlib.adapters.pathmap import PathMapping, PathRule
-from djlib.model.library import Library
-from djlib.model.paths import normalize_path
-from djlib.model.playlist import Folder, Playlist, Smartlist
-from djlib.model.track import Track
 from support.adapter_contract import assert_plan_writes_nothing, write_plan_to_disk
+from tunedex.adapters.contract import WriteOptions
+from tunedex.adapters.m3u import M3UAdapter
+from tunedex.adapters.pathmap import PathMapping, PathRule
+from tunedex.model.library import Library
+from tunedex.model.paths import normalize_path
+from tunedex.model.playlist import Folder, Playlist, Smartlist
+from tunedex.model.track import Track
 
 FIXTURES = Path(__file__).parents[3] / "fixtures" / "m3u"
 GLUE = Track(path_origin="/music/a.mp3", artist="Bicep", title="Glue", duration_us=372_400_000)

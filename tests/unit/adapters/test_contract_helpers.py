@@ -2,7 +2,12 @@ from pathlib import Path
 
 import pytest
 
-from djlib.adapters.contract import (
+from support.adapter_contract import (
+    assert_plan_writes_nothing,
+    assert_read_only,
+    write_plan_to_disk,
+)
+from tunedex.adapters.contract import (
     Capabilities,
     Detection,
     FileChange,
@@ -11,12 +16,7 @@ from djlib.adapters.contract import (
     WriteOptions,
     WritePlan,
 )
-from djlib.model.library import Library
-from support.adapter_contract import (
-    assert_plan_writes_nothing,
-    assert_read_only,
-    write_plan_to_disk,
-)
+from tunedex.model.library import Library
 
 
 class MisbehavingAdapter:

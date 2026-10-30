@@ -5,13 +5,13 @@ from pathlib import Path
 
 import pytest
 
-from djlib.adapters.contract import FileChange, Loss, WritePlan
-from djlib.adapters.m3u import M3UAdapter
-from djlib.model.cue import Cue, CueKind
-from djlib.model.key import Key, Mode
-from djlib.model.track import Track
-from djlib.planning.diff import added_fields
-from djlib.planning.model import (
+from tunedex.adapters.contract import FileChange, Loss, WritePlan
+from tunedex.adapters.m3u import M3UAdapter
+from tunedex.model.cue import Cue, CueKind
+from tunedex.model.key import Key, Mode
+from tunedex.model.track import Track
+from tunedex.planning.diff import added_fields
+from tunedex.planning.model import (
     ApplyResult,
     ExportAction,
     FieldChange,
@@ -21,7 +21,7 @@ from djlib.planning.model import (
     Plan,
     TrackChange,
 )
-from djlib.planning.render import (
+from tunedex.planning.render import (
     JSON_FORMAT,
     JSON_VERSION,
     bpm_text,
@@ -30,7 +30,7 @@ from djlib.planning.render import (
     text_value,
     to_json,
 )
-from djlib.sources.scan_plan import MarkMissing
+from tunedex.sources.scan_plan import MarkMissing
 
 TRACK = Track(path_origin="/music/a.mp3", artist="Bicep", title="Glue")
 A_MINOR = Key(tonic=9, mode=Mode.MINOR)

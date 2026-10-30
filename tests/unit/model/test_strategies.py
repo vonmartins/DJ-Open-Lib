@@ -1,7 +1,7 @@
 from hypothesis import given, settings
 
-from djlib.model.library import Library
 from support.strategies import libraries, synthetic_library
+from tunedex.model.library import Library
 
 
 @given(libraries())

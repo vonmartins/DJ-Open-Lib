@@ -1,4 +1,4 @@
-"""Smoke tests for the installed ``djlib`` command (specs/cli)."""
+"""Smoke tests for the installed ``tunedex`` command (specs/cli)."""
 
 import re
 import subprocess
@@ -9,11 +9,11 @@ from pathlib import Path
 import pytest
 
 SCRIPTS_DIR = Path(sys.executable).parent
-CONSOLE_SCRIPT = SCRIPTS_DIR / ("djlib.exe" if sys.platform == "win32" else "djlib")
+CONSOLE_SCRIPT = SCRIPTS_DIR / ("tunedex.exe" if sys.platform == "win32" else "tunedex")
 
 INVOCATIONS = {
     "console-script": [str(CONSOLE_SCRIPT)],
-    "module": [sys.executable, "-m", "djlib"],
+    "module": [sys.executable, "-m", "tunedex"],
 }
 
 # CI runners force colored output, which splits words with ANSI escape codes.
@@ -30,7 +30,7 @@ def run(argv: list[str], cwd: Path | None = None) -> subprocess.CompletedProcess
 
 
 @pytest.fixture(params=sorted(INVOCATIONS))
-def djlib(request: pytest.FixtureRequest) -> list[str]:
+def tunedex(request: pytest.FixtureRequest) -> list[str]:
     return INVOCATIONS[request.param]
 
 
@@ -38,11 +38,11 @@ def test_console_script_is_installed() -> None:
     assert CONSOLE_SCRIPT.is_file()
 
 
-def test_version_matches_metadata(djlib: list[str]) -> None:
-    result = run([*djlib, "--version"])
+def test_version_matches_metadata(tunedex: list[str]) -> None:
+    result = run([*tunedex, "--version"])
 
     assert result.returncode == 0
-    assert result.stdout.strip() == f"djlib {version('djlib')}"
+    assert result.stdout.strip() == f"tunedex {version('tunedex')}"
 
 
 def test_module_and_console_script_report_same_version() -> None:
@@ -51,15 +51,15 @@ def test_module_and_console_script_report_same_version() -> None:
     assert len(outputs) == 1
 
 
-def test_help_exits_zero(djlib: list[str]) -> None:
-    result = run([*djlib, "--help"])
+def test_help_exits_zero(tunedex: list[str]) -> None:
+    result = run([*tunedex, "--help"])
 
     assert result.returncode == 0
     assert "Usage" in result.stdout
 
 
-def test_unknown_option_is_a_usage_error(djlib: list[str]) -> None:
-    result = run([*djlib, "--no-such-option"])
+def test_unknown_option_is_a_usage_error(tunedex: list[str]) -> None:
+    result = run([*tunedex, "--no-such-option"])
 
     assert result.returncode != 0
     assert "--no-such-option" in result.stderr
@@ -67,7 +67,7 @@ def test_unknown_option_is_a_usage_error(djlib: list[str]) -> None:
 
 
 @pytest.mark.parametrize("args", [["--version"], ["--help"], ["--no-such-option"]])
-def test_invocation_creates_no_files(djlib: list[str], args: list[str], tmp_path: Path) -> None:
-    run([*djlib, *args], cwd=tmp_path)
+def test_invocation_creates_no_files(tunedex: list[str], args: list[str], tmp_path: Path) -> None:
+    run([*tunedex, *args], cwd=tmp_path)
 
     assert list(tmp_path.iterdir()) == []

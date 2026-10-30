@@ -6,9 +6,9 @@ from pathlib import Path
 
 import pytest
 
-from djlib.snapshots import SnapshotError, SnapshotStore
-from djlib.snapshots import snapshot_store as module
 from support.files import sha256
+from tunedex.snapshots import SnapshotError, SnapshotStore
+from tunedex.snapshots import snapshot_store as module
 
 NML = b'<?xml version="1.0"?><NML VERSION="20"><COLLECTION ENTRIES="1"/></NML>\n'
 
@@ -51,7 +51,7 @@ def test_manifest_contents(app_dir: Path, tmp_path: Path) -> None:
     assert snapshot.id == "000001-20261027T101500Z"
     assert snapshot.target == "traktor"
     assert snapshot.created_at == moment
-    assert snapshot.djlib_version == version("djlib")
+    assert snapshot.tunedex_version == version("tunedex")
     assert snapshot.reason is None
     (record,) = snapshot.files
     assert (record.path, record.present, record.size, record.method) == (

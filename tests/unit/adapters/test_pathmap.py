@@ -1,7 +1,7 @@
 import pytest
 
-from djlib.adapters.pathmap import PathMapping, PathRule
-from djlib.model.errors import ValidationError
+from tunedex.adapters.pathmap import PathMapping, PathRule
+from tunedex.model.errors import ValidationError
 
 MAPPING = PathMapping((PathRule("/mnt/music", "D:/Music"),))
 

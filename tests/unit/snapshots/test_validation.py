@@ -2,7 +2,7 @@ from pathlib import Path
 
 import pytest
 
-from djlib.snapshots import DEFAULT_KEEP, SnapshotStore
+from tunedex.snapshots import DEFAULT_KEEP, SnapshotStore
 
 
 def test_default_keep_is_ten(tmp_path: Path) -> None:

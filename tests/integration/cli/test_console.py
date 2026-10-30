@@ -7,7 +7,7 @@ from collections.abc import Iterator
 
 import pytest
 
-from djlib.cli import _console
+from tunedex.cli import _console
 
 ESCAPE = re.compile(r"\x1b\[[0-9;]*m")
 

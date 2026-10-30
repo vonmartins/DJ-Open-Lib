@@ -4,13 +4,14 @@ from pathlib import Path
 
 import pytest
 
-from djlib.model.cue import Cue, CueKind
-from djlib.model.ids import new_track_id
-from djlib.model.playlist import Playlist
-from djlib.model.track import Track
-from djlib.store import ConflictError, FileState, NotFoundError, Store
-from djlib.store.migrations import bundled_migrations, schema_version
-from djlib.store.operations import (
+from support.store import old_database
+from tunedex.model.cue import Cue, CueKind
+from tunedex.model.ids import new_track_id
+from tunedex.model.playlist import Playlist
+from tunedex.model.track import Track
+from tunedex.store import ConflictError, FileState, NotFoundError, Store
+from tunedex.store.migrations import bundled_migrations, schema_version
+from tunedex.store.operations import (
     AddTrack,
     MarkMissing,
     MarkPresent,
@@ -18,7 +19,6 @@ from djlib.store.operations import (
     RefreshState,
     UpdateTrack,
 )
-from support.store import old_database
 
 NOW = datetime.datetime(2026, 10, 27, 12, 0, tzinfo=datetime.UTC)
 

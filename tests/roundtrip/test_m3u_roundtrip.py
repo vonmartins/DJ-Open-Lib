@@ -7,13 +7,13 @@ from typing import Any
 from hypothesis import given, settings
 from hypothesis import strategies as st
 
-from djlib.adapters.m3u import M3UAdapter
-from djlib.adapters.m3u.names import sanitize
-from djlib.model.library import Library
-from djlib.model.paths import normalize_path
-from djlib.model.playlist import Folder, Node, Playlist
-from djlib.model.track import Track
 from support.adapter_contract import write_plan_to_disk
+from tunedex.adapters.m3u import M3UAdapter
+from tunedex.adapters.m3u.names import sanitize
+from tunedex.model.library import Library
+from tunedex.model.paths import normalize_path
+from tunedex.model.playlist import Folder, Node, Playlist
+from tunedex.model.track import Track
 
 FIXTURES = Path(__file__).parents[1] / "fixtures" / "m3u"
 

@@ -2,10 +2,10 @@ import datetime
 
 import pytest
 
-from djlib.model.key import parse_open_key
-from djlib.model.track import Track
-from djlib.query import parse_where
-from djlib.rules import RuleError
+from tunedex.model.key import parse_open_key
+from tunedex.model.track import Track
+from tunedex.query import parse_where
+from tunedex.rules import RuleError
 
 
 def track(**fields: object) -> Track:

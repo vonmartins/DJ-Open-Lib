@@ -7,12 +7,12 @@ from pathlib import Path
 
 import pytest
 
-from djlib.model.track import Track
-from djlib.planning import Engine, assume_yes, render_text, to_json
-from djlib.planning.model import LIBRARY_TARGET, LibraryAction, Plan, TrackChange, TrashFile
-from djlib.snapshots import SnapshotStore
-from djlib.store import Store
-from djlib.store.operations import MergeTracks
+from tunedex.model.track import Track
+from tunedex.planning import Engine, assume_yes, render_text, to_json
+from tunedex.planning.model import LIBRARY_TARGET, LibraryAction, Plan, TrackChange, TrashFile
+from tunedex.snapshots import SnapshotStore
+from tunedex.store import Store
+from tunedex.store.operations import MergeTracks
 
 from .conftest import NOW
 

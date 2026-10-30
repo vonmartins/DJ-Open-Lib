@@ -1,4 +1,4 @@
-"""Import from Mixxx, edit in djlib, export back: the whole loop through the engine."""
+"""Import from Mixxx, edit in tunedex, export back: the whole loop through the engine."""
 
 import contextlib
 import dataclasses
@@ -7,13 +7,13 @@ from pathlib import Path
 
 import pytest
 
-from djlib.adapters.errors import AdapterError
-from djlib.adapters.mixxx import MixxxAdapter
-from djlib.model.cue import Cue, CueKind
-from djlib.model.playlist import Folder, Playlist
-from djlib.planning import Engine, StaleTargetError, assume_yes
-from djlib.snapshots import SnapshotStore
-from djlib.store import Store
+from tunedex.adapters.errors import AdapterError
+from tunedex.adapters.mixxx import MixxxAdapter
+from tunedex.model.cue import Cue, CueKind
+from tunedex.model.playlist import Folder, Playlist
+from tunedex.planning import Engine, StaleTargetError, assume_yes
+from tunedex.snapshots import SnapshotStore
+from tunedex.store import Store
 
 FIXTURE = Path(__file__).parents[2] / "fixtures" / "mixxx" / "real-2.5.6.sqlite"
 

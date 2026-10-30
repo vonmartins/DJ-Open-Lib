@@ -2,11 +2,11 @@ import dataclasses
 
 import pytest
 
-from djlib.model.errors import ValidationError
-from djlib.model.ids import new_node_id, new_track_id
-from djlib.model.playlist import Folder, MatchMode, Playlist, Rule, Smartlist
-from djlib.model.track import Track
-from djlib.store import ConflictError, NotFoundError, Store
+from tunedex.model.errors import ValidationError
+from tunedex.model.ids import new_node_id, new_track_id
+from tunedex.model.playlist import Folder, MatchMode, Playlist, Rule, Smartlist
+from tunedex.model.track import Track
+from tunedex.store import ConflictError, NotFoundError, Store
 
 
 @pytest.fixture

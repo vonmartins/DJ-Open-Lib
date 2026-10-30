@@ -2,9 +2,9 @@ import math
 
 import pytest
 
-from djlib.model.beatgrid import BeatGrid, BeatMarker
-from djlib.model.cue import Cue, CueKind
-from djlib.model.errors import ValidationError
+from tunedex.model.beatgrid import BeatGrid, BeatMarker
+from tunedex.model.cue import Cue, CueKind
+from tunedex.model.errors import ValidationError
 
 
 def field_of(excinfo: pytest.ExceptionInfo[ValidationError]) -> tuple[str, str]:

@@ -4,17 +4,17 @@ from pathlib import Path
 
 import pytest
 
-from djlib.adapters.mixxx import MixxxAdapter
-from djlib.model.cue import CueKind
-from djlib.model.playlist import Folder, Playlist
-from djlib.model.track import Track
-from djlib.planning import Engine, StaleTargetError, assume_yes, render_text, to_json
-from djlib.planning.selection import target_name
-from djlib.snapshots import SnapshotStore
-from djlib.store import Store
 from support.audio import tagged_copy
 from support.files import tree_bytes
 from support.mixxx import HOT_CUE, MixxxDatabase, beat_grid
+from tunedex.adapters.mixxx import MixxxAdapter
+from tunedex.model.cue import CueKind
+from tunedex.model.playlist import Folder, Playlist
+from tunedex.model.track import Track
+from tunedex.planning import Engine, StaleTargetError, assume_yes, render_text, to_json
+from tunedex.planning.selection import target_name
+from tunedex.snapshots import SnapshotStore
+from tunedex.store import Store
 
 MIXXX = MixxxAdapter()
 NOW = datetime.datetime(2026, 10, 28, 12, 0, tzinfo=datetime.UTC)
@@ -127,7 +127,9 @@ def test_edited_on_both_sides(engine: Engine, store: Store, mixxx: MixxxDatabase
     assert engine.plan_import(MIXXX, mixxx.path).conflicts == ()
 
 
-def test_tracks_only_in_djlib_untouched(engine: Engine, store: Store, mixxx: MixxxDatabase) -> None:
+def test_tracks_only_in_tunedex_untouched(
+    engine: Engine, store: Store, mixxx: MixxxDatabase
+) -> None:
     mine = _track("/music/mine.mp3")
     store.add_track(mine)
     mixxx.add_track("/music/a.mp3")
@@ -278,7 +280,7 @@ def _track(path: str) -> Track:
     return Track(path_origin=path)
 
 
-# Playlists djlib exported there
+# Playlists tunedex exported there
 
 
 def _exported(store: Store, mixxx: MixxxDatabase) -> Playlist:

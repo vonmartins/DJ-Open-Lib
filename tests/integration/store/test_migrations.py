@@ -2,8 +2,8 @@ import sqlite3
 
 import pytest
 
-from djlib.store.errors import MigrationError
-from djlib.store.migrations import (
+from tunedex.store.errors import MigrationError
+from tunedex.store.migrations import (
     Migration,
     apply_migrations,
     bundled_migrations,

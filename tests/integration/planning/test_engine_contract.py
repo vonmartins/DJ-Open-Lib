@@ -8,7 +8,8 @@ from typing import Any
 
 import pytest
 
-from djlib.adapters.contract import (
+from support.files import tree_bytes
+from tunedex.adapters.contract import (
     Capabilities,
     Detection,
     FileChange,
@@ -17,13 +18,12 @@ from djlib.adapters.contract import (
     WriteOptions,
     WritePlan,
 )
-from djlib.adapters.errors import AdapterError
-from djlib.model.library import Library
-from djlib.model.playlist import Playlist
-from djlib.planning import Engine, assume_yes
-from djlib.planning.tree import walk
-from djlib.snapshots import SnapshotStore
-from support.files import tree_bytes
+from tunedex.adapters.errors import AdapterError
+from tunedex.model.library import Library
+from tunedex.model.playlist import Playlist
+from tunedex.planning import Engine, assume_yes
+from tunedex.planning.tree import walk
+from tunedex.snapshots import SnapshotStore
 
 
 @dataclasses.dataclass

@@ -5,8 +5,9 @@ from typing import Any
 
 import pytest
 
-from djlib.adapters.m3u import M3UAdapter
-from djlib.planning import (
+from support.files import tree_bytes
+from tunedex.adapters.m3u import M3UAdapter
+from tunedex.planning import (
     ApplyFailedError,
     Engine,
     PlanError,
@@ -14,10 +15,9 @@ from djlib.planning import (
     UnknownPlaylistError,
     assume_yes,
 )
-from djlib.planning.model import NodeChange
-from djlib.snapshots import SnapshotStore
-from djlib.store import Store
-from support.files import tree_bytes
+from tunedex.planning.model import NodeChange
+from tunedex.snapshots import SnapshotStore
+from tunedex.store import Store
 
 M3U = M3UAdapter()
 

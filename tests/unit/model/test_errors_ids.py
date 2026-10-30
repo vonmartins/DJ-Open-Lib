@@ -1,7 +1,7 @@
 import pytest
 
-from djlib.model.errors import ValidationError
-from djlib.model.ids import new_node_id, new_track_id
+from tunedex.model.errors import ValidationError
+from tunedex.model.ids import new_node_id, new_track_id
 
 
 def test_validation_error_carries_fields() -> None:

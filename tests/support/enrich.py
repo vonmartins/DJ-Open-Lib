@@ -7,7 +7,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
 
-from djlib.enrich.http import Response, TransportError
+from tunedex.enrich.http import Response, TransportError
 
 FIXTURES = Path(__file__).parents[1] / "fixtures" / "enrich"
 

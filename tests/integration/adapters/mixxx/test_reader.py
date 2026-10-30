@@ -3,16 +3,6 @@ from pathlib import Path
 
 import pytest
 
-from djlib.adapters.errors import AdapterReadError
-from djlib.adapters.mixxx import MixxxAdapter
-from djlib.adapters.registry import get_adapter
-from djlib.model.beatgrid import BeatGrid, BeatMarker
-from djlib.model.cue import Cue, CueKind
-from djlib.model.key import Key, Mode
-from djlib.model.library import Library
-from djlib.model.playlist import Folder, Playlist
-from djlib.model.track import Track
-from djlib.store import Store
 from support.adapter_contract import assert_read_only, tree_state
 from support.mixxx import (
     BEAT,
@@ -26,6 +16,16 @@ from support.mixxx import (
     beat_grid,
     beat_map,
 )
+from tunedex.adapters.errors import AdapterReadError
+from tunedex.adapters.mixxx import MixxxAdapter
+from tunedex.adapters.registry import get_adapter
+from tunedex.model.beatgrid import BeatGrid, BeatMarker
+from tunedex.model.cue import Cue, CueKind
+from tunedex.model.key import Key, Mode
+from tunedex.model.library import Library
+from tunedex.model.playlist import Folder, Playlist
+from tunedex.model.track import Track
+from tunedex.store import Store
 
 MIXXX = MixxxAdapter()
 RATE = 44100
@@ -252,7 +252,7 @@ def test_cue_kinds(database: MixxxDatabase) -> None:
     ]
     assert loaded.unmapped["mixxx"]["intro"] == {"start_us": 500_000, "end_us": 15_500_000}  # type: ignore[index]
     assert loaded.unmapped["mixxx"]["outro"] == {"end_us": 200_000_000}  # type: ignore[index]
-    assert "2 cues of kinds djlib does not keep (beat, jump, silence) were skipped" in warnings
+    assert "2 cues of kinds tunedex does not keep (beat, jump, silence) were skipped" in warnings
     assert "1 cues without a position were skipped" in warnings
 
 

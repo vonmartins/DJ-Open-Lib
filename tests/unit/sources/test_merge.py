@@ -1,9 +1,9 @@
 from typing import Any
 
-from djlib.model.cue import Cue, CueKind
-from djlib.model.encoding import to_json
-from djlib.model.track import Track
-from djlib.sources.merge import FieldDisagreement, merge_fields
+from tunedex.model.cue import Cue, CueKind
+from tunedex.model.encoding import to_json
+from tunedex.model.track import Track
+from tunedex.sources.merge import FieldDisagreement, merge_fields
 
 CUE = Cue(kind=CueKind.HOT, start_us=1_000, slot=0)
 TRACK = Track(path_origin="/m/a.mp3", title="Glue", genre="Techno", bpm=None)

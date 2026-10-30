@@ -2,15 +2,15 @@
 
 from pathlib import Path
 
-from djlib.adapters.mixxx import MixxxAdapter
-from djlib.model.paths import normalize_path
-from djlib.model.playlist import Folder, Playlist
-from djlib.planning import Engine, assume_yes
-from djlib.sources.beets import BeetsSource
-from djlib.store import Store
 from support.audio import tagged_copy
 from support.beets import BeetsDatabase
 from support.mixxx import MixxxDatabase
+from tunedex.adapters.mixxx import MixxxAdapter
+from tunedex.model.paths import normalize_path
+from tunedex.model.playlist import Folder, Playlist
+from tunedex.planning import Engine, assume_yes
+from tunedex.sources.beets import BeetsSource
+from tunedex.store import Store
 
 BEETS = BeetsSource()
 

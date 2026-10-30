@@ -1,9 +1,9 @@
 import pytest
 
-from djlib.enrich import EnrichError
-from djlib.enrich.cache import Cache
-from djlib.enrich.http import Client, Response, TransportError
 from support.enrich import FakeClock, FakeTransport, ok
+from tunedex.enrich import EnrichError
+from tunedex.enrich.cache import Cache
+from tunedex.enrich.http import Client, Response, TransportError
 
 MB = "https://musicbrainz.org/ws/2/recording/x"
 
@@ -15,7 +15,7 @@ def client(transport: FakeTransport, clock: FakeClock, cache: Cache | None = Non
         intervals={"musicbrainz.org": 1.0, "api.acoustid.org": 0.34},
         clock=clock,
         sleep=clock.sleep,
-        agent="djlib/test",
+        agent="tunedex/test",
     )
 
 
@@ -28,7 +28,7 @@ def test_rate_limit_per_host() -> None:
         http.get(MB, {"n": str(n)})
 
     assert clock.slept == [1.0, 1.0]
-    assert transport.requests[0][3]["User-Agent"] == "djlib/test"
+    assert transport.requests[0][3]["User-Agent"] == "tunedex/test"
 
 
 def test_retries_on_busy_and_timeouts() -> None:
@@ -99,7 +99,7 @@ def test_post_keeps_secrets_out_of_the_cache_key() -> None:
 
 
 def test_only_https() -> None:
-    from djlib.enrich.http import UrllibTransport
+    from tunedex.enrich.http import UrllibTransport
 
     with pytest.raises(TransportError, match=r"only https"):
         UrllibTransport().request("GET", "file:///etc/passwd", None, {})

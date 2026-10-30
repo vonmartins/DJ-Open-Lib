@@ -8,8 +8,10 @@ import pytest
 from hypothesis import given, settings
 from hypothesis import strategies as st
 
-from djlib.model.track import Track
-from djlib.rules.fixes import (
+from support.rules_corpus import CORPUS, Case, clean, load
+from support.text import clean_text, dirty_text
+from tunedex.model.track import Track
+from tunedex.rules.fixes import (
     BY_NAME,
     FIXES,
     NAME_FIELDS,
@@ -19,8 +21,6 @@ from djlib.rules.fixes import (
     fix_options,
     run_fixes,
 )
-from support.rules_corpus import CORPUS, Case, clean, load
-from support.text import clean_text, dirty_text
 
 TABLES = sorted(p.stem for p in CORPUS.glob("*.yaml") if not p.stem.startswith(("clean", "_")))
 CASES = [case for name in TABLES for case in load(name)]

@@ -3,13 +3,13 @@ import datetime
 
 import pytest
 
-from djlib.model.beatgrid import BeatGrid, BeatMarker
-from djlib.model.cue import Cue, CueKind
-from djlib.model.ids import new_track_id
-from djlib.model.key import Key, Mode
-from djlib.model.playlist import Playlist
-from djlib.model.track import Track
-from djlib.store import ConflictError, NotFoundError, Store
+from tunedex.model.beatgrid import BeatGrid, BeatMarker
+from tunedex.model.cue import Cue, CueKind
+from tunedex.model.ids import new_track_id
+from tunedex.model.key import Key, Mode
+from tunedex.model.playlist import Playlist
+from tunedex.model.track import Track
+from tunedex.store import ConflictError, NotFoundError, Store
 
 
 def full_track(path: str = "/music/a.mp3") -> Track:

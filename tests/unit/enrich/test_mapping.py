@@ -3,10 +3,10 @@
 import datetime
 import json
 
-from djlib.enrich import musicbrainz
-from djlib.enrich.mapping import choose_release, first_release_date, map_recording
-from djlib.enrich.musicbrainz import Recording, ReleaseRef
 from support.enrich import FIXTURES
+from tunedex.enrich import musicbrainz
+from tunedex.enrich.mapping import choose_release, first_release_date, map_recording
+from tunedex.enrich.musicbrainz import Recording, ReleaseRef
 
 DFRNT = "b03469f1-8ae8-4e57-a73d-1bb81db98783"
 LUNG = "73d6b7b1-2a6b-42b9-b92b-575774a70180"

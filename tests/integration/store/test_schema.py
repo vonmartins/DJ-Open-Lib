@@ -2,7 +2,7 @@ import re
 import sqlite3
 from importlib.resources import files
 
-SCHEMA = files("djlib.store") / "schema" / "0001_initial.sql"
+SCHEMA = files("tunedex.store") / "schema" / "0001_initial.sql"
 
 
 def apply_schema() -> sqlite3.Connection:
@@ -27,7 +27,7 @@ def test_initial_schema_applies() -> None:
         "playlist_entries",
         "smartlist_rules",
     }
-    assert connection.execute("PRAGMA application_id").fetchone() == (0x444A4C42,)
+    assert connection.execute("PRAGMA application_id").fetchone() == (0x544E4458,)
 
 
 def test_every_table_is_commented() -> None:

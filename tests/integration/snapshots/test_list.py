@@ -3,7 +3,7 @@ from pathlib import Path
 
 import pytest
 
-from djlib.snapshots import SnapshotError, SnapshotStore
+from tunedex.snapshots import SnapshotError, SnapshotStore
 
 FROZEN = datetime.datetime(2026, 10, 27, 12, 0, tzinfo=datetime.UTC)
 

@@ -1,4 +1,4 @@
-"""``djlib status``, ``list``, ``show`` and ``playlists`` (specs/cli, library-query)."""
+"""``tunedex status``, ``list``, ``show`` and ``playlists`` (specs/cli, library-query)."""
 
 import json
 from pathlib import Path
@@ -6,13 +6,13 @@ from pathlib import Path
 import pytest
 from typer.testing import CliRunner, Result
 
-from djlib.cli import app
-from djlib.cli.browse import common_folder, home_short
-from djlib.model.cue import Cue, CueKind
-from djlib.model.paths import normalize_path
-from djlib.model.playlist import Folder, Playlist
-from djlib.model.track import Track
-from djlib.store import Store
+from tunedex.cli import app
+from tunedex.cli.browse import common_folder, home_short
+from tunedex.model.cue import Cue, CueKind
+from tunedex.model.paths import normalize_path
+from tunedex.model.playlist import Folder, Playlist
+from tunedex.model.track import Track
+from tunedex.store import Store
 
 runner = CliRunner()
 
@@ -77,7 +77,7 @@ def test_status(tmp_path: Path, music: Path) -> None:
     assert "Playlists: 2, smartlists: 0, folders: 1" in result.stdout
     document = json.loads(invoke(tmp_path, "status", "--json").stdout)
     assert (document["format"], document["tracks"], document["missing"]) == (
-        "djlib-status",
+        "tunedex-status",
         3,
         1,
     )
@@ -103,7 +103,7 @@ def test_list_filtered(tmp_path: Path, music: Path) -> None:
 def test_list_ordered_and_as_json(tmp_path: Path, music: Path) -> None:
     document = json.loads(invoke(tmp_path, "list", "--json").stdout)
 
-    assert (document["format"], document["version"]) == ("djlib-tracks", 1)
+    assert (document["format"], document["version"]) == ("tunedex-tracks", 1)
     assert [t["title"] for t in document["tracks"]] == ["Fall", "Glow", "Rise"]
     assert document["tracks"][0]["bpm"] == 128.0
 
@@ -158,7 +158,7 @@ def test_show_as_json_by_id(tmp_path: Path, music: Path) -> None:
 
     document = json.loads(invoke(tmp_path, "show", listed["id"], "--json").stdout)
 
-    assert document["format"] == "djlib-track"
+    assert document["format"] == "tunedex-track"
     assert document["track"]["title"] == "Fall"
     assert (document["present"], document["playlists"]) == (True, ["Sets/Friday"])
 

@@ -1,7 +1,7 @@
 import pytest
 
-from djlib.model.errors import ValidationError
-from djlib.model.key import Key, Mode, parse_musical, parse_open_key
+from tunedex.model.errors import ValidationError
+from tunedex.model.key import Key, Mode, parse_musical, parse_open_key
 
 ALL_KEYS = [Key(tonic=t, mode=m) for m in Mode for t in range(12)]
 

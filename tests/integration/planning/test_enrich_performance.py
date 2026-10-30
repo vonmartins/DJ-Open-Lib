@@ -3,13 +3,13 @@
 import time
 from pathlib import Path
 
-from djlib.enrich.cache import Cache
-from djlib.enrich.service import Services
-from djlib.model.library import Library
-from djlib.model.track import Track
-from djlib.planning import Engine
-from djlib.store import Store
 from support.enrich import FakeClock, FakeFpcalc, catalogue, fixture
+from tunedex.enrich.cache import Cache
+from tunedex.enrich.service import Services
+from tunedex.model.library import Library
+from tunedex.model.track import Track
+from tunedex.planning import Engine
+from tunedex.store import Store
 
 COUNT = 1000
 

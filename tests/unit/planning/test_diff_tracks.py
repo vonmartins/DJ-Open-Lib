@@ -1,12 +1,12 @@
 import dataclasses
 import datetime
 
-from djlib.model.beatgrid import BeatGrid, BeatMarker
-from djlib.model.cue import Cue, CueKind
-from djlib.model.key import Key, Mode
-from djlib.model.track import Track
-from djlib.planning.diff import diff_tracks
-from djlib.planning.model import FieldChange
+from tunedex.model.beatgrid import BeatGrid, BeatMarker
+from tunedex.model.cue import Cue, CueKind
+from tunedex.model.key import Key, Mode
+from tunedex.model.track import Track
+from tunedex.planning.diff import diff_tracks
+from tunedex.planning.model import FieldChange
 
 BASE = Track(path_origin="/music/a.mp3", title="A", bpm=126.0)
 

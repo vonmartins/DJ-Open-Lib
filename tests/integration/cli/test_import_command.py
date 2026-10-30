@@ -1,4 +1,4 @@
-"""``djlib import mixxx`` (specs/cli)."""
+"""``tunedex import mixxx`` (specs/cli)."""
 
 import sys
 from pathlib import Path
@@ -6,11 +6,11 @@ from pathlib import Path
 import pytest
 from typer.testing import CliRunner
 
-from djlib.cli import app
-from djlib.cli.imports import default_mixxx_location
-from djlib.store import Store
 from support.files import tree_bytes
 from support.mixxx import MixxxDatabase
+from tunedex.cli import app
+from tunedex.cli.imports import default_mixxx_location
+from tunedex.store import Store
 
 runner = CliRunner()
 

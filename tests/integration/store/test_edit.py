@@ -3,9 +3,9 @@ import datetime
 
 import pytest
 
-from djlib.model.track import Track
-from djlib.store import ConflictError, FileState, NotFoundError, Store
-from djlib.store.operations import AddImportedTrack, EditTrack, RegisterSource
+from tunedex.model.track import Track
+from tunedex.store import ConflictError, FileState, NotFoundError, Store
+from tunedex.store.operations import AddImportedTrack, EditTrack, RegisterSource
 
 NOW = datetime.datetime(2026, 10, 29, 12, 0, tzinfo=datetime.UTC)
 SOURCE = "beets-1a2b3c4d5e6f"

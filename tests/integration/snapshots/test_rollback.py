@@ -2,8 +2,8 @@ from pathlib import Path
 
 import pytest
 
-from djlib.snapshots import RestoreError, SnapshotStore
-from djlib.snapshots import snapshot_store as module
+from tunedex.snapshots import RestoreError, SnapshotStore
+from tunedex.snapshots import snapshot_store as module
 
 
 def three_files(app_dir: Path) -> list[Path]:

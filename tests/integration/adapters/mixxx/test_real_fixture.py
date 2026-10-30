@@ -3,12 +3,12 @@
 import dataclasses
 from pathlib import Path
 
-from djlib.adapters.contract import WriteOptions
-from djlib.adapters.mixxx import MixxxAdapter
-from djlib.model.cue import CueKind
-from djlib.model.key import Key, Mode
-from djlib.model.playlist import Folder, Playlist
 from support.adapter_contract import assert_read_only
+from tunedex.adapters.contract import WriteOptions
+from tunedex.adapters.mixxx import MixxxAdapter
+from tunedex.model.cue import CueKind
+from tunedex.model.key import Key, Mode
+from tunedex.model.playlist import Folder, Playlist
 
 FIXTURE = Path(__file__).parents[3] / "fixtures" / "mixxx" / "real-2.5.6.sqlite"
 MS = 1_000

@@ -2,9 +2,10 @@
 
 import json
 
-from djlib.enrich import acoustid
-from djlib.enrich.acoustid import Candidate, Lookup
-from djlib.enrich.match import (
+from support.enrich import FIXTURES
+from tunedex.enrich import acoustid
+from tunedex.enrich.acoustid import Candidate, Lookup
+from tunedex.enrich.match import (
     Disagreement,
     Identified,
     NotRecognized,
@@ -13,7 +14,6 @@ from djlib.enrich.match import (
     comparable,
     identify,
 )
-from support.enrich import FIXTURES
 
 FIRST_RELEASES = {
     "73d6b7b1-2a6b-42b9-b92b-575774a70180": "2010-12-20",

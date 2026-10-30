@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from djlib.snapshots import SnapshotStore
+from tunedex.snapshots import SnapshotStore
 
 
 def fill(store: SnapshotStore, target: str, file: Path, count: int) -> list[str]:

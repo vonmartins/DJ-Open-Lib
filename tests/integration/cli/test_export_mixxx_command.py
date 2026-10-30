@@ -1,4 +1,4 @@
-"""``djlib export mixxx`` (specs/cli)."""
+"""``tunedex export mixxx`` (specs/cli)."""
 
 import contextlib
 import sqlite3
@@ -7,15 +7,15 @@ from pathlib import Path
 import pytest
 from typer.testing import CliRunner, Result
 
-from djlib.adapters.mixxx import MixxxAdapter
-from djlib.cli import app
-from djlib.cli import export as export_command
-from djlib.model.playlist import Playlist
-from djlib.model.track import Track
-from djlib.snapshots import SnapshotStore
-from djlib.store import Store
 from support.files import tree_bytes
 from support.mixxx import MixxxDatabase
+from tunedex.adapters.mixxx import MixxxAdapter
+from tunedex.cli import app
+from tunedex.cli import export as export_command
+from tunedex.model.playlist import Playlist
+from tunedex.model.track import Track
+from tunedex.snapshots import SnapshotStore
+from tunedex.store import Store
 
 runner = CliRunner()
 

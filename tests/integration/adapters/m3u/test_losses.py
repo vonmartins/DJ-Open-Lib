@@ -1,11 +1,11 @@
 from pathlib import Path
 
-from djlib.adapters.m3u import M3UAdapter
-from djlib.model.beatgrid import BeatGrid, BeatMarker
-from djlib.model.cue import Cue, CueKind
-from djlib.model.library import Library
-from djlib.model.playlist import Playlist, Smartlist
-from djlib.model.track import Track
+from tunedex.adapters.m3u import M3UAdapter
+from tunedex.model.beatgrid import BeatGrid, BeatMarker
+from tunedex.model.cue import Cue, CueKind
+from tunedex.model.library import Library
+from tunedex.model.playlist import Playlist, Smartlist
+from tunedex.model.track import Track
 
 
 def test_m3u_capabilities() -> None:

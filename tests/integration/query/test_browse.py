@@ -4,15 +4,15 @@ from pathlib import Path
 
 import pytest
 
-from djlib.model.cue import Cue, CueKind
-from djlib.model.library import Library
-from djlib.model.playlist import Folder, MatchMode, Playlist, Rule, Smartlist
-from djlib.model.track import Track
-from djlib.planning import UnknownPlaylistError
-from djlib.query import parse_where, playlist_tree, select, status, track_view
-from djlib.snapshots import SnapshotStore
-from djlib.store import NotFoundError, Store
-from djlib.store.operations import RecordSourceValues, RegisterSource
+from tunedex.model.cue import Cue, CueKind
+from tunedex.model.library import Library
+from tunedex.model.playlist import Folder, MatchMode, Playlist, Rule, Smartlist
+from tunedex.model.track import Track
+from tunedex.planning import UnknownPlaylistError
+from tunedex.query import parse_where, playlist_tree, select, status, track_view
+from tunedex.snapshots import SnapshotStore
+from tunedex.store import NotFoundError, Store
+from tunedex.store.operations import RecordSourceValues, RegisterSource
 
 NOW = datetime.datetime(2026, 10, 29, 12, 0, tzinfo=datetime.UTC)
 

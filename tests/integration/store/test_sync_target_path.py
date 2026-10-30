@@ -1,12 +1,12 @@
 import datetime
 from pathlib import Path
 
-from djlib.model.playlist import Folder, Playlist
-from djlib.model.track import Track
-from djlib.store import Store
-from djlib.store.migrations import bundled_migrations, schema_version
-from djlib.store.operations import RegisterSource, ReplaceSourceFolder
 from support.store import old_database
+from tunedex.model.playlist import Folder, Playlist
+from tunedex.model.track import Track
+from tunedex.store import Store
+from tunedex.store.migrations import bundled_migrations, schema_version
+from tunedex.store.operations import RegisterSource, ReplaceSourceFolder
 
 NOW = datetime.datetime(2026, 10, 28, 12, 0, tzinfo=datetime.UTC)
 TARGET = "mixxx-1a2b3c4d5e6f"

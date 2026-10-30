@@ -3,9 +3,9 @@ from pathlib import Path
 import pytest
 from mutagen.flac import FLAC
 
-from djlib.model.key import Key, Mode
-from djlib.sources.tags import read_file
 from support.audio import FORMATS, tagged_copy, write_tags
+from tunedex.model.key import Key, Mode
+from tunedex.sources.tags import read_file
 
 ALL_TAGS = {
     "title": "Glue",

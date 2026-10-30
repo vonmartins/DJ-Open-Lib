@@ -2,8 +2,8 @@ import math
 
 import pytest
 
-from djlib.model.errors import ValidationError
-from djlib.model.unmapped import copy_unmapped
+from tunedex.model.errors import ValidationError
+from tunedex.model.unmapped import copy_unmapped
 
 
 def test_nested_data_is_kept() -> None:

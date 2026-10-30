@@ -1,9 +1,9 @@
 from pathlib import Path
 
-from djlib.model.track import Track
-from djlib.store import Store
-from djlib.store.database import transaction
-from djlib.store.migrations import bundled_migrations
+from tunedex.model.track import Track
+from tunedex.store import Store
+from tunedex.store.database import transaction
+from tunedex.store.migrations import bundled_migrations
 
 
 def old_database(path: Path, version: int, tracks: list[Track]) -> None:
