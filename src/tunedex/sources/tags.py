@@ -15,6 +15,9 @@ from mutagen.mp4 import MP4, MP4FreeForm
 from mutagen.wave import WAVE
 
 from tunedex.model.key import Key, parse_musical, parse_open_key
+from tunedex.sources.frames import ID3 as ID3_FRAMES
+from tunedex.sources.frames import MP4 as MP4_ATOMS
+from tunedex.sources.frames import SOURCES, VORBIS, is_comment
 
 # Fields a scan reads from files, in reporting order.
 SCANNED_FIELDS = (
@@ -41,25 +44,6 @@ SCANNED_FIELDS = (
     "file_format",
 )
 
-# field -> (ID3 frames, Vorbis comment names, MP4 atoms), in order of preference.
-_SOURCES: dict[str, tuple[tuple[str, ...], tuple[str, ...], tuple[str, ...]]] = {
-    "title": (("TIT2",), ("TITLE",), ("\xa9nam",)),
-    "artist": (("TPE1",), ("ARTIST",), ("\xa9ART",)),
-    "album": (("TALB",), ("ALBUM",), ("\xa9alb",)),
-    "album_artist": (("TPE2",), ("ALBUMARTIST",), ("aART",)),
-    "genre": (("TCON",), ("GENRE",), ("\xa9gen",)),
-    "year": (("TDRC",), ("DATE", "YEAR"), ("\xa9day",)),
-    "track_number": (("TRCK",), ("TRACKNUMBER",), ("trkn",)),
-    "disc_number": (("TPOS",), ("DISCNUMBER",), ("disk",)),
-    "bpm": (("TBPM",), ("BPM",), ("tmpo",)),
-    "key_original": (("TKEY",), ("INITIALKEY", "KEY"), ("----:com.apple.iTunes:initialkey",)),
-    "composer": (("TCOM",), ("COMPOSER",), ("\xa9wrt",)),
-    "remixer": (("TPE4",), ("REMIXER", "MIXARTIST"), ("----:com.apple.iTunes:REMIXER",)),
-    "label": (("TPUB",), ("LABEL", "ORGANIZATION", "PUBLISHER"), ("----:com.apple.iTunes:LABEL",)),
-    "comment": (("COMM",), ("COMMENT", "DESCRIPTION"), ("\xa9cmt",)),
-    "grouping": (("TIT1", "GRP1"), ("GROUPING",), ("\xa9grp",)),
-    "lyricist": (("TEXT",), ("LYRICIST",), ("----:com.apple.iTunes:LYRICIST",)),
-}
 _FORMATS: tuple[tuple[type, str], ...] = (
     (MP3, "mp3"),
     (FLAC, "flac"),
@@ -104,6 +88,12 @@ def read_file(path: Path) -> FileFields:
         result.values["file_format"] = _EXTENSION_FORMATS.get(path.suffix.lower())
         return result
 
+    return read_audio(audio, path, result)
+
+
+def read_audio(audio: Any, path: Path, result: FileFields | None = None) -> FileFields:
+    """The field values of a file mutagen opened."""
+    result = result or FileFields()
     result.values["file_format"] = _format_of(audio, path)
     raw = _raw_values(audio)
     for name, texts in raw.items():
@@ -124,13 +114,13 @@ def _raw_values(audio: Any) -> dict[str, list[str]]:
     if tags is None:
         return {}
     if isinstance(tags, ID3):
-        family, reader = 0, _id3_values
+        family, reader = ID3_FRAMES, _id3_values
     elif isinstance(audio, MP4):
-        family, reader = 2, _mp4_values
+        family, reader = MP4_ATOMS, _mp4_values
     else:
-        family, reader = 1, _vorbis_values
+        family, reader = VORBIS, _vorbis_values
     values: dict[str, list[str]] = {}
-    for name, sources in _SOURCES.items():
+    for name, sources in SOURCES.items():
         for key in sources[family]:
             texts = [t.strip() for t in reader(tags, key) if t and t.strip()]
             if texts:
@@ -141,8 +131,9 @@ def _raw_values(audio: Any) -> dict[str, list[str]]:
 
 def _id3_values(tags: Any, frame: str) -> list[str]:
     frames = tags.getall(frame)
-    if frame == "COMM":
-        return [str(text) for f in frames[:1] for text in f.text]
+    if frame == "COMM":  # the first comment people wrote, not iTunes data
+        comments = [f for f in frames if is_comment(f.desc)]
+        return [str(text) for f in comments[:1] for text in f.text]
     return [str(text) for f in frames for text in f.text]
 
 

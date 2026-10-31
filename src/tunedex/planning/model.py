@@ -16,6 +16,8 @@ NodeKind = Literal["folder", "playlist", "smartlist"]
 ApplyStatus = Literal["applied", "declined", "nothing"]
 
 LIBRARY_TARGET = "library"
+TAGS_TARGET = "tags"
+RENAMES_TARGET = "renames"
 
 
 @dataclass(frozen=True, slots=True)
@@ -108,13 +110,52 @@ class ExportAction:
 
 
 @dataclass(frozen=True, slots=True, kw_only=True)
+class TagFile:
+    """An audio file whose tags a plan writes, as it was when planning."""
+
+    track_id: TrackId
+    path: str
+    """The file's path on disk."""
+    size: int
+    mtime_ns: int
+    fields: Mapping[str, str | None]
+    """The text each changed field is written as; ``None`` removes the field."""
+    tag_bytes: int
+    """How many bytes of the file are outside its audio stream: what the snapshot copies."""
+
+
+@dataclass(frozen=True, slots=True, kw_only=True)
+class TagWriteAction:
+    files: tuple[TagFile, ...]
+    base_revision: int
+
+
+@dataclass(frozen=True, slots=True)
+class FileRename:
+    """A track's file renamed in its folder; ``old`` and ``new`` are paths on disk."""
+
+    track_id: TrackId
+    old: str
+    new: str
+
+
+@dataclass(frozen=True, slots=True, kw_only=True)
+class RenameAction:
+    renames: tuple[FileRename, ...]
+    base_revision: int
+
+
+Action = LibraryAction | ExportAction | TagWriteAction | RenameAction
+
+
+@dataclass(frozen=True, slots=True, kw_only=True)
 class Plan:
     """Every change a command would make, computed without writing anything."""
 
     target: str
     """Snapshot target name: ``library`` or ``<adapter>-<12 hex digits>``."""
     title: str
-    action: LibraryAction | ExportAction
+    action: Action
     tracks: tuple[TrackChange, ...] = ()
     nodes: tuple[NodeChange, ...] = ()
     refreshed: int = 0
@@ -126,6 +167,8 @@ class Plan:
     losses: tuple[Loss, ...] = ()
     warnings: tuple[str, ...] = ()
     conflicts: tuple[FieldConflict, ...] = ()
+    tags: tuple[TrackChange, ...] = ()
+    """Files whose tags are written, with their fields: the file's value, then the library's."""
 
     @property
     def files(self) -> tuple[FileChange, ...]:
@@ -146,10 +189,23 @@ class Plan:
         return ()
 
     @property
+    def snapshot_bytes(self) -> int:
+        """For tag writes, about how much the tag snapshot takes."""
+        if isinstance(self.action, TagWriteAction):
+            return sum(f.tag_bytes for f in self.action.files)
+        return 0
+
+    @property
     def empty(self) -> bool:
-        if isinstance(self.action, LibraryAction):
-            return not self.action.operations and not self.action.trash
-        return not self.action.write_plan.changes
+        match self.action:
+            case LibraryAction():
+                return not self.action.operations and not self.action.trash
+            case ExportAction():
+                return not self.action.write_plan.changes
+            case TagWriteAction():
+                return not self.action.files
+            case RenameAction():
+                return not self.action.renames
 
 
 @dataclass(frozen=True, slots=True, kw_only=True)
@@ -161,4 +217,5 @@ class ApplyResult:
     files_written: int = 0
     operations_applied: int = 0
     files_trashed: int = 0
+    files_renamed: int = 0
     warnings: tuple[str, ...] = ()

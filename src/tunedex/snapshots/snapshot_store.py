@@ -16,10 +16,14 @@ from tunedex.snapshots.errors import RestoreError, SnapshotCorruptError, Snapsho
 from tunedex.snapshots.manifest import (
     CopyMethod,
     FileRecord,
+    Rename,
     Snapshot,
+    TagBytes,
     dump_manifest,
     load_manifest,
 )
+from tunedex.snapshots.moves import move_file, name_free
+from tunedex.tagwrite.regions import LayoutError, audio_region, audio_sha256, copy_range
 
 DEFAULT_KEEP = 10
 MANIFEST = "manifest.json"
@@ -64,14 +68,34 @@ class SnapshotStore:
         *,
         reason: str | None = None,
         exact: bool = False,
+        renames: Iterable[Rename] = (),
     ) -> Snapshot:
         """Copy ``files`` (absolute paths; missing ones are recorded as absent).
 
         SQLite databases are copied through SQLite, which is safe while they are open.
         ``exact`` copies every file byte for byte instead, for callers that already
         made sure nothing writes to them and need the copies to match their hashes.
+        ``renames`` are recorded with the copies: restoring the snapshot renames each
+        file back to its old name before putting the copies back.
         """
-        return self._create(target, _check_files(files), reason=reason, protect=(), exact=exact)
+        return self._create(
+            target,
+            _check_files(files),
+            reason=reason,
+            protect=(),
+            exact=exact,
+            renames=tuple(renames),
+        )
+
+    def create_tags(
+        self, target: str, files: Iterable[Path], *, reason: str | None = None
+    ) -> Snapshot:
+        """Copy the tags of the audio files ``files``: every byte outside the audio stream.
+
+        The audio stream is not copied; its hash is recorded, and restoring rebuilds
+        each file from the copy and the audio stream it has then.
+        """
+        return self._create(target, _check_files(files), reason=reason, protect=(), tags=True)
 
     def _create(
         self,
@@ -81,6 +105,8 @@ class SnapshotStore:
         reason: str | None,
         protect: Collection[str],
         exact: bool = False,
+        tags: bool = False,
+        renames: tuple[Rename, ...] = (),
     ) -> Snapshot:
         directory = self._target_dir(target)
         directory.mkdir(parents=True, exist_ok=True)
@@ -93,7 +119,9 @@ class SnapshotStore:
         try:
             (temporary / "files").mkdir(parents=True)
             records = tuple(
-                _copy_in(path, temporary / "files" / str(index), exact=exact)
+                _copy_tags_in(path, temporary / "files" / str(index))
+                if tags
+                else _copy_in(path, temporary / "files" / str(index), exact=exact)
                 for index, path in enumerate(paths)
             )
             snapshot = Snapshot(
@@ -103,10 +131,11 @@ class SnapshotStore:
                 tunedex_version=self._version or version("tunedex"),
                 reason=reason,
                 files=records,
+                renames=renames,
             )
             _write_synced(temporary / MANIFEST, dump_manifest(snapshot).encode("utf-8"))
             temporary.rename(directory / snapshot_id)
-        except (OSError, sqlite3.Error) as error:
+        except (OSError, sqlite3.Error, LayoutError) as error:
             shutil.rmtree(temporary, ignore_errors=True)
             raise SnapshotError(f"cannot snapshot target {target!r}: {error}") from error
 
@@ -159,14 +188,15 @@ class SnapshotStore:
             copy = files / str(index)
             if not copy.is_file():
                 raise SnapshotCorruptError(f"{record.path}: copy is missing from the snapshot")
-            if copy.stat().st_size != record.size or _sha256(copy) != record.sha256:
+            if copy.stat().st_size != record.copy_size or _sha256(copy) != record.copy_sha256:
                 raise SnapshotCorruptError(f"{record.path}: copy does not match the manifest")
 
     def restore(self, snapshot: Snapshot) -> RestoreResult:
         """Put every target file back to the state recorded in ``snapshot``.
 
-        The current state is snapshotted first. Databases must not be open in any
-        store while they are restored.
+        Recorded renames are undone first. The current state is snapshotted first.
+        Databases must not be open in any store while they are restored. Tag snapshots
+        are restored only when every file still has the audio stream they recorded.
         """
         self.verify(snapshot)
         for record in snapshot.files:
@@ -178,16 +208,23 @@ class SnapshotStore:
                             " database before restoring it"
                         )
 
+        _check_restorable(snapshot)
+
         paths = [Path(record.path) for record in snapshot.files]
         pre_restore = self._create(
-            snapshot.target, paths, reason="pre-restore", protect={snapshot.id}
+            snapshot.target,
+            paths,
+            reason="pre-restore",
+            protect={snapshot.id},
+            tags=any(record.tags is not None for record in snapshot.files),
+            renames=tuple(Rename(old=r.new, new=r.old) for r in reversed(snapshot.renames)),
         )
         try:
             self._apply(snapshot)
-        except (OSError, SnapshotError) as error:
+        except (OSError, SnapshotError, LayoutError) as error:
             try:
                 self._apply(pre_restore)
-            except (OSError, SnapshotError) as rollback_error:
+            except (OSError, SnapshotError, LayoutError) as rollback_error:
                 raise RestoreError(
                     f"restoring {snapshot.id} failed ({error}) and putting back the previous"
                     f" state also failed ({rollback_error}); the previous state is in snapshot"
@@ -200,15 +237,34 @@ class SnapshotStore:
             ) from error
         return RestoreResult(restored=snapshot, pre_restore=pre_restore)
 
+    def restore_files(self, snapshot: Snapshot, paths: Collection[str]) -> None:
+        """Put back only the files at ``paths``, without a pre-restore snapshot.
+
+        For undoing a write that failed halfway, where only those files changed.
+        """
+        self.verify(snapshot)
+        records = [r for r in snapshot.files if r.path in paths]
+        self._put_back(snapshot, records)
+
     def _apply(self, snapshot: Snapshot) -> None:
+        for rename in reversed(snapshot.renames):
+            _undo_rename(rename)
+        self._put_back(snapshot, snapshot.files)
+
+    def _put_back(self, snapshot: Snapshot, records: Iterable[FileRecord]) -> None:
+        records = list(records)
         files = self._snapshot_dir(snapshot) / "files"
-        for index, record in enumerate(snapshot.files):
+        index_of = {record.path: index for index, record in enumerate(snapshot.files)}
+        for record in records:
             target = Path(record.path)
-            if record.present:
-                _replace_file(files / str(index), target, record.sha256 or "")
+            copy = files / str(index_of[record.path])
+            if record.tags is not None:
+                _rebuild(copy, target, record)
+            elif record.present:
+                _replace_file(copy, target, record.sha256 or "")
             else:
                 target.unlink(missing_ok=True)
-        for record in snapshot.files:
+        for record in records:
             target = Path(record.path)
             if record.present and (not target.is_file() or _sha256(target) != record.sha256):
                 raise SnapshotError(f"{record.path}: does not match the snapshot after restoring")
@@ -279,6 +335,99 @@ def _copy_in(source: Path, copy: Path, *, exact: bool = False) -> FileRecord:
         sha256=_sha256(copy),
         method=method,
     )
+
+
+def _copy_tags_in(source: Path, copy: Path) -> FileRecord:
+    if not source.is_file():
+        raise SnapshotError(f"{source}: the file is missing")
+    region = audio_region(source)
+    whole, audio, kept = hashlib.sha256(), hashlib.sha256(), hashlib.sha256()
+
+    with source.open("rb") as file, copy.open("wb") as out:
+
+        def tag_bytes(data: bytes) -> None:
+            whole.update(data)
+            kept.update(data)
+            out.write(data)
+
+        def audio_bytes(data: bytes) -> None:
+            whole.update(data)
+            audio.update(data)
+
+        copy_range(file, 0, region.start, tag_bytes)
+        copy_range(file, region.start, region.end, audio_bytes)
+        copy_range(file, region.end, region.size, tag_bytes)
+        if file.read(1):
+            raise SnapshotError(f"{source}: the file grew while its tags were copied")
+    _fsync(copy)
+    return FileRecord(
+        path=os.fspath(source),
+        present=True,
+        size=region.size,
+        sha256=whole.hexdigest(),
+        method="tags",
+        tags=TagBytes(
+            audio_start=region.start,
+            audio_end=region.end,
+            audio_sha256=audio.hexdigest(),
+            copy_sha256=kept.hexdigest(),
+        ),
+    )
+
+
+def _check_restorable(snapshot: Snapshot) -> None:
+    """Refuse, naming the files, when any file cannot be put back."""
+    problems: list[str] = []
+    for record in snapshot.files:
+        if record.tags is None:
+            continue
+        target = Path(record.path)
+        try:
+            same = audio_sha256(target, audio_region(target)) == record.tags.audio_sha256
+        except (OSError, LayoutError):
+            same = False
+        if not same:
+            problems.append(f"{record.path} (missing, or its audio changed)")
+    for rename in snapshot.renames:
+        old, new = Path(rename.old), Path(rename.new)
+        if not new.is_file():
+            problems.append(f"{rename.new} (missing)")
+        elif not name_free(new, old):
+            problems.append(f"{rename.old} (another file has this name now)")
+    if problems:
+        raise SnapshotError(
+            f"cannot restore snapshot {snapshot.id}; nothing was changed. Files: "
+            + "; ".join(problems)
+        )
+
+
+def _undo_rename(rename: Rename) -> None:
+    """Give ``rename.new`` its old name back; already done is fine, for rollbacks."""
+    old, new = Path(rename.old), Path(rename.new)
+    if not os.path.lexists(new) and old.is_file():
+        return
+    move_file(new, old)
+
+
+def _rebuild(copy: Path, target: Path, record: FileRecord) -> None:
+    """Rebuild ``target`` from the tag bytes in ``copy`` and its current audio stream."""
+    tags = record.tags
+    assert tags is not None  # noqa: S101 - only called for tag records
+    region = audio_region(target)
+    temporary = target.with_name(f".{target.name}.tunedex-{secrets.token_hex(4)}.tmp")
+    try:
+        with copy.open("rb") as kept, target.open("rb") as current, temporary.open("wb") as out:
+            out.write(kept.read(tags.audio_start))
+            copy_range(current, region.start, region.end, out.write)
+            shutil.copyfileobj(kept, out)
+            out.flush()
+            os.fsync(out.fileno())
+        if _sha256(temporary) != record.sha256:
+            raise SnapshotError(f"{target}: the rebuilt file does not match the snapshot")
+        shutil.copymode(target, temporary)
+        temporary.replace(target)
+    finally:
+        temporary.unlink(missing_ok=True)
 
 
 def _is_sqlite(path: Path) -> bool:

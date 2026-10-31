@@ -4,6 +4,7 @@ Planning never writes. Applying takes a confirmation decision from the caller an
 does nothing without it.
 """
 
+import dataclasses
 import datetime
 import hashlib
 import os
@@ -26,24 +27,40 @@ from tunedex.planning.fixing import plan_fix
 from tunedex.planning.importing import plan_import
 from tunedex.planning.model import (
     LIBRARY_TARGET,
+    RENAMES_TARGET,
+    TAGS_TARGET,
     ApplyResult,
     ExportAction,
     FieldConflict,
+    FileRename,
     LibraryAction,
     Plan,
+    RenameAction,
+    TagFile,
+    TagWriteAction,
     TrashFile,
 )
 from tunedex.planning.relocating import Progress, plan_relocate
+from tunedex.planning.renames import plan_renames
 from tunedex.planning.selection import covered, fingerprints, modified, resolve_paths, target_name
+from tunedex.planning.tagging import plan_write_tags
 from tunedex.planning.writer import DirectoryTracker, WriteFile, write_atomically
+from tunedex.renaming import DEFAULT_PATTERN, Pattern, PatternError, parse_pattern
 from tunedex.rules.ruleset import RuleSet
 from tunedex.snapshots import SnapshotStore
-from tunedex.sources.folder_scan import scan_folder
-from tunedex.store import Store, StoreError
+from tunedex.snapshots.manifest import Rename
+from tunedex.snapshots.moves import move_file, name_free
+from tunedex.sources.folder_scan import quick_hash, scan_folder
+from tunedex.store import FileState, Store, StoreError
+from tunedex.store.operations import RefreshState, RelocateTrack
+from tunedex.tagwrite.writer import write_tags
 
 Confirm = Callable[[Plan], bool]
 """Asked with the plan before applying it; returns whether to go ahead."""
 Trash = Callable[[str], None]
+WriteTags = Callable[[Path, Mapping[str, str | None]], None]
+WriteProgress = Callable[[int, int], None]
+"""Told how many files were written out of how many."""
 
 
 def assume_yes(plan: Plan) -> bool:
@@ -63,6 +80,7 @@ class Engine:
         progress: Progress | None = None,
         _write_file: WriteFile = write_atomically,
         _trash: Trash | None = None,
+        _write_tags: WriteTags = write_tags,
     ) -> None:
         """``progress`` is told how many files were seen while walking a folder."""
         self.store = store
@@ -71,6 +89,7 @@ class Engine:
         self._clock = clock or (lambda: datetime.datetime.now(datetime.UTC))
         self._write_file = _write_file
         self._trash = _trash or _send_to_trash
+        self._write_tags = _write_tags
 
     # Planning
 
@@ -297,6 +316,53 @@ class Engine:
             conflicts=merge.conflicts,
         )
 
+    def plan_write_tags(self, under: str | os.PathLike[str] | None = None) -> Plan:
+        """Plan writing the library's values into the tags of the tracks' files.
+
+        With ``under``, only of the tracks under that folder. Files changed since the
+        last scan, missing files and formats that are not written are skipped.
+        """
+        revision = self.store.revision()
+        folder = None if under is None else Path(under).absolute()
+        written = plan_write_tags(self.store, folder)
+        return Plan(
+            target=TAGS_TARGET,
+            title="write tags" if folder is None else f"write tags under {folder}",
+            action=TagWriteAction(files=written.files, base_revision=revision),
+            tags=written.changes,
+            warnings=written.warnings,
+        )
+
+    def plan_rename(
+        self,
+        pattern: Pattern | str | None = None,
+        under: str | os.PathLike[str] | None = None,
+    ) -> Plan:
+        """Plan renaming the tracks' files from ``pattern``, by default ``{artist} - {title}``.
+
+        With ``under``, only the files of the tracks under that folder. Files keep their
+        folder and extension; names already taken are skipped, never overwritten.
+        """
+        try:
+            chosen = (
+                parse_pattern(pattern or DEFAULT_PATTERN)
+                if not isinstance(pattern, Pattern)
+                else pattern
+            )
+        except PatternError as error:
+            raise PlanError(str(error)) from None
+        revision = self.store.revision()
+        folder = None if under is None else Path(under).absolute()
+        renamed = plan_renames(self.store, chosen, folder)
+        where = "" if folder is None else f" under {folder}"
+        return Plan(
+            target=RENAMES_TARGET,
+            title=f"rename files{where} to {chosen.text}",
+            action=RenameAction(renames=renamed.renames, base_revision=revision),
+            tracks=renamed.changes,
+            warnings=renamed.warnings,
+        )
+
     def _read_target(
         self, adapter: Adapter, location: Path, path_mapping: PathMapping
     ) -> tuple[Library, tuple[str, ...]]:
@@ -307,15 +373,26 @@ class Engine:
 
     # Applying
 
-    def apply(self, plan: Plan, confirm: Confirm) -> ApplyResult:
-        """Apply ``plan`` if ``confirm`` accepts it. Empty or declined plans write nothing."""
+    def apply(
+        self, plan: Plan, confirm: Confirm, *, progress: WriteProgress | None = None
+    ) -> ApplyResult:
+        """Apply ``plan`` if ``confirm`` accepts it. Empty or declined plans write nothing.
+
+        ``progress`` is told how many audio files were written, for tag writes.
+        """
         if plan.empty:
             return ApplyResult(status="nothing")
         if not confirm(plan):
             return ApplyResult(status="declined")
-        if isinstance(plan.action, LibraryAction):
-            return self._apply_library(plan, plan.action)
-        return self._apply_export(plan, plan.action)
+        match plan.action:
+            case LibraryAction():
+                return self._apply_library(plan, plan.action)
+            case ExportAction():
+                return self._apply_export(plan, plan.action)
+            case TagWriteAction():
+                return self._apply_tags(plan, plan.action, progress)
+            case RenameAction():
+                return self._apply_renames(plan, plan.action)
 
     def _apply_library(self, plan: Plan, action: LibraryAction) -> ApplyResult:
         if self.store.revision() != action.base_revision:
@@ -396,6 +473,100 @@ class Engine:
             status="applied", snapshot=snapshot.id, files_written=len(changes), warnings=warnings
         )
 
+    def _apply_tags(
+        self, plan: Plan, action: TagWriteAction, progress: WriteProgress | None
+    ) -> ApplyResult:
+        if self.store.revision() != action.base_revision:
+            raise StaleTargetError("the library changed since the plan was made; plan again")
+        for file in action.files:
+            _check_file(file)
+        snapshot = self.snapshots.create_tags(
+            plan.target, [Path(f.path) for f in action.files], reason=plan.title
+        )
+        written: list[str] = []
+        try:
+            for file in action.files:
+                _check_file(file)  # again, right before writing it
+                self._write_tags(Path(file.path), file.fields)
+                written.append(file.path)
+                if progress is not None:
+                    progress(len(written), len(action.files))
+        except BaseException as error:
+            restored = self._put_back(snapshot.id, plan.target, written)
+            if not isinstance(error, Exception):
+                raise
+            raise ApplyFailedError(
+                plan.target, snapshot.id, restored=restored, cause=error
+            ) from error
+
+        warnings: tuple[str, ...] = ()
+        try:
+            now = self._clock()
+            states = [
+                RefreshState(f.track_id, _state_after_write(state, f, now))
+                for f in action.files
+                if (state := self.store.file_state(f.track_id)) is not None
+            ]
+            self.store.apply_operations(states)
+        except (OSError, StoreError) as error:
+            warnings = (
+                f"the tags were written but the library did not record it ({error});"
+                " the next scan reads the files again",
+            )
+        return ApplyResult(
+            status="applied",
+            snapshot=snapshot.id,
+            files_written=len(action.files),
+            warnings=warnings,
+        )
+
+    def _apply_renames(self, plan: Plan, action: RenameAction) -> ApplyResult:
+        if self.store.revision() != action.base_revision:
+            raise StaleTargetError("the library changed since the plan was made; plan again")
+        database = self.store.path
+        if database is None:
+            raise PlanError("an in-memory library cannot be applied")
+        for rename in action.renames:
+            _check_rename(rename)
+        # The snapshot holds the library and the renames: restoring it undoes both.
+        snapshot = self.snapshots.create(
+            plan.target,
+            [database],
+            reason=plan.title,
+            renames=[Rename(old=r.old, new=r.new) for r in action.renames],
+        )
+        done: list[FileRename] = []
+        try:
+            for rename in action.renames:
+                _check_rename(rename)  # again, right before renaming it
+                move_file(Path(rename.old), Path(rename.new))
+                done.append(rename)
+            self.store.apply_operations(
+                [RelocateTrack(r.track_id, r.new) for r in action.renames],
+                expected_revision=action.base_revision,
+            )
+        except BaseException as error:
+            # The library transaction was rolled back; only the files need their names back.
+            restored = _rename_back(done)
+            if not isinstance(error, Exception):
+                raise
+            raise ApplyFailedError(
+                plan.target, snapshot.id, restored=restored, cause=error
+            ) from error
+        return ApplyResult(
+            status="applied",
+            snapshot=snapshot.id,
+            operations_applied=len(action.renames),
+            files_renamed=len(action.renames),
+        )
+
+    def _put_back(self, snapshot_id: str, target: str, paths: Sequence[str]) -> bool:
+        try:
+            self.snapshots.restore_files(self.snapshots.get(target, snapshot_id), set(paths))
+        except Exception:
+            return False
+        return True
+
     def _restore(self, snapshot_id: str, target: str, directories: DirectoryTracker) -> bool:
         try:
             self.snapshots.restore(self.snapshots.get(target, snapshot_id))
@@ -407,6 +578,51 @@ class Engine:
 
 def _send_to_trash(path: str) -> None:
     send2trash(path)  # looked up when called, so tests can replace it
+
+
+def _check_file(file: TagFile) -> None:
+    try:
+        stat = Path(file.path).stat()
+    except OSError:
+        raise StaleTargetError(f"{file.path} is no longer there") from None
+    if (stat.st_size, stat.st_mtime_ns) != (file.size, file.mtime_ns):
+        raise StaleTargetError(f"{file.path} changed since the plan was made")
+
+
+def _check_rename(rename: FileRename) -> None:
+    old, new = Path(rename.old), Path(rename.new)
+    if not old.is_file():
+        raise StaleTargetError(f"{old} is no longer there")
+    if not name_free(old, new):
+        raise StaleTargetError(f"{new} was created since the plan was made")
+
+
+def _rename_back(done: Sequence[FileRename]) -> bool:
+    try:
+        for rename in reversed(done):
+            move_file(Path(rename.new), Path(rename.old))
+    except OSError:
+        return False
+    return True
+
+
+def _state_after_write(state: FileState, file: TagFile, now: datetime.datetime) -> FileState:
+    """The state of a file just written: a scan sees it unchanged.
+
+    The merge base stays the values last scanned. Once the write is undone, the next
+    scan then finds the file's old values where it read them before, and leaves the
+    library's values alone.
+    """
+    path = Path(file.path)
+    stat = path.stat()
+    return dataclasses.replace(
+        state,
+        size=stat.st_size,
+        mtime_ns=stat.st_mtime_ns,
+        quick_hash=quick_hash(path, stat.st_size),
+        scanned_at=now,
+        missing=False,
+    )
 
 
 def _check_unchanged(path: Path, base_sha256: str | None) -> None:

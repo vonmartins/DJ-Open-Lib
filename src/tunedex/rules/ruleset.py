@@ -8,6 +8,8 @@ rules:
   - id: no-year
     when: {field: title, op: matches, value: ' \\[\\d{4}\\]$'}
     then: {replace: title, pattern: ' \\[\\d{4}\\]$', with: ''}
+rename:
+  pattern: '{artist} - {title}'   # file names for tunedex rename
 ```
 
 Every error is collected with the fix name or rule it belongs to, and reported together.
@@ -22,6 +24,7 @@ from typing import Any, cast
 import yaml
 
 from tunedex.model.playlist import MatchMode
+from tunedex.renaming import Pattern, PatternError, parse_pattern
 from tunedex.rules.conditions import Condition, field_kind, from_mapping
 from tunedex.rules.errors import RuleError
 from tunedex.rules.fixes import BY_NAME, FIXES, Fix, fix_options
@@ -56,6 +59,8 @@ class UserRule:
 class RuleSet:
     fixes: tuple[tuple[Fix, Mapping[str, Any]], ...]
     rules: tuple[UserRule, ...]
+    rename: Pattern | None = None
+    """The file name pattern of ``tunedex rename``, when the rules file sets one."""
 
     @property
     def names(self) -> tuple[str, ...]:
@@ -76,7 +81,7 @@ class RuleSet:
         order = {fix.name: index for index, fix in enumerate(FIXES)}
         fixes.sort(key=lambda item: order[item[0].name])
         rules = tuple(rule for rule in self.rules if rule.id in chosen)
-        return RuleSet(fixes=tuple(fixes), rules=rules)
+        return RuleSet(fixes=tuple(fixes), rules=rules, rename=self.rename)
 
 
 def defaults() -> RuleSet:
@@ -112,15 +117,30 @@ def parse(data: Any, *, origin: str = "rules") -> RuleSet:
     errors: list[str] = []
     mapping = {} if data is None else _mapping(data)
     if mapping is None:
-        raise RuleError(f"{origin}: expected a mapping with `fixes` and `rules`")
-    unknown = set(mapping) - {"fixes", "rules"}
+        raise RuleError(f"{origin}: expected a mapping with `fixes`, `rules` and `rename`")
+    unknown = set(mapping) - {"fixes", "rules", "rename"}
     if unknown:
         errors.append(f"unknown sections: {', '.join(sorted(unknown))}")
     fixes = _fixes({} if mapping.get("fixes") is None else mapping["fixes"], errors)
     rules = _rules([] if mapping.get("rules") is None else mapping["rules"], errors)
+    rename = None if mapping.get("rename") is None else _rename(mapping["rename"], errors)
     if errors:
         raise RuleError(f"{origin}:\n" + "\n".join(f"  {e}" for e in errors))
-    return RuleSet(fixes=fixes, rules=rules)
+    return RuleSet(fixes=fixes, rules=rules, rename=rename)
+
+
+def _rename(data: Any, errors: list[str]) -> Pattern | None:
+    settings = _mapping(data)
+    if settings is None or set(settings) != {"pattern"} or not isinstance(settings["pattern"], str):
+        errors.append(
+            "rename: expected a mapping with a pattern, such as {pattern: '{artist} - {title}'}"
+        )
+        return None
+    try:
+        return parse_pattern(settings["pattern"])
+    except PatternError as error:
+        errors.append(f"rename: {error}")
+        return None
 
 
 def _fixes(data: Any, errors: list[str]) -> tuple[tuple[Fix, Mapping[str, Any]], ...]:

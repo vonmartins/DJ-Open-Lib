@@ -1,6 +1,7 @@
 from pathlib import Path
 
 import pytest
+from mutagen import id3
 from mutagen.flac import FLAC
 
 from support.audio import FORMATS, tagged_copy, write_tags
@@ -156,3 +157,15 @@ def test_rewritten_tags_are_read(tmp_path: Path) -> None:
     path = tagged_copy(tmp_path, "m4a", title="Old")
     write_tags(path, title="New")
     assert read_file(path).values["title"] == "New"
+
+
+def test_itunes_data_in_comment_frames_is_not_the_comment(tmp_path: Path) -> None:
+    path = tagged_copy(tmp_path, "mp3", title="Glue")
+    tags = id3.ID3(path)
+    tags.add(id3.COMM(encoding=0, lang="eng", desc="iTunNORM", text=" 00000EC8 00000EC8"))
+    tags.save(path)
+    assert "comment" not in read_file(path).values
+
+    tags.add(id3.COMM(encoding=3, lang="eng", desc="", text="Great closer"))
+    tags.save(path)
+    assert read_file(path).values["comment"] == "Great closer"

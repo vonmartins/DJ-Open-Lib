@@ -28,6 +28,8 @@ Commands that change something show a plan and write nothing unless --apply is g
 * `fix`: Clean the tags of the library's tracks...
 * `enrich`: Fill in tags from MusicBrainz for the...
 * `dupes`: Report tracks that are the same song, and...
+* `write-tags`: Write the library's tags into the audio...
+* `rename`: Rename the tracks' files from their tags,...
 * `import`: Import tracks and playlists from another app.
 * `export`: Export the library to another format or app.
 * `snapshot`: List and restore snapshots.
@@ -240,6 +242,59 @@ $ tunedex dupes [OPTIONS]
 * `--json`: Print only a JSON document on stdout.
 * `--help`: Show this message and exit.
 
+## `tunedex write-tags`
+
+Write the library's tags into the audio files, so other apps and players see them.
+
+Only fields that differ are written: title, artist, album, album artist, genre, year,
+track and disc number, BPM, key, composer, remixer, label, comment, grouping and
+lyricist. Cover art and every other tag stay. MP3, FLAC, WAV and AIFF files are
+written; files changed since the last scan are skipped. A snapshot of the tags
+(target tags) is taken first, so the write can be undone.
+
+Example: tunedex write-tags --under ~/Music/new --apply
+
+**Usage**:
+
+```console
+$ tunedex write-tags [OPTIONS]
+```
+
+**Options**:
+
+* `--under <path>`: Only the tracks under this folder.
+* `--apply`: Apply the plan (asks for confirmation).
+* `-y, --yes`: Do not ask for confirmation.
+* `--json`: Print only a JSON document on stdout.
+* `--help`: Show this message and exit.
+
+## `tunedex rename`
+
+Rename the tracks' files from their tags, each in its own folder.
+
+Placeholders are any text field, {year}, {bpm}, {key} and {track_number}; a part in
+braces with text and one field, such as { (remixer remix)}, is left out when the
+field is empty. Names are made safe on every system. Tracks missing a field, and
+names already taken, are skipped: no file is ever overwritten. The library follows
+the new names; other apps that list the files keep the old ones.
+
+Example: tunedex rename --under ~/Music/dl --pattern "{artist} - {title}"
+
+**Usage**:
+
+```console
+$ tunedex rename [OPTIONS]
+```
+
+**Options**:
+
+* `--pattern <str>`: File name pattern, such as '{artist} - {title}{ (remixer remix)}'. Default: the rename pattern of rules.yaml in the tunedex home, else '{artist} - {title}'.
+* `--under <path>`: Only the tracks under this folder.
+* `--apply`: Apply the plan (asks for confirmation).
+* `-y, --yes`: Do not ask for confirmation.
+* `--json`: Print only a JSON document on stdout.
+* `--help`: Show this message and exit.
+
 ## `tunedex import`
 
 Import tracks and playlists from another app.
@@ -433,8 +488,8 @@ $ tunedex snapshot list [OPTIONS] [target]
 
 Put the files of a target back as they were in a snapshot.
 
-Shows the files it would put back or remove; --apply restores them. The current
-state is saved in a new snapshot first, so a restore can be undone.
+Shows the files it would put back, remove or rename back; --apply restores them.
+The current state is saved in a new snapshot first, so a restore can be undone.
 
 Example: tunedex snapshot restore library 000012-20261029T120000Z --apply
 

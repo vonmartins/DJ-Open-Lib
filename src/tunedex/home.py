@@ -8,6 +8,7 @@ from dataclasses import dataclass
 from pathlib import Path
 
 from tunedex.planning import ApplyResult, Confirm, Engine, Plan, assume_yes
+from tunedex.planning.engine import WriteProgress
 from tunedex.planning.relocating import Progress
 from tunedex.snapshots import SnapshotStore
 from tunedex.store import Store
@@ -80,16 +81,24 @@ class Home:
         with Store.open(str(self.database) if exists else ":memory:") as store:
             yield Engine(store, self.snapshots, progress=progress)
 
-    def apply(self, engine: Engine, plan: Plan, confirm: Confirm = assume_yes) -> ApplyResult:
+    def apply(
+        self,
+        engine: Engine,
+        plan: Plan,
+        confirm: Confirm = assume_yes,
+        *,
+        progress: WriteProgress | None = None,
+    ) -> ApplyResult:
         """Apply ``plan``, made with ``engine`` on this home.
 
         A plan made on the in-memory library of a new home is applied to a library
         created in the home, so planning first and applying later works in a new home too.
+        ``progress`` is told how many audio files were written, for tag writes.
         """
         if engine.store.path is not None or plan.empty:
-            return engine.apply(plan, confirm)
+            return engine.apply(plan, confirm, progress=progress)
         with self.engine(create=True) as created:
-            return created.apply(plan, confirm)
+            return created.apply(plan, confirm, progress=progress)
 
 
 def open_library(

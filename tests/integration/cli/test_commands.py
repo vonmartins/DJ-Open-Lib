@@ -410,7 +410,7 @@ def test_unknown_playlist_as_json(home: Path, tmp_path: Path) -> None:
 
 
 def test_failed_apply_as_json(home: Path, music: Path, monkeypatch: pytest.MonkeyPatch) -> None:
-    def broken(*_: object) -> None:
+    def broken(*_: object, **__: object) -> None:
         raise ApplyFailedError(
             "library", "000001-20261029T120000Z", restored=False, cause=OSError("disk full")
         )
@@ -440,6 +440,8 @@ ANSI_ESCAPE = re.compile(r"\x1b\[[0-9;]*m")
         ["fix"],
         ["enrich"],
         ["dupes"],
+        ["write-tags"],
+        ["rename"],
         ["import", "mixxx"],
         ["import", "beets"],
         ["export", "m3u"],

@@ -8,18 +8,55 @@ from typing import Any, Literal
 from tunedex.snapshots.errors import SnapshotCorruptError
 
 MANIFEST_VERSION = 1
-CopyMethod = Literal["copy", "sqlite"]
+CopyMethod = Literal["copy", "sqlite", "tags"]
+
+
+@dataclass(frozen=True, slots=True, kw_only=True)
+class TagBytes:
+    """What a tag snapshot holds of a file: the bytes before and after its audio stream.
+
+    The copy is those bytes one after the other; the audio stream is not copied.
+    """
+
+    audio_start: int
+    audio_end: int
+    audio_sha256: str
+    copy_sha256: str
 
 
 @dataclass(frozen=True, slots=True, kw_only=True)
 class FileRecord:
-    """One file of a target: either present (with size and hash) or absent."""
+    """One file of a target: either present (with size and hash) or absent.
+
+    Size and hash are the whole file's. Tag snapshots (method ``tags``) copy only the
+    bytes outside the audio stream, described by ``tags``.
+    """
 
     path: str
     present: bool
     size: int | None = None
     sha256: str | None = None
     method: CopyMethod | None = None
+    tags: TagBytes | None = None
+
+    @property
+    def copy_size(self) -> int | None:
+        """Size of the copy in the snapshot."""
+        if self.tags is None or self.size is None:
+            return self.size
+        return self.tags.audio_start + self.size - self.tags.audio_end
+
+    @property
+    def copy_sha256(self) -> str | None:
+        return self.sha256 if self.tags is None else self.tags.copy_sha256
+
+
+@dataclass(frozen=True, slots=True)
+class Rename:
+    """A file named ``old`` at snapshot time and ``new`` after; restoring names it ``old``."""
+
+    old: str
+    new: str
 
 
 @dataclass(frozen=True, slots=True, kw_only=True)
@@ -30,6 +67,7 @@ class Snapshot:
     tunedex_version: str
     reason: str | None
     files: tuple[FileRecord, ...]
+    renames: tuple[Rename, ...] = ()
 
     @property
     def sequence(self) -> int:
@@ -40,10 +78,16 @@ def dump_manifest(snapshot: Snapshot) -> str:
     files: list[dict[str, Any]] = []
     for record in snapshot.files:
         if record.present:
-            files.append(
-                {"path": record.path, "present": True, "size": record.size,
-                 "sha256": record.sha256, "method": record.method}
-            )  # fmt: skip
+            entry: dict[str, Any] = {"path": record.path, "present": True, "size": record.size,
+                                     "sha256": record.sha256, "method": record.method}  # fmt: skip
+            if record.tags is not None:
+                entry.update(
+                    audio_start=record.tags.audio_start,
+                    audio_end=record.tags.audio_end,
+                    audio_sha256=record.tags.audio_sha256,
+                    copy_sha256=record.tags.copy_sha256,
+                )
+            files.append(entry)
         else:
             files.append({"path": record.path, "present": False})
     document = {
@@ -55,6 +99,8 @@ def dump_manifest(snapshot: Snapshot) -> str:
         "reason": snapshot.reason,
         "files": files,
     }
+    if snapshot.renames:
+        document["renames"] = [{"old": r.old, "new": r.new} for r in snapshot.renames]
     return json.dumps(document, indent=2, ensure_ascii=False) + "\n"
 
 
@@ -75,6 +121,10 @@ def load_manifest(text: str) -> Snapshot:
             tunedex_version=_text(document["tunedex_version"]),
             reason=None if document["reason"] is None else _text(document["reason"]),
             files=files,
+            renames=tuple(
+                Rename(_text(entry["old"]), _text(entry["new"]))
+                for entry in document.get("renames", [])
+            ),
         )
     except SnapshotCorruptError:
         raise
@@ -93,9 +143,26 @@ def _load_record(entry: dict[str, Any]) -> FileRecord:
         raise ValueError("'size' must be a non-negative integer")
     if not isinstance(digest, str) or len(digest) != 64:
         raise ValueError("'sha256' must be a hex digest")
-    if method not in ("copy", "sqlite"):
+    if method not in ("copy", "sqlite", "tags"):
         raise ValueError(f"unknown copy method {method!r}")
-    return FileRecord(path=path, present=True, size=size, sha256=digest, method=method)
+    tags = None
+    if method == "tags":
+        start, end = entry["audio_start"], entry["audio_end"]
+        if type(start) is not int or type(end) is not int or not 0 <= start <= end <= size:
+            raise ValueError("'audio_start' and 'audio_end' must be offsets in the file")
+        tags = TagBytes(
+            audio_start=start,
+            audio_end=end,
+            audio_sha256=_digest(entry["audio_sha256"]),
+            copy_sha256=_digest(entry["copy_sha256"]),
+        )
+    return FileRecord(path=path, present=True, size=size, sha256=digest, method=method, tags=tags)
+
+
+def _digest(value: object) -> str:
+    if not isinstance(value, str) or len(value) != 64:
+        raise ValueError("expected a hex digest")
+    return value
 
 
 def _text(value: object) -> str:
