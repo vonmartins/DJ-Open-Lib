@@ -4,7 +4,7 @@
 
 Your music folder, and optionally your [beets](https://beets.io) library, is the source of truth. DJ apps such as Mixxx are targets you sync to safely: every write is planned first, shown as a diff, and backed by a snapshot you can restore.
 
-!!! warning "Pre-alpha"
+!!! warning "Alpha"
     tunedex is young. Try it with a scratch home and a test profile of your DJ app before you point it at the library you play from.
 
 ## Where to start

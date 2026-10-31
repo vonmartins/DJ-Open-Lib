@@ -7,13 +7,13 @@ Install it as a command-line tool, isolated from your other Python packages:
 === "uv"
 
     ```sh
-    uv tool install git+https://github.com/vonmartins/tunedex
+    uv tool install tunedex
     ```
 
 === "pipx"
 
     ```sh
-    pipx install git+https://github.com/vonmartins/tunedex
+    pipx install tunedex
     ```
 
 Check that it works:
@@ -24,8 +24,8 @@ $ tunedex --version
 
 To upgrade later, run `uv tool upgrade tunedex` or `pipx upgrade tunedex`.
 
-!!! note "Not on PyPI yet"
-    Until the first release, tunedex installs from the Git repository. After it, `uv tool install tunedex` and `pipx install tunedex` will work too.
+!!! note "The development version"
+    Releases come from [PyPI](https://pypi.org/project/tunedex/). To try what is coming next, install the `dev` branch instead: `uv tool install git+https://github.com/vonmartins/tunedex@dev`. It passes every check, but it is not released yet.
 
 ## Optional: `fpcalc` for `enrich`
 
