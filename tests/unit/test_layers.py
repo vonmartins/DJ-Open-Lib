@@ -1,0 +1,33 @@
+"""The core library must not depend on its interface layers."""
+
+import subprocess
+import sys
+
+import pytest
+
+CORE_PACKAGES = [
+    "tunedex.model",
+    "tunedex.store",
+    "tunedex.snapshots",
+    "tunedex.adapters",
+    "tunedex.sources",
+    "tunedex.enrich",
+    "tunedex.duplicates",
+    "tunedex.planning",
+    "tunedex.query",
+]
+
+
+@pytest.mark.parametrize("module", CORE_PACKAGES)
+def test_core_does_not_import_the_cli(module: str) -> None:
+    code = (
+        f"import sys, {module}, pkgutil, importlib\n"
+        f"for info in pkgutil.walk_packages({module}.__path__, '{module}.'):\n"
+        "    importlib.import_module(info.name)\n"
+        "print(sorted(m for m in sys.modules if m == 'typer' or m.startswith('tunedex.cli')))"
+    )
+    result = subprocess.run(
+        [sys.executable, "-c", code], capture_output=True, text=True, check=True
+    )
+
+    assert result.stdout.strip() == "[]"

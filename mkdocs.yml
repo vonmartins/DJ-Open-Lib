@@ -1,0 +1,89 @@
+site_name: tunedex
+site_description: Free, local-first, scriptable DJ library manager.
+site_url: https://vonmartins.github.io/tunedex/
+repo_url: https://github.com/vonmartins/tunedex
+repo_name: vonmartins/tunedex
+edit_uri: edit/dev/docs/
+
+theme:
+  name: material
+  features:
+    - navigation.tabs
+    - navigation.sections
+    - navigation.top
+    - navigation.footer
+    - search.highlight
+    - content.code.copy
+    - content.tabs.link
+  palette:
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      toggle:
+        icon: material/weather-night
+        name: Dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      toggle:
+        icon: material/weather-sunny
+        name: Light mode
+
+plugins:
+  - search
+  - mkdocstrings:
+      handlers:
+        python:
+          paths: [src]
+          options:
+            show_root_heading: true
+            show_root_full_path: false
+            show_source: false
+            heading_level: 3
+            separate_signature: true
+            show_signature_annotations: true
+            members_order: source
+
+markdown_extensions:
+  - admonition
+  - attr_list
+  - md_in_html
+  - tables
+  - toc:
+      permalink: true
+  - pymdownx.details
+  - pymdownx.highlight
+  - pymdownx.inlinehilite
+  - pymdownx.superfences
+  - pymdownx.tabbed:
+      alternate_style: true
+
+nav:
+  - Home: index.md
+  - Getting started:
+      - Install: install.md
+      - Tutorial: tutorial.md
+  - Guides:
+      - Importing from Mixxx: guides/import-mixxx.md
+      - Importing from beets: guides/import-beets.md
+      - Relocating tracks: guides/relocate.md
+      - Enriching tags: guides/enrich.md
+      - Fixing tags with rules: guides/fix.md
+      - Merging duplicates: guides/duplicates.md
+      - Writing tags to your files: guides/write-tags.md
+      - Renaming files: guides/rename.md
+      - Exporting to Mixxx: guides/export-mixxx.md
+      - Exporting to M3U: guides/export-m3u.md
+      - Snapshots and restore: guides/snapshots.md
+      - Using tunedex from another program: guides/from-another-program.md
+  - Reference:
+      - Commands: reference/cli.md
+      - JSON formats: reference/json.md
+      - Errors and exit codes: reference/errors.md
+      - Python API: reference/python-api.md
+      - Rules: reference/rules.md
+      - Environment and home: reference/environment.md
+  - Explanation:
+      - Plan, snapshot, apply: explanation/plan-apply.md
+      - Track identity: explanation/identity.md
+      - Adapters and losses: explanation/adapters.md
+      - The library database: explanation/store.md
+      - Network use: explanation/network.md

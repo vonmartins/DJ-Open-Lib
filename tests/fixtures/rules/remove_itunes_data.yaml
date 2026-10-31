@@ -1,0 +1,24 @@
+fix: remove_itunes_data
+change:
+  - {track: {comment: "00000EC8 00000EC8 000024F5 000024F5 00000000 00000000 00008000 00008000 00000000 00000000"}, expected: {comment: null}, why: iTunes normalization}
+  - {track: {comment: " 0000206B 0000206B 0000510A 0000510A 0001A8D3 0001A8D3 00007FFF 00007FFF 00015B49 00015B49"}, expected: {comment: null}, why: leading space}
+  - {"track": {"comment": "000000FE 000001E5 000003EC 00000949 0002712E 00027145 000074B3 00006C5D 00030D40 0002BF20"}, "expected": {"comment": null}, "why": "real iTunes data"}
+  - {"track": {"comment": "0000020E 000001CA 000014DD 00000E7F 0003A9C5 0003A9C5 00007F6F 00006EC8 0003F7A0 0003F7CE"}, "expected": {"comment": null}, "why": "real iTunes data"}
+  - {"track": {"comment": "00000268 0000026E 00002C44 000023E2 0004E245 0004E245 00007DC4 00008000 0002E647 0002E647"}, "expected": {"comment": null}, "why": "real iTunes data"}
+  - {"track": {"comment": "00000294 0000019C 0000071B 00000558 0001D104 000290E5 00007521 00007994 0001D11B 0001D11B"}, "expected": {"comment": null}, "why": "real iTunes data"}
+  - {"track": {"comment": "000002A0 00000296 00002D9B 00002C86 0002820A 0002820A 00008DB4 00008A27 000316EB 0001CF5E"}, "expected": {"comment": null}, "why": "real iTunes data"}
+  - {"track": {"comment": "00000351 00000157 000078A6 00003211 0036EBCC 0036A3A7 00008607 000086DB 002E032F 001EBE4E"}, "expected": {"comment": null}, "why": "real iTunes data"}
+  - {"track": {"comment": "00000383 000002FB 00002DA8 00002762 0000ABA1 00036753 00007A79 00007BAF 00031D58 00039FC1"}, "expected": {"comment": null}, "why": "real iTunes data"}
+  - {"track": {"comment": "00000397 00000397 00001B70 00001A04 0002D534 0002DE63 00009FA3 00009F22 0002C2D6 00009C1F"}, "expected": {"comment": null}, "why": "real iTunes data"}
+  - {"track": {"comment": "0000abcd 0000abcd 00001b70 00001a04"}, "expected": {"comment": null}, "why": "lower case, four groups"}
+keep:
+  - {track: {comment: "Label : Uprising Records Catalog# : RISE 001CD"}, why: a real comment}
+  - {track: {comment: "DEADBEEF"}, why: one group}
+  - {track: {comment: "Track 00000001 of 00000012"}, why: words between the numbers}
+  - {track: {comment: "00000EC8 00000EC8 000024F5"}, why: three groups}
+  - {track: {comment: "Visit www.example.com"}, why: text}
+  - {track: {comment: "0000EC8 00000EC8 000024F5 000024F5"}, why: a group of seven digits}
+  - {track: {comment: "00000EC8-00000EC8-000024F5-000024F5"}, why: dashes, not spaces}
+  - {track: {comment: "GGGGGGGG 00000EC8 000024F5 000024F5"}, why: not hexadecimal}
+  - {track: {comment: "Ripped by XYZ 2008"}, why: a ripper note}
+  - {track: {comment: ""}, why: empty}

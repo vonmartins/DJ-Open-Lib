@@ -1,0 +1,1132 @@
+{
+ "cover-art-archive": {
+  "back": false,
+  "front": true,
+  "darkened": false,
+  "count": 1,
+  "artwork": true
+ },
+ "id": "ac691ae5-72e1-4571-a907-7eefad6ad2f7",
+ "quality": "normal",
+ "asin": null,
+ "status": "Official",
+ "text-representation": {
+  "script": "Latn",
+  "language": "eng"
+ },
+ "country": "XW",
+ "date": "2010-12-20",
+ "barcode": null,
+ "title": "Pure Dubstep",
+ "disambiguation": "",
+ "media": [
+  {
+   "tracks": [
+    {
+     "position": 1,
+     "id": "d03ea19d-0eb9-3bfb-8f52-2b35c8b1ed31",
+     "length": 560237,
+     "title": "Step Bakk",
+     "recording": {
+      "title": "Step Bakk",
+      "video": false,
+      "length": 560237,
+      "disambiguation": "",
+      "id": "6134c730-217a-4b9a-9d2c-efda8a7206b3",
+      "artist-credit": [
+       {
+        "artist": {
+         "id": "ba28080d-4a20-4132-b79e-5e6deee485c6",
+         "type-id": "b6e035f4-3ce9-331c-97df-83397230b0df",
+         "type": "Person",
+         "sort-name": "Benny Ill",
+         "name": "Benny Ill",
+         "disambiguation": "",
+         "country": null
+        },
+        "joinphrase": " & ",
+        "name": "Benny Ill"
+       },
+       {
+        "artist": {
+         "country": "GB",
+         "name": "Jay King",
+         "disambiguation": "uk garage / dubstep",
+         "id": "ab51109b-fae6-41e2-9430-349c02c458a4",
+         "type-id": "b6e035f4-3ce9-331c-97df-83397230b0df",
+         "type": "Person",
+         "sort-name": "King, Jay"
+        },
+        "name": "J-King",
+        "joinphrase": ""
+       }
+      ],
+      "first-release-date": "2010-12-20"
+     },
+     "number": "1",
+     "artist-credit": [
+      {
+       "artist": {
+        "country": null,
+        "id": "ba28080d-4a20-4132-b79e-5e6deee485c6",
+        "type-id": "b6e035f4-3ce9-331c-97df-83397230b0df",
+        "sort-name": "Benny Ill",
+        "type": "Person",
+        "disambiguation": "",
+        "name": "Benny Ill"
+       },
+       "joinphrase": " & ",
+       "name": "Benny Ill"
+      },
+      {
+       "joinphrase": "",
+       "name": "J-King",
+       "artist": {
+        "country": "GB",
+        "id": "ab51109b-fae6-41e2-9430-349c02c458a4",
+        "type-id": "b6e035f4-3ce9-331c-97df-83397230b0df",
+        "type": "Person",
+        "sort-name": "King, Jay",
+        "name": "Jay King",
+        "disambiguation": "uk garage / dubstep"
+       }
+      }
+     ]
+    },
+    {
+     "position": 2,
+     "id": "12e8bd7d-68aa-30b2-8e8f-51893015e65f",
+     "length": 209372,
+     "title": "Hold Me Close",
+     "recording": {
+      "length": 206000,
+      "video": false,
+      "disambiguation": "",
+      "title": "Hold Me Close",
+      "first-release-date": "2010-12-20",
+      "id": "ad4ddd5e-7cbd-424d-92b3-c8ae7e4bdd92",
+      "artist-credit": [
+       {
+        "name": "Flux Pavilion",
+        "joinphrase": "",
+        "artist": {
+         "type": "Person",
+         "sort-name": "Flux Pavilion",
+         "type-id": "b6e035f4-3ce9-331c-97df-83397230b0df",
+         "id": "3ce513c5-bdd4-492c-a875-07e0f3e1993b",
+         "disambiguation": "",
+         "name": "Flux Pavilion",
+         "country": "GB"
+        }
+       }
+      ]
+     },
+     "number": "2",
+     "artist-credit": [
+      {
+       "artist": {
+        "name": "Flux Pavilion",
+        "disambiguation": "",
+        "sort-name": "Flux Pavilion",
+        "type": "Person",
+        "id": "3ce513c5-bdd4-492c-a875-07e0f3e1993b",
+        "type-id": "b6e035f4-3ce9-331c-97df-83397230b0df",
+        "country": "GB"
+       },
+       "joinphrase": "",
+       "name": "Flux Pavilion"
+      }
+     ]
+    },
+    {
+     "length": 312043,
+     "title": "The Boxer (Darqwan remix)",
+     "position": 3,
+     "id": "317cca3f-7c09-3f5e-aaeb-343303b986a8",
+     "number": "3",
+     "recording": {
+      "length": 312043,
+      "video": false,
+      "disambiguation": "",
+      "title": "The Boxer (Darqwan remix)",
+      "first-release-date": "2010-12-20",
+      "id": "462a3e7c-3edb-4140-a967-c6b97ded7184",
+      "artist-credit": [
+       {
+        "name": "Pinch",
+        "joinphrase": "",
+        "artist": {
+         "sort-name": "Pinch",
+         "type": "Person",
+         "type-id": "b6e035f4-3ce9-331c-97df-83397230b0df",
+         "id": "0b70e909-b5cc-48fc-96c2-f34ee642878d",
+         "disambiguation": "dubstep artist Rob Ellis",
+         "name": "Pinch",
+         "country": "GB"
+        }
+       }
+      ]
+     },
+     "artist-credit": [
+      {
+       "artist": {
+        "name": "Pinch",
+        "disambiguation": "dubstep artist Rob Ellis",
+        "sort-name": "Pinch",
+        "type": "Person",
+        "type-id": "b6e035f4-3ce9-331c-97df-83397230b0df",
+        "id": "0b70e909-b5cc-48fc-96c2-f34ee642878d",
+        "country": "GB"
+       },
+       "joinphrase": "",
+       "name": "Pinch"
+      }
+     ]
+    },
+    {
+     "position": 4,
+     "id": "d2993e6a-5129-3b45-b256-931506ff1a2e",
+     "length": 367863,
+     "title": "Stranger",
+     "number": "4",
+     "recording": {
+      "title": "Stranger",
+      "disambiguation": "",
+      "video": false,
+      "length": 367863,
+      "artist-credit": [
+       {
+        "joinphrase": "",
+        "name": "Kromestar",
+        "artist": {
+         "sort-name": "Kromestar",
+         "type": "Person",
+         "id": "63dd3d57-d98f-4f27-bc1c-017ed75cd6f7",
+         "type-id": "b6e035f4-3ce9-331c-97df-83397230b0df",
+         "disambiguation": "",
+         "name": "Kromestar",
+         "country": "GB"
+        }
+       }
+      ],
+      "id": "a484c71d-32d5-49b9-9c1a-b0ae5c589c49",
+      "first-release-date": "2010-12-20"
+     },
+     "artist-credit": [
+      {
+       "artist": {
+        "country": "GB",
+        "sort-name": "Kromestar",
+        "type": "Person",
+        "type-id": "b6e035f4-3ce9-331c-97df-83397230b0df",
+        "id": "63dd3d57-d98f-4f27-bc1c-017ed75cd6f7",
+        "name": "Kromestar",
+        "disambiguation": ""
+       },
+       "joinphrase": "",
+       "name": "Kromestar"
+      }
+     ]
+    },
+    {
+     "number": "5",
+     "recording": {
+      "first-release-date": "2010-12-20",
+      "id": "19feb598-b798-458f-8c82-e6ad045416de",
+      "artist-credit": [
+       {
+        "artist": {
+         "country": "GB",
+         "type": "Person",
+         "sort-name": "Cyrus",
+         "id": "67b51aa4-a2b2-4806-85e2-4735f9dc80c4",
+         "type-id": "b6e035f4-3ce9-331c-97df-83397230b0df",
+         "disambiguation": "dubstep artist Jason Flynn",
+         "name": "Cyrus"
+        },
+        "name": "Cyrus",
+        "joinphrase": ""
+       }
+      ],
+      "length": 320645,
+      "video": false,
+      "disambiguation": "",
+      "title": "Underworld"
+     },
+     "artist-credit": [
+      {
+       "artist": {
+        "type-id": "b6e035f4-3ce9-331c-97df-83397230b0df",
+        "id": "67b51aa4-a2b2-4806-85e2-4735f9dc80c4",
+        "type": "Person",
+        "sort-name": "Cyrus",
+        "disambiguation": "dubstep artist Jason Flynn",
+        "name": "Cyrus",
+        "country": "GB"
+       },
+       "joinphrase": "",
+       "name": "Cyrus"
+      }
+     ],
+     "position": 5,
+     "id": "b032bb25-8a6e-3083-b18d-2ce8bedcd2e1",
+     "length": 320645,
+     "title": "Underworld"
+    },
+    {
+     "artist-credit": [
+      {
+       "artist": {
+        "sort-name": "Kito",
+        "type": "Person",
+        "type-id": "b6e035f4-3ce9-331c-97df-83397230b0df",
+        "id": "1bcc202d-afff-45f8-b348-56b8222cef7e",
+        "disambiguation": "Australian dubstep producer",
+        "name": "Kito",
+        "country": "AU"
+       },
+       "joinphrase": " feat. ",
+       "name": "Kito"
+      },
+      {
+       "artist": {
+        "sort-name": "Lee, Reija",
+        "type": "Person",
+        "id": "d3dbc1dc-a9ff-42bb-92b7-295b08517ca6",
+        "type-id": "b6e035f4-3ce9-331c-97df-83397230b0df",
+        "disambiguation": "",
+        "name": "Reija Lee",
+        "country": "AU"
+       },
+       "joinphrase": "",
+       "name": "Reija Lee"
+      }
+     ],
+     "number": "6",
+     "recording": {
+      "title": "LFO",
+      "length": 253113,
+      "video": false,
+      "disambiguation": "",
+      "id": "7a5ec6ae-9a0a-4d84-acda-6f82c0de920f",
+      "artist-credit": [
+       {
+        "artist": {
+         "country": "AU",
+         "type": "Person",
+         "sort-name": "Kito",
+         "type-id": "b6e035f4-3ce9-331c-97df-83397230b0df",
+         "id": "1bcc202d-afff-45f8-b348-56b8222cef7e",
+         "name": "Kito",
+         "disambiguation": "Australian dubstep producer"
+        },
+        "joinphrase": " feat. ",
+        "name": "Kito"
+       },
+       {
+        "name": "Reija Lee",
+        "joinphrase": "",
+        "artist": {
+         "country": "AU",
+         "disambiguation": "",
+         "name": "Reija Lee",
+         "sort-name": "Lee, Reija",
+         "type": "Person",
+         "type-id": "b6e035f4-3ce9-331c-97df-83397230b0df",
+         "id": "d3dbc1dc-a9ff-42bb-92b7-295b08517ca6"
+        }
+       }
+      ],
+      "first-release-date": "2010-12-20"
+     },
+     "id": "463dd2e3-166e-3882-b130-281c2a89fe5d",
+     "position": 6,
+     "title": "LFO",
+     "length": 253113
+    },
+    {
+     "title": "Nimbus",
+     "length": 320880,
+     "id": "257a46e0-6306-30a3-8bd2-257183944524",
+     "position": 7,
+     "artist-credit": [
+      {
+       "joinphrase": "",
+       "name": "Tunnidge",
+       "artist": {
+        "country": null,
+        "disambiguation": "",
+        "name": "Tunnidge",
+        "type": "Person",
+        "sort-name": "Tunnidge",
+        "id": "d4fdeb41-0ad8-43d0-ae00-15e4a271494f",
+        "type-id": "b6e035f4-3ce9-331c-97df-83397230b0df"
+       }
+      }
+     ],
+     "recording": {
+      "artist-credit": [
+       {
+        "artist": {
+         "country": null,
+         "id": "d4fdeb41-0ad8-43d0-ae00-15e4a271494f",
+         "type-id": "b6e035f4-3ce9-331c-97df-83397230b0df",
+         "type": "Person",
+         "sort-name": "Tunnidge",
+         "disambiguation": "",
+         "name": "Tunnidge"
+        },
+        "joinphrase": "",
+        "name": "Tunnidge"
+       }
+      ],
+      "id": "2b56d586-a58d-4e56-9c17-994cb8e76aa4",
+      "first-release-date": "2010-12-20",
+      "title": "Nimbus",
+      "disambiguation": "",
+      "length": 320880,
+      "video": false
+     },
+     "number": "7"
+    },
+    {
+     "recording": {
+      "first-release-date": "2010-12-20",
+      "artist-credit": [
+       {
+        "name": "Kulture",
+        "joinphrase": "",
+        "artist": {
+         "country": "GB",
+         "id": "4fdde741-92d7-4c8b-b85a-d1840e5b3aa8",
+         "type-id": "b6e035f4-3ce9-331c-97df-83397230b0df",
+         "sort-name": "Kulture",
+         "type": "Person",
+         "disambiguation": "UK producer/DJ Sam Dickison",
+         "name": "Kulture"
+        }
+       }
+      ],
+      "id": "5c0a04c4-94c9-4e6d-af60-99b14db58783",
+      "disambiguation": "",
+      "video": false,
+      "length": 282761,
+      "title": "Afterglow"
+     },
+     "number": "8",
+     "artist-credit": [
+      {
+       "joinphrase": "",
+       "name": "Kulture",
+       "artist": {
+        "id": "4fdde741-92d7-4c8b-b85a-d1840e5b3aa8",
+        "type-id": "b6e035f4-3ce9-331c-97df-83397230b0df",
+        "type": "Person",
+        "sort-name": "Kulture",
+        "name": "Kulture",
+        "disambiguation": "UK producer/DJ Sam Dickison",
+        "country": "GB"
+       }
+      }
+     ],
+     "length": 282761,
+     "title": "Afterglow",
+     "position": 8,
+     "id": "255a847f-a926-3a92-ad8b-58dc4b9f1c4d"
+    },
+    {
+     "artist-credit": [
+      {
+       "artist": {
+        "country": null,
+        "type": "Person",
+        "sort-name": "Lung",
+        "type-id": "b6e035f4-3ce9-331c-97df-83397230b0df",
+        "id": "c1090619-5f94-4cbd-99e1-344a312cdcdf",
+        "disambiguation": "producer / DJ James Ellaway",
+        "name": "Lung"
+       },
+       "name": "Lung",
+       "joinphrase": ""
+      }
+     ],
+     "number": "9",
+     "recording": {
+      "artist-credit": [
+       {
+        "name": "Lung",
+        "joinphrase": "",
+        "artist": {
+         "country": null,
+         "name": "Lung",
+         "disambiguation": "producer / DJ James Ellaway",
+         "id": "c1090619-5f94-4cbd-99e1-344a312cdcdf",
+         "type-id": "b6e035f4-3ce9-331c-97df-83397230b0df",
+         "type": "Person",
+         "sort-name": "Lung"
+        }
+       }
+      ],
+      "id": "73d6b7b1-2a6b-42b9-b92b-575774a70180",
+      "first-release-date": "2010-12-20",
+      "title": "Afterlife (Kryptic Minds remix)",
+      "disambiguation": "",
+      "video": false,
+      "length": 360674
+     },
+     "id": "682e5040-3c3f-3890-8c38-97fc02616bc6",
+     "position": 9,
+     "title": "Afterlife (Kryptic Minds remix)",
+     "length": 360674
+    },
+    {
+     "number": "10",
+     "recording": {
+      "title": "Emf",
+      "disambiguation": "",
+      "video": false,
+      "length": 331208,
+      "artist-credit": [
+       {
+        "artist": {
+         "country": null,
+         "sort-name": "Killa & Instinct",
+         "type": null,
+         "type-id": null,
+         "id": "60fab5d7-6013-4b1f-ad81-8eff313f437b",
+         "name": "Killa & Instinct",
+         "disambiguation": "collaborative effort"
+        },
+        "name": "Killa & Instinct",
+        "joinphrase": ""
+       }
+      ],
+      "id": "a5fd7e38-d268-4ba7-8cd7-0c3cc92357ff",
+      "first-release-date": "2010-12-20"
+     },
+     "artist-credit": [
+      {
+       "joinphrase": "",
+       "name": "Killa & Instinct",
+       "artist": {
+        "country": null,
+        "sort-name": "Killa & Instinct",
+        "type": null,
+        "id": "60fab5d7-6013-4b1f-ad81-8eff313f437b",
+        "type-id": null,
+        "name": "Killa & Instinct",
+        "disambiguation": "collaborative effort"
+       }
+      }
+     ],
+     "length": 331208,
+     "title": "Emf",
+     "position": 10,
+     "id": "bc763b4c-f113-3e1d-b143-902289d40dfc"
+    },
+    {
+     "artist-credit": [
+      {
+       "artist": {
+        "disambiguation": "",
+        "name": "Dark Tantrums",
+        "type-id": "b6e035f4-3ce9-331c-97df-83397230b0df",
+        "id": "04c8c653-2bbd-4391-817d-40deaadc5075",
+        "sort-name": "Dark Tantrums",
+        "type": "Person",
+        "country": "GB"
+       },
+       "joinphrase": "",
+       "name": "Dark Tantrums"
+      }
+     ],
+     "recording": {
+      "disambiguation": "",
+      "video": false,
+      "length": 305769,
+      "title": "Damage",
+      "first-release-date": "2010-12-20",
+      "artist-credit": [
+       {
+        "joinphrase": "",
+        "name": "Dark Tantrums",
+        "artist": {
+         "disambiguation": "",
+         "name": "Dark Tantrums",
+         "type-id": "b6e035f4-3ce9-331c-97df-83397230b0df",
+         "id": "04c8c653-2bbd-4391-817d-40deaadc5075",
+         "sort-name": "Dark Tantrums",
+         "type": "Person",
+         "country": "GB"
+        }
+       }
+      ],
+      "id": "04078655-78d6-44d7-a59e-fb7e6d40aa43"
+     },
+     "number": "11",
+     "title": "Damage",
+     "length": 305769,
+     "id": "d5e9dbd2-193e-3453-8b96-1e10c0b28ef5",
+     "position": 11
+    },
+    {
+     "artist-credit": [
+      {
+       "artist": {
+        "disambiguation": "",
+        "name": "Funt Case",
+        "sort-name": "Funt Case",
+        "type": null,
+        "id": "bd4fdf19-6d17-46f2-973b-01d3fdd0e4c7",
+        "type-id": null,
+        "country": null
+       },
+       "joinphrase": "",
+       "name": "Funt Case"
+      }
+     ],
+     "recording": {
+      "id": "149a5f7f-d377-4bc2-8dfa-4174e544bef9",
+      "artist-credit": [
+       {
+        "artist": {
+         "country": null,
+         "disambiguation": "",
+         "name": "Funt Case",
+         "type": null,
+         "sort-name": "Funt Case",
+         "type-id": null,
+         "id": "bd4fdf19-6d17-46f2-973b-01d3fdd0e4c7"
+        },
+        "joinphrase": "",
+        "name": "Funt Case"
+       }
+      ],
+      "first-release-date": "2010-12-20",
+      "title": "Gorilla Flex (VIP)",
+      "video": false,
+      "length": 271310,
+      "disambiguation": ""
+     },
+     "number": "12",
+     "title": "Gorilla Flex (VIP)",
+     "length": 271310,
+     "id": "32a3aaaf-e8e5-37a5-a630-90c89d18f217",
+     "position": 12
+    },
+    {
+     "position": 13,
+     "id": "39d8ebef-b5ee-3093-998e-ca92e9ca0655",
+     "length": 302396,
+     "title": "Steamroller",
+     "number": "13",
+     "recording": {
+      "id": "2e9eb706-affa-4f25-a4d7-20374a921330",
+      "artist-credit": [
+       {
+        "joinphrase": " & ",
+        "name": "Fused Forces",
+        "artist": {
+         "country": null,
+         "sort-name": "Fused Forces",
+         "type": "Group",
+         "type-id": "e431f5f6-b5d2-343d-8b36-72607fffb74b",
+         "id": "a5a63154-dabd-4bc9-beac-b79e97d24fb2",
+         "disambiguation": "",
+         "name": "Fused Forces"
+        }
+       },
+       {
+        "name": "Demon",
+        "joinphrase": "",
+        "artist": {
+         "country": "GB",
+         "type-id": "b6e035f4-3ce9-331c-97df-83397230b0df",
+         "id": "f55d9a9c-d03a-40ef-8d50-7761f1b71435",
+         "sort-name": "Demon",
+         "type": "Person",
+         "disambiguation": "UK grime artist",
+         "name": "Demon"
+        }
+       }
+      ],
+      "first-release-date": "2010-12-20",
+      "title": "Steamroller",
+      "video": false,
+      "length": 302396,
+      "disambiguation": ""
+     },
+     "artist-credit": [
+      {
+       "joinphrase": " & ",
+       "name": "Fused Forces",
+       "artist": {
+        "country": null,
+        "sort-name": "Fused Forces",
+        "type": "Group",
+        "type-id": "e431f5f6-b5d2-343d-8b36-72607fffb74b",
+        "id": "a5a63154-dabd-4bc9-beac-b79e97d24fb2",
+        "disambiguation": "",
+        "name": "Fused Forces"
+       }
+      },
+      {
+       "artist": {
+        "country": "GB",
+        "id": "f55d9a9c-d03a-40ef-8d50-7761f1b71435",
+        "type-id": "b6e035f4-3ce9-331c-97df-83397230b0df",
+        "type": "Person",
+        "sort-name": "Demon",
+        "disambiguation": "UK grime artist",
+        "name": "Demon"
+       },
+       "joinphrase": "",
+       "name": "Demon"
+      }
+     ]
+    },
+    {
+     "artist-credit": [
+      {
+       "artist": {
+        "disambiguation": "",
+        "name": "Goli",
+        "type": "Group",
+        "sort-name": "Goli",
+        "id": "0849779a-11c7-4621-8b6b-3512e8490673",
+        "type-id": "e431f5f6-b5d2-343d-8b36-72607fffb74b",
+        "country": "US"
+       },
+       "name": "Goli",
+       "joinphrase": " & "
+      },
+      {
+       "joinphrase": "",
+       "name": "Ashburner",
+       "artist": {
+        "country": "GB",
+        "disambiguation": "",
+        "name": "Ashburner",
+        "id": "c8f6d4f1-e4f6-4edc-8c65-98b3152ce904",
+        "type-id": "b6e035f4-3ce9-331c-97df-83397230b0df",
+        "type": "Person",
+        "sort-name": "Ashburner"
+       }
+      }
+     ],
+     "number": "14",
+     "recording": {
+      "video": false,
+      "length": 284565,
+      "disambiguation": "",
+      "title": "Field of Vibrations",
+      "first-release-date": "2010-12-20",
+      "id": "091ee1ee-87b5-4c0f-9484-9e5f6920b31e",
+      "artist-credit": [
+       {
+        "artist": {
+         "country": "US",
+         "type-id": "e431f5f6-b5d2-343d-8b36-72607fffb74b",
+         "id": "0849779a-11c7-4621-8b6b-3512e8490673",
+         "type": "Group",
+         "sort-name": "Goli",
+         "disambiguation": "",
+         "name": "Goli"
+        },
+        "joinphrase": " & ",
+        "name": "Goli"
+       },
+       {
+        "artist": {
+         "country": "GB",
+         "disambiguation": "",
+         "name": "Ashburner",
+         "type": "Person",
+         "sort-name": "Ashburner",
+         "id": "c8f6d4f1-e4f6-4edc-8c65-98b3152ce904",
+         "type-id": "b6e035f4-3ce9-331c-97df-83397230b0df"
+        },
+        "name": "Ashburner",
+        "joinphrase": ""
+       }
+      ]
+     },
+     "title": "Field of Vibrations",
+     "length": 284565,
+     "id": "69d053c2-7c43-34d0-a18d-b7f4881dc447",
+     "position": 14
+    },
+    {
+     "id": "06bf71a0-c15b-37e6-97d5-05550d0004c3",
+     "position": 15,
+     "title": "Cardiac Arrest",
+     "length": 360778,
+     "artist-credit": [
+      {
+       "artist": {
+        "country": "GB",
+        "type": "Person",
+        "sort-name": "Mark One",
+        "id": "ca7227bf-7be1-4f9e-844a-56bb86295103",
+        "type-id": "b6e035f4-3ce9-331c-97df-83397230b0df",
+        "disambiguation": "Mark Foster",
+        "name": "MRK1"
+       },
+       "joinphrase": "",
+       "name": "MRK1"
+      }
+     ],
+     "recording": {
+      "first-release-date": "2010-12-20",
+      "id": "1dd2cfea-aa84-4378-9a25-6c956d335e14",
+      "artist-credit": [
+       {
+        "name": "MRK1",
+        "joinphrase": "",
+        "artist": {
+         "sort-name": "Mark One",
+         "type": "Person",
+         "type-id": "b6e035f4-3ce9-331c-97df-83397230b0df",
+         "id": "ca7227bf-7be1-4f9e-844a-56bb86295103",
+         "disambiguation": "Mark Foster",
+         "name": "MRK1",
+         "country": "GB"
+        }
+       }
+      ],
+      "video": false,
+      "length": 360778,
+      "disambiguation": "",
+      "title": "Cardiac Arrest"
+     },
+     "number": "15"
+    },
+    {
+     "recording": {
+      "first-release-date": "2010-12-20",
+      "id": "6f919ecc-c20a-4043-83ec-eec2ca68054f",
+      "artist-credit": [
+       {
+        "artist": {
+         "country": null,
+         "id": "b2c6a034-2a71-4ed2-bcf8-b37d984ccd47",
+         "type-id": "e431f5f6-b5d2-343d-8b36-72607fffb74b",
+         "type": "Group",
+         "sort-name": "G Double",
+         "disambiguation": "aka G Double E",
+         "name": "G Double"
+        },
+        "joinphrase": "",
+        "name": "G Double"
+       }
+      ],
+      "length": 442716,
+      "video": false,
+      "disambiguation": "",
+      "title": "She Wants to Go"
+     },
+     "number": "16",
+     "artist-credit": [
+      {
+       "name": "G Double",
+       "joinphrase": "",
+       "artist": {
+        "disambiguation": "aka G Double E",
+        "name": "G Double",
+        "id": "b2c6a034-2a71-4ed2-bcf8-b37d984ccd47",
+        "type-id": "e431f5f6-b5d2-343d-8b36-72607fffb74b",
+        "sort-name": "G Double",
+        "type": "Group",
+        "country": null
+       }
+      }
+     ],
+     "position": 16,
+     "id": "73d5b41f-f4c9-366a-be98-f80fcafd67fa",
+     "length": 442716,
+     "title": "She Wants to Go"
+    },
+    {
+     "artist-credit": [
+      {
+       "name": "DJG",
+       "joinphrase": "",
+       "artist": {
+        "disambiguation": "Dean J. Grenier",
+        "name": "DJG",
+        "type-id": "b6e035f4-3ce9-331c-97df-83397230b0df",
+        "id": "4d8f79cf-2ce8-4db4-ac4c-27a78b75ce8c",
+        "type": "Person",
+        "sort-name": "DJG",
+        "country": null
+       }
+      }
+     ],
+     "number": "17",
+     "recording": {
+      "title": "Transparent",
+      "disambiguation": "",
+      "length": 366425,
+      "video": false,
+      "artist-credit": [
+       {
+        "joinphrase": "",
+        "name": "DJG",
+        "artist": {
+         "disambiguation": "Dean J. Grenier",
+         "name": "DJG",
+         "type": "Person",
+         "sort-name": "DJG",
+         "type-id": "b6e035f4-3ce9-331c-97df-83397230b0df",
+         "id": "4d8f79cf-2ce8-4db4-ac4c-27a78b75ce8c",
+         "country": null
+        }
+       }
+      ],
+      "id": "8f221360-6090-4c01-8b0b-7f60779acc22",
+      "first-release-date": "2010-12-20"
+     },
+     "id": "de2be693-f305-3430-9d1c-b44dd2b3fd57",
+     "position": 17,
+     "title": "Transparent",
+     "length": 366425
+    },
+    {
+     "artist-credit": [
+      {
+       "joinphrase": "",
+       "name": "Distance",
+       "artist": {
+        "country": "GB",
+        "disambiguation": "UK dubstep artist Greg Sanders",
+        "name": "Distance",
+        "type": "Person",
+        "sort-name": "Distance",
+        "id": "472bc127-8861-45e8-bc9e-31e8dd32de7a",
+        "type-id": "b6e035f4-3ce9-331c-97df-83397230b0df"
+       }
+      }
+     ],
+     "number": "18",
+     "recording": {
+      "length": 225000,
+      "video": false,
+      "disambiguation": "",
+      "title": "V (Pinch remix)",
+      "first-release-date": "2009-10-12",
+      "id": "2e2a11f9-bf90-4e66-8268-2babf857be92",
+      "artist-credit": [
+       {
+        "joinphrase": "",
+        "name": "Distance",
+        "artist": {
+         "disambiguation": "UK dubstep artist Greg Sanders",
+         "name": "Distance",
+         "sort-name": "Distance",
+         "type": "Person",
+         "type-id": "b6e035f4-3ce9-331c-97df-83397230b0df",
+         "id": "472bc127-8861-45e8-bc9e-31e8dd32de7a",
+         "country": "GB"
+        }
+       }
+      ]
+     },
+     "id": "d1bf0a47-2418-3cf8-9a5e-3494cec5d8d2",
+     "position": 18,
+     "title": "V (Pinch remix)",
+     "length": 225347
+    },
+    {
+     "id": "10c13264-d429-38ff-8ee1-51e5ae77da9e",
+     "position": 19,
+     "title": "Machines",
+     "length": 305873,
+     "artist-credit": [
+      {
+       "joinphrase": "",
+       "name": "Soap Dodgers",
+       "artist": {
+        "country": "GB",
+        "disambiguation": "Bass Music",
+        "name": "Soap Dodgers",
+        "sort-name": "Soap Dodgers",
+        "type": "Group",
+        "id": "711034f2-ad91-4470-b0e3-e99e559ef61b",
+        "type-id": "e431f5f6-b5d2-343d-8b36-72607fffb74b"
+       }
+      }
+     ],
+     "number": "19",
+     "recording": {
+      "title": "Machines",
+      "disambiguation": "",
+      "video": false,
+      "length": 305873,
+      "artist-credit": [
+       {
+        "artist": {
+         "id": "711034f2-ad91-4470-b0e3-e99e559ef61b",
+         "type-id": "e431f5f6-b5d2-343d-8b36-72607fffb74b",
+         "type": "Group",
+         "sort-name": "Soap Dodgers",
+         "name": "Soap Dodgers",
+         "disambiguation": "Bass Music",
+         "country": "GB"
+        },
+        "joinphrase": "",
+        "name": "Soap Dodgers"
+       }
+      ],
+      "id": "ff352a6e-d845-4ab4-8460-0c518b2601ea",
+      "first-release-date": "2010-12-20"
+     }
+    },
+    {
+     "artist-credit": [
+      {
+       "artist": {
+        "disambiguation": "",
+        "name": "Tunnidge",
+        "sort-name": "Tunnidge",
+        "type": "Person",
+        "type-id": "b6e035f4-3ce9-331c-97df-83397230b0df",
+        "id": "d4fdeb41-0ad8-43d0-ae00-15e4a271494f",
+        "country": null
+       },
+       "joinphrase": "",
+       "name": "Tunnidge"
+      }
+     ],
+     "recording": {
+      "disambiguation": "",
+      "length": 298788,
+      "video": false,
+      "title": "7 Breaths",
+      "first-release-date": "2010-12-20",
+      "artist-credit": [
+       {
+        "artist": {
+         "country": null,
+         "disambiguation": "",
+         "name": "Tunnidge",
+         "sort-name": "Tunnidge",
+         "type": "Person",
+         "id": "d4fdeb41-0ad8-43d0-ae00-15e4a271494f",
+         "type-id": "b6e035f4-3ce9-331c-97df-83397230b0df"
+        },
+        "joinphrase": "",
+        "name": "Tunnidge"
+       }
+      ],
+      "id": "714cd556-94e2-4039-95ee-e15ef3e98828"
+     },
+     "number": "20",
+     "title": "7 Breaths",
+     "length": 298788,
+     "id": "fb7ad68a-73f4-3f85-b8a2-1d7e727a7105",
+     "position": 20
+    },
+    {
+     "title": "Pure Dubstep Continuous Mix",
+     "length": 2991663,
+     "id": "987b7ce5-cf0e-3e9c-8300-ab32caac4ce2",
+     "position": 21,
+     "artist-credit": [
+      {
+       "artist": {
+        "country": "GB",
+        "sort-name": "DJ Darkside",
+        "type": "Person",
+        "id": "68ae9736-7284-4a7b-b382-0c2095fc4059",
+        "type-id": "b6e035f4-3ce9-331c-97df-83397230b0df",
+        "disambiguation": "UK dubstep DJ & promoter",
+        "name": "DJ Darkside"
+       },
+       "joinphrase": "",
+       "name": "DJ Darkside"
+      }
+     ],
+     "recording": {
+      "disambiguation": "",
+      "video": false,
+      "length": 2991663,
+      "title": "Pure Dubstep Continuous Mix",
+      "first-release-date": "2010-12-20",
+      "artist-credit": [
+       {
+        "artist": {
+         "disambiguation": "UK dubstep DJ & promoter",
+         "name": "DJ Darkside",
+         "type": "Person",
+         "sort-name": "DJ Darkside",
+         "id": "68ae9736-7284-4a7b-b382-0c2095fc4059",
+         "type-id": "b6e035f4-3ce9-331c-97df-83397230b0df",
+         "country": "GB"
+        },
+        "name": "DJ Darkside",
+        "joinphrase": ""
+       }
+      ],
+      "id": "e6f36d32-8d89-4622-b4ed-3cf4a219bc1f"
+     },
+     "number": "21"
+    }
+   ],
+   "format": "Digital Media",
+   "track-offset": 0,
+   "title": "",
+   "position": 1,
+   "track-count": 21,
+   "format-id": "907a28d9-b3b2-3ef6-89a8-7b18d91d4794",
+   "id": "cfdd9d0b-2cb2-3751-9014-081613ceecca"
+  }
+ ],
+ "status-id": "4e304316-386d-3409-af2e-78857eec5cfe",
+ "release-events": [
+  {
+   "date": "2010-12-20",
+   "area": {
+    "sort-name": "[Worldwide]",
+    "type": null,
+    "id": "525d4e18-3d00-31b9-a58b-a146a916de8f",
+    "type-id": null,
+    "name": "[Worldwide]",
+    "disambiguation": "",
+    "iso-3166-1-codes": [
+     "XW"
+    ]
+   }
+  }
+ ],
+ "label-info": [
+  {
+   "label": {
+    "label-code": null,
+    "disambiguation": "",
+    "name": "GetDarker",
+    "type-id": "7aaa37fe-2def-3476-b359-80245850062d",
+    "id": "b46ca20b-dbd9-4df7-9413-e6d686f1ef99",
+    "type": "Original Production",
+    "sort-name": "GetDarker"
+   },
+   "catalog-number": "GD004DD"
+  }
+ ],
+ "artist-credit": [
+  {
+   "joinphrase": "",
+   "name": "Various Artists",
+   "artist": {
+    "country": null,
+    "disambiguation": "add compilations to this artist",
+    "name": "Various Artists",
+    "type-id": "ac897045-5043-3294-969b-187360e45d86",
+    "id": "89ad4ac3-39f7-470e-963a-56509c546377",
+    "sort-name": "Various Artists",
+    "type": "Other"
+   }
+  }
+ ],
+ "packaging-id": "119eba76-b343-3e02-a292-f0f00644bb9b",
+ "packaging": "None"
+}

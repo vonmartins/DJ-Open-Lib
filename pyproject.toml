@@ -1,0 +1,85 @@
+[project]
+name = "tunedex"
+version = "0.1.0"
+description = "Free, local-first, scriptable DJ library manager."
+readme = "README.md"
+authors = [{ name = "VonMartins" }]
+license = "GPL-3.0-or-later"
+license-files = ["LICENSE"]
+requires-python = ">=3.11"
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Environment :: Console",
+    "Intended Audience :: End Users/Desktop",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+    "Topic :: Multimedia :: Sound/Audio",
+]
+dependencies = [
+    "mutagen>=1.48.1",
+    "pyyaml>=6.0.2",
+    "rich>=15.0.0",
+    "send2trash>=1.8.3",
+    "typer>=0.27.3",
+]
+
+[project.urls]
+Documentation = "https://vonmartins.github.io/tunedex/"
+Repository = "https://github.com/vonmartins/tunedex"
+Changelog = "https://github.com/vonmartins/tunedex/blob/main/CHANGELOG.md"
+Issues = "https://github.com/vonmartins/tunedex/issues"
+
+[project.scripts]
+tunedex = "tunedex.cli:main"
+
+[build-system]
+requires = ["uv_build>=0.12.21,<0.13.0"]
+build-backend = "uv_build"
+
+[dependency-groups]
+dev = [
+    "hypothesis>=6.170.9",
+    "pre-commit>=4.7.0",
+    "pyright>=1.1.414",
+    "pytest>=9.1.1",
+    "ruff>=0.17.2",
+    "types-pyyaml>=6.0.12.20260906",
+]
+docs = [
+    "mkdocstrings-python>=2.0.10",
+    "zensical>=0.0.73",
+]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+src = ["src", "tests", "scripts"]
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "UP", "B", "SIM", "RUF", "PTH", "S"]
+
+[tool.ruff.lint.per-file-ignores]
+# Tests use assert and run the CLI through subprocess.
+"tests/**" = ["S"]
+# SQL text is composed only from module constants; values are always bound parameters.
+"src/tunedex/store/repository.py" = ["S608"]
+"src/tunedex/adapters/mixxx/writer.py" = ["S608"]
+
+[tool.pyright]
+include = ["src", "tests", "scripts"]
+pythonVersion = "3.11"
+typeCheckingMode = "standard"
+strict = ["src"]
+venvPath = "."
+venv = ".venv"
+extraPaths = ["src", "tests", "scripts"]
+
+[tool.pytest.ini_options]
+addopts = ["--import-mode=importlib", "--strict-markers", "--strict-config"]
+testpaths = ["tests"]
+pythonpath = ["tests", "scripts"]

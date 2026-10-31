@@ -1,0 +1,25 @@
+fix: split_artist_title
+change:
+  - {track: {title: "Sam Paganini - Galaxy", path: "/music/Sam Paganini - Galaxy [www.slider.kz].mp3"}, expected: {artist: Sam Paganini, title: Galaxy}, why: artist in the title}
+  - {track: {title: "UMEK - Predator", path: "/music/umek_-_predator.mp3"}, expected: {artist: UMEK, title: Predator}, why: file name with underscores and other case}
+  - {track: {title: "Evil Jokes, MoonyMan - I Am Maniac", path: "/music/Evil Jokes, MoonyMan - I Am Maniac.mp3"}, expected: {artist: "Evil Jokes, MoonyMan", title: I Am Maniac}, why: several artists}
+  - {"track": {"title": "Soulwax - NY Lipps", "path": "/music/Soulwax - NY Lipps [www.slider.kz].mp3"}, "expected": {"artist": "Soulwax", "title": "NY Lipps"}, "why": "real case"}
+  - {"track": {"title": "Ken Ishii - Escape (Industrialyzer Remix I)", "path": "/music/Ken Ishii - Escape (Industrialyzer Remix I) [www.slider.kz].mp3"}, "expected": {"artist": "Ken Ishii", "title": "Escape (Industrialyzer Remix I)"}, "why": "real case"}
+  - {"track": {"title": "TRIBAL REFLECTIONS - MACKITEK 34 - A1", "path": "/music/TRIBAL REFLECTIONS - MACKITEK 34 - A1.mp3"}, "expected": {"artist": "TRIBAL REFLECTIONS", "title": "MACKITEK 34 - A1"}, "why": "real case"}
+  - {"track": {"title": "T-Menace & Gamm@ - All I Ever Wanted", "path": "/music/T-Menace & Gamm@ - All I Ever Wanted.mp3"}, "expected": {"artist": "T-Menace & Gamm@", "title": "All I Ever Wanted"}, "why": "real case"}
+  - {"track": {"title": "Alix Perez - BXL", "path": "/music/Alix Perez - BXL.mp3"}, "expected": {"artist": "Alix Perez", "title": "BXL"}, "why": "real case"}
+  - {"track": {"title": "Erykah Badu - On and On (Khainz & Clari Ann Bootleg mix)", "path": "/music/Erykah Badu - On and On (Khainz & Clari Ann Bootleg mix)_ [www.slider.kz].mp3"}, "expected": {"artist": "Erykah Badu", "title": "On and On (Khainz & Clari Ann Bootleg mix)"}, "why": "real case"}
+  - {"track": {"title": "Dani Villa, Cabreira, Rodri Vegas - Borgonegro", "path": "/music/Dani Villa, Cabreira, Rodri Vegas - Borgonegro [www.slider.kz].mp3"}, "expected": {"artist": "Dani Villa, Cabreira, Rodri Vegas", "title": "Borgonegro"}, "why": "real case"}
+  - {"track": {"title": "Federico Scavo feat Simone - Pra Nao Dizer Que Nao Falei Das Flores", "path": "/music/Federico Scavo feat Simone - Pra Nao Dizer Que Nao Falei Das Flores.mp3"}, "expected": {"artist": "Federico Scavo feat Simone", "title": "Pra Nao Dizer Que Nao Falei Das Flores"}, "why": "real case"}
+keep:
+  - {track: {artist: Pryda, title: "Opus - Live Edit", path: "/music/Pryda - Opus - Live Edit.mp3"}, why: artist present}
+  - {track: {title: "[BREAKS] Skool of Thought - Life", path: "/music/[BREAKS] Skool of Thought - Life.mp3"}, why: label prefix}
+  - {track: {title: "#DMR071 Evil Jokes - I Am Maniac", path: "/music/#DMR071 Evil Jokes - I Am Maniac.mp3"}, why: catalogue prefix}
+  - {track: {title: "Song - Live at Wembley", path: "/music/track07.mp3"}, why: the file name does not agree}
+  - {track: {title: "13 - (CUE 3.00) Astrix - Agate", path: "/music/12 - (CUE 3.00) Astrix - Agate.mp3"}, why: a different number in the file name}
+  - {track: {title: " - Galaxy", path: "/music/ - Galaxy.mp3"}, why: empty artist part}
+  - {track: {title: "Galaxy", path: "/music/Galaxy.mp3"}, why: no separator}
+  - {track: {title: "Galaxy - ", path: "/music/Galaxy - .mp3"}, why: empty title part}
+  - {track: {title: "(Intro) Artist - Song", path: "/music/(Intro) Artist - Song.mp3"}, why: parenthesis prefix}
+  - {track: {title: "Here - There", path: "/music/Elsewhere - There.mp3"}, why: the file name names another artist}
+  - {track: {artist: "", title: "A-B", path: "/music/A-B.mp3"}, why: no spaced dash}

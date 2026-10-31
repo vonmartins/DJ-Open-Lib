@@ -1,0 +1,22 @@
+{
+ "results": [
+  {
+   "id": "fb13bd13-8442-474e-a33e-f3e7aff7ff39",
+   "recordings": [
+    {
+     "artists": [
+      {
+       "id": "e5107db6-ed66-4118-a239-e71121a56c9e",
+       "name": "Nanobyte"
+      }
+     ],
+     "duration": 305.0,
+     "id": "82eaaf51-321f-4cc6-9fc0-ec55f637d2fc",
+     "title": "Tek-1"
+    }
+   ],
+   "score": 0.99198973
+  }
+ ],
+ "status": "ok"
+}

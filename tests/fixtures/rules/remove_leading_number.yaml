@@ -1,0 +1,28 @@
+fix: remove_leading_number
+change:
+  - {in: "03 - Glue", out: "Glue", why: zero-padded number and dash}
+  - {in: "01. Glue", out: "Glue", why: zero-padded number and dot}
+  - {in: "07) Glue", out: "Glue", why: zero-padded number and parenthesis}
+  - {in: "09 – Glue", out: "Glue", why: en dash}
+  - {in: "05 -  Glue", out: "Glue", why: extra spaces after the separator}
+  - {in: "02 - Ñandú", out: "Ñandú", why: accented first letter}
+  - {in: "04 - Группа крови", out: "Группа крови", why: Cyrillic}
+  - {track: {title: "1) Glue", track_number: 1}, expected: {title: "Glue"}, why: unpadded when it is the track number}
+  - {track: {title: "12. Glue", track_number: 12}, expected: {title: "Glue"}, why: two digits matching the track number}
+  - {track: {title: "123 - Glue", track_number: 123}, expected: {title: "Glue"}, why: three digits matching}
+  - {in: "1156882 Welcome To The Game", out: "Welcome To The Game", why: store id}
+keep:
+  - {in: "6.13", why: the number is the title}
+  - {in: "1979", why: a year as title}
+  - {in: "4 - 3 - 2 - 1", why: the rest starts with a digit}
+  - {in: "99 Problems", why: no separator}
+  - {in: "1979 - The Year", why: four digits}
+  - {in: "007 - Licence", why: three-digit padded number}
+  - {in: "10. Love", why: unpadded and no matching track number}
+  - {in: "2 + 2 = 5", why: arithmetic}
+  - {in: "01 Monday", why: no separator}
+  - {in: "1-2-3", why: no space after the separator}
+  - {in: "24/7", why: slash}
+  - {track: {title: "3. Glue", track_number: 4}, why: number differs from the track number}
+  - {in: "1999 Remix", why: a year}
+  - {in: "12345 Cats", why: five digits}

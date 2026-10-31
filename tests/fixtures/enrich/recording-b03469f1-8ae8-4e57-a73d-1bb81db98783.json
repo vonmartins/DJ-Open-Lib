@@ -1,0 +1,231 @@
+{
+ "artist-credit": [
+  {
+   "name": "DFRNT",
+   "joinphrase": "",
+   "artist": {
+    "type-id": "b6e035f4-3ce9-331c-97df-83397230b0df",
+    "disambiguation": "",
+    "country": "GB",
+    "name": "DFRNT",
+    "id": "33649b4e-9886-4b3f-869f-71e1448f371e",
+    "genres": [
+     {
+      "name": "dance",
+      "count": 1,
+      "id": "e5bba957-8c91-496a-a675-c6d0c6b51c33",
+      "disambiguation": ""
+     },
+     {
+      "name": "dub techno",
+      "count": 2,
+      "disambiguation": "",
+      "id": "16aab171-3dce-454e-bb96-2636f15813fc"
+     }
+    ],
+    "type": "Person",
+    "sort-name": "DFRNT"
+   }
+  }
+ ],
+ "isrcs": [],
+ "first-release-date": "2009-09",
+ "genres": [],
+ "title": "Headspace (Scuba remix)",
+ "video": false,
+ "relations": [],
+ "disambiguation": "",
+ "releases": [
+  {
+   "title": "Metafiction",
+   "genres": [],
+   "packaging-id": null,
+   "status-id": "4e304316-386d-3409-af2e-78857eec5cfe",
+   "packaging": null,
+   "artist-credit": [
+    {
+     "joinphrase": "",
+     "name": "DFRNT",
+     "artist": {
+      "type": "Person",
+      "sort-name": "DFRNT",
+      "id": "33649b4e-9886-4b3f-869f-71e1448f371e",
+      "genres": [
+       {
+        "id": "e5bba957-8c91-496a-a675-c6d0c6b51c33",
+        "disambiguation": "",
+        "count": 1,
+        "name": "dance"
+       },
+       {
+        "count": 2,
+        "disambiguation": "",
+        "id": "16aab171-3dce-454e-bb96-2636f15813fc",
+        "name": "dub techno"
+       }
+      ],
+      "country": "GB",
+      "name": "DFRNT",
+      "type-id": "b6e035f4-3ce9-331c-97df-83397230b0df",
+      "disambiguation": ""
+     }
+    }
+   ],
+   "id": "98efe856-2747-4ffc-845a-8f7e97cd6afa",
+   "status": "Official",
+   "text-representation": {
+    "language": "eng",
+    "script": "Latn"
+   },
+   "release-events": [
+    {
+     "date": "2009-09",
+     "area": {
+      "type-id": null,
+      "iso-3166-1-codes": [
+       "GB"
+      ],
+      "disambiguation": "",
+      "name": "United Kingdom",
+      "id": "8a754a16-0027-3a29-b6d7-2b40ea0481ed",
+      "sort-name": "United Kingdom",
+      "type": null
+     }
+    }
+   ],
+   "date": "2009-09",
+   "disambiguation": "",
+   "barcode": "5050693239121",
+   "quality": "normal",
+   "country": "GB"
+  },
+  {
+   "country": "XW",
+   "quality": "normal",
+   "barcode": "",
+   "disambiguation": "",
+   "date": "2009-10-27",
+   "release-events": [
+    {
+     "area": {
+      "name": "[Worldwide]",
+      "disambiguation": "",
+      "type-id": null,
+      "iso-3166-1-codes": [
+       "XW"
+      ],
+      "sort-name": "[Worldwide]",
+      "type": null,
+      "id": "525d4e18-3d00-31b9-a58b-a146a916de8f"
+     },
+     "date": "2009-10-27"
+    }
+   ],
+   "text-representation": {
+    "script": "Latn",
+    "language": "eng"
+   },
+   "status": "Official",
+   "id": "32988694-b75b-41f7-a305-57534cdcce24",
+   "artist-credit": [
+    {
+     "artist": {
+      "disambiguation": "",
+      "type-id": "b6e035f4-3ce9-331c-97df-83397230b0df",
+      "name": "DFRNT",
+      "country": "GB",
+      "genres": [
+       {
+        "count": 1,
+        "id": "e5bba957-8c91-496a-a675-c6d0c6b51c33",
+        "disambiguation": "",
+        "name": "dance"
+       },
+       {
+        "count": 2,
+        "disambiguation": "",
+        "id": "16aab171-3dce-454e-bb96-2636f15813fc",
+        "name": "dub techno"
+       }
+      ],
+      "id": "33649b4e-9886-4b3f-869f-71e1448f371e",
+      "sort-name": "DFRNT",
+      "type": "Person"
+     },
+     "joinphrase": "",
+     "name": "DFRNT"
+    }
+   ],
+   "packaging": "None",
+   "status-id": "4e304316-386d-3409-af2e-78857eec5cfe",
+   "packaging-id": "119eba76-b343-3e02-a292-f0f00644bb9b",
+   "title": "Headspace",
+   "genres": [
+    {
+     "count": 1,
+     "disambiguation": "",
+     "id": "1b50083b-1afa-4778-82c8-548b309af783",
+     "name": "dubstep"
+    },
+    {
+     "name": "electronic",
+     "count": 1,
+     "id": "89255676-1f14-4dd8-bbad-fca839d6aff4",
+     "disambiguation": ""
+    }
+   ]
+  },
+  {
+   "status-id": "4e304316-386d-3409-af2e-78857eec5cfe",
+   "packaging-id": "119eba76-b343-3e02-a292-f0f00644bb9b",
+   "packaging": "None",
+   "artist-credit": [
+    {
+     "joinphrase": "",
+     "name": "Various Artists",
+     "artist": {
+      "type-id": "ac897045-5043-3294-969b-187360e45d86",
+      "disambiguation": "add compilations to this artist",
+      "country": null,
+      "name": "Various Artists",
+      "id": "89ad4ac3-39f7-470e-963a-56509c546377",
+      "genres": [],
+      "type": "Other",
+      "sort-name": "Various Artists"
+     }
+    }
+   ],
+   "genres": [],
+   "title": "Lost In Deep",
+   "disambiguation": "",
+   "barcode": null,
+   "quality": "normal",
+   "country": "XW",
+   "status": "Official",
+   "id": "95044568-0618-46fd-8a42-79a7077e47e4",
+   "text-representation": {
+    "language": null,
+    "script": "Latn"
+   },
+   "release-events": [
+    {
+     "date": "2016-07-01",
+     "area": {
+      "type-id": null,
+      "iso-3166-1-codes": [
+       "XW"
+      ],
+      "disambiguation": "",
+      "name": "[Worldwide]",
+      "id": "525d4e18-3d00-31b9-a58b-a146a916de8f",
+      "type": null,
+      "sort-name": "[Worldwide]"
+     }
+    }
+   ],
+   "date": "2016-07-01"
+  }
+ ],
+ "id": "b03469f1-8ae8-4e57-a73d-1bb81db98783",
+ "length": 370880
+}
