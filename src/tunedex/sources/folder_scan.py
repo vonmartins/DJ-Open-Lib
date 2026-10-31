@@ -71,17 +71,17 @@ def discover(
     ``progress`` is told the number of files found every 250 files and at the end.
     """
     if progress is None:
-        yield from _walk(root, warnings)
+        yield from _walk(root, warnings, set())
         return
     count = 0
-    for count, found in enumerate(_walk(root, warnings), start=1):
+    for count, found in enumerate(_walk(root, warnings, set()), start=1):
         if count % _PROGRESS_EVERY == 0:
             progress(count)
         yield found
     progress(count)
 
 
-def _walk(root: Path, warnings: list[str]) -> Iterator[_Found]:
+def _walk(root: Path, warnings: list[str], seen: set[str]) -> Iterator[_Found]:
     try:
         entries = sorted(os.scandir(root), key=lambda e: e.name)
     except OSError as error:
@@ -98,10 +98,18 @@ def _walk(root: Path, warnings: list[str]) -> Iterator[_Found]:
         path = Path(entry.path)
         try:
             if entry.is_dir(follow_symlinks=False):
-                yield from _walk(path, warnings)
+                yield from _walk(path, warnings, seen)
             elif path.suffix.lower() in AUDIO_EXTENSIONS and entry.is_file():
+                normalized = normalize_path(str(path))
+                if normalized in seen:  # the same name in another Unicode form
+                    warnings.append(
+                        f"skipped {path}: another file has the same name in a different "
+                        "Unicode form; rename it to scan it"
+                    )
+                    continue
+                seen.add(normalized)
                 stat = entry.stat()
-                yield _Found(path, normalize_path(str(path)), stat.st_size, stat.st_mtime_ns)
+                yield _Found(path, normalized, stat.st_size, stat.st_mtime_ns)
         except OSError as error:
             warnings.append(f"{path}: cannot read ({error})")
 

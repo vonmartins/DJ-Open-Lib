@@ -15,6 +15,7 @@ def scan(
     apply: _options.Apply = False,
     yes: _options.Yes = False,
     as_json: _options.Json = False,
+    _no_color: _options.NoColor = False,
 ) -> None:
     """Add, update, move and mark missing the tracks of a music folder.
 

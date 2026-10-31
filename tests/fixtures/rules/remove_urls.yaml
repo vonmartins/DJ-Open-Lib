@@ -13,6 +13,7 @@ change:
   - {in: "Cyb_Orc_Sunchase_320__(freebeats.com)", out: "Cyb_Orc_Sunchase_320", why: file-name title with a site}
   - {track: {artist: "DJ Name (djname.com)", title: "X"}, expected: {artist: "DJ Name"}, why: applies to artists}
   - {track: {album: "Mixtape www.mixtapes.net", title: "X"}, expected: {album: "Mixtape"}, why: applies to albums}
+  - {in: "[HARDT] DJ Lhasa - No Controles my-free-mp3s.com", out: "[HARDT] DJ Lhasa - No Controles", why: bare domain at the end}
 keep:
   - {in: "Glue (Downloaded from music.blog.co.uk)", why: a domain inside a longer phrase is not a bare domain}
   - {in: "Dot Com Blues", why: words, not a domain}
@@ -28,3 +29,5 @@ keep:
   - {in: "D.A.N.C.E.", why: dotted letters}
   - {in: "3.14159", why: decimal number}
   - {in: "v2.0", why: version}
+  - {in: "Glue.com", why: domain without a space before it}
+  - {in: "Mr. Oizo - Flat Beat", why: a dot that is not a domain}

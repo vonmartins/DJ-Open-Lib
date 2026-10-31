@@ -41,13 +41,41 @@ class Disagreement:
     found: str
 
 
-Outcome = Identified | Unresolved | NotRecognized | Unlinked | Disagreement
+@dataclass(frozen=True, slots=True)
+class Mismatch:
+    """AcoustID's recording does not fit the track's artist, title or file name."""
+
+    candidate: Candidate
+
+
+Outcome = Identified | Unresolved | NotRecognized | Unlinked | Disagreement | Mismatch
+
+# Words that say nothing about which song a track is.
+_STOP_WORDS = frozenset(
+    {
+        "original", "mix", "remix", "edit", "extended", "feat", "the", "and", "version",
+        "vip", "dub", "radio", "club", "rmx", "mp3", "wav", "flac", "remastered", "official",
+        "video", "audio", "free", "download", "www", "com",
+    }
+)  # fmt: skip
+_WORD = re.compile(r"[^\W_]{3,}")
 
 
 def comparable(title: str | None) -> str:
     """A title without bracketed parts, case or punctuation, to compare titles."""
     text = _BRACKETS.sub(" ", unicodedata.normalize("NFKC", title or "")).casefold()
     return "".join(c for c in text if c.isalnum())
+
+
+def words(*texts: str | None) -> set[str]:
+    """The telling words of ``texts``: three or more letters or digits, without case,
+    accents or stop words."""
+    found: set[str] = set()
+    for text in texts:
+        plain = unicodedata.normalize("NFKD", unicodedata.normalize("NFKC", text or ""))
+        plain = "".join(c for c in plain if not unicodedata.combining(c)).casefold()
+        found.update(w for w in _WORD.findall(plain) if w not in _STOP_WORDS)
+    return found
 
 
 def identify(
@@ -57,10 +85,14 @@ def identify(
     title: str | None,
     carried_id: str | None,
     first_release: Callable[[str], str | None],
+    artist: str | None = None,
+    file_name: str | None = None,
 ) -> Outcome:
     """Which recording the track is.
 
-    ``first_release`` gives a recording's earliest official release date.
+    ``first_release`` gives a recording's earliest official release date. A recording
+    that does not fit the track's ``title``, ``artist`` or ``file_name`` (see ``agrees``)
+    is a ``Mismatch``.
     """
     candidates = [c for c in lookup.candidates if c.score >= MIN_SCORE]
     if not candidates:
@@ -72,7 +104,28 @@ def identify(
         return Unresolved(tuple(candidates[:5]))
     if carried_id and carried_id != chosen.recording_id:
         return Disagreement(carried_id, chosen.recording_id)
+    if carried_id is None and not agrees(chosen, title=title, artist=artist, file_name=file_name):
+        return Mismatch(chosen)
     return Identified(chosen.recording_id, chosen.score)
+
+
+def agrees(
+    candidate: Candidate, *, title: str | None, artist: str | None, file_name: str | None
+) -> bool:
+    """Whether a recording fits what the track says about itself.
+
+    A track with an artist (in its tags, or before `` - `` in its file name) must share
+    a word with the recording's artist. Otherwise its title or file name must share one
+    with the recording's title, without bracketed parts, or artist. A track with no
+    words at all fits any recording.
+    """
+    named, sep, rest = (file_name or "").partition(" - ")
+    own_artist = words(artist) or (words(named) if sep else set())
+    if own_artist:
+        return bool(own_artist & words(candidate.artist))
+    own = words(title, rest if sep else file_name)
+    found = words(_BRACKETS.sub(" ", candidate.title or ""), candidate.artist)
+    return not own or bool(own & found)
 
 
 def _choose(

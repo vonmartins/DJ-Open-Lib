@@ -37,6 +37,7 @@ def m3u(
     apply: _options.Apply = False,
     yes: _options.Yes = False,
     as_json: _options.Json = False,
+    _no_color: _options.NoColor = False,
 ) -> None:
     """Write the library's playlists as M3U8 files under a folder.
 
@@ -76,6 +77,7 @@ def mixxx(
     apply: _options.Apply = False,
     yes: _options.Yes = False,
     as_json: _options.Json = False,
+    _no_color: _options.NoColor = False,
 ) -> None:
     """Write the library to a Mixxx library. Quit Mixxx first.
 

@@ -20,7 +20,7 @@ Only tunedex's library changes. Audio files are never touched, and later scans a
 
 ## The bundled fixes
 
-They remove URLs and video ids from titles, fill missing titles from file names, repair broken characters, move `feat.` guests to the artist and find remixers. All but `fix_case` are on by default. The [rules reference](../reference/rules.md#fixes) lists each one with examples.
+They remove URLs and video ids from titles, fill missing titles from file names, split `Artist - Title` titles, repair broken characters, move `feat.` guests to the artist, find remixers and clear iTunes data from comments. All but `fix_case` are on by default. The [rules reference](../reference/rules.md#fixes) lists each one with examples.
 
 ## Your own rules
 

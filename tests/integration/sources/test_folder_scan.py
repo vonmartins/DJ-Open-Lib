@@ -1,6 +1,7 @@
 import dataclasses
 import datetime
 import os
+import sys
 from pathlib import Path
 
 import pytest
@@ -274,3 +275,16 @@ def test_changed_file_that_was_missing_becomes_present(store: Store, music: Path
     assert any(isinstance(op, UpdateTrack | RefreshState) for op in plan.operations)
     state = store.file_state(track.id)
     assert state is not None and not state.missing
+
+
+@pytest.mark.skipif(sys.platform != "linux", reason="macOS file systems fold Unicode forms")
+def test_names_in_two_unicode_forms_apply(store: Store, tmp_path: Path) -> None:
+    root = tmp_path / "music"
+    composed = tagged_copy(root, "mp3", name="Tåglek.mp3", title="Tåglek")
+    (root / "Tåglek.mp3").write_bytes(composed.read_bytes())
+
+    plan = scan_and_apply(store, root)
+
+    assert kinds(plan) == ["AddTrack"]
+    assert len(store.list_tracks()) == 1
+    assert any("Unicode form" in w for w in plan.warnings)

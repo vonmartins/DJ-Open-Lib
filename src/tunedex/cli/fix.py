@@ -34,6 +34,7 @@ def fix(
     apply: _options.Apply = False,
     yes: _options.Yes = False,
     as_json: _options.Json = False,
+    _no_color: _options.NoColor = False,
 ) -> None:
     """Clean the tags of the library's tracks with the bundled fixes and your rules.
 

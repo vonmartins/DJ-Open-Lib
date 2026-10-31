@@ -47,6 +47,7 @@ def list_tracks(
         bool, typer.Option("--missing", help="Only tracks whose file is not on this computer.")
     ] = False,
     as_json: _options.Json = False,
+    _no_color: _options.NoColor = False,
 ) -> None:
     """List the library's tracks, one per line, by artist and title.
 
@@ -149,6 +150,7 @@ def show(
         ),
     ],
     as_json: _options.Json = False,
+    _no_color: _options.NoColor = False,
 ) -> None:
     """Show everything tunedex knows about one track.
 
@@ -210,7 +212,9 @@ def _track_text(view: query.TrackView) -> list[list[Line]]:
     return lines
 
 
-def playlists(ctx: typer.Context, as_json: _options.Json = False) -> None:
+def playlists(
+    ctx: typer.Context, as_json: _options.Json = False, _no_color: _options.NoColor = False
+) -> None:
     """Show the playlist tree, with the number of tracks of each playlist.
 
     Example: tunedex playlists

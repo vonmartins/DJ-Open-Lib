@@ -53,6 +53,17 @@ def test_non_utf8_name_skipped(tmp_path: Path) -> None:
     assert len(warnings) == 1 and "bad\\xff.mp3" in warnings[0]
 
 
+@pytest.mark.skipif(sys.platform != "linux", reason="macOS file systems fold Unicode forms")
+def test_name_in_another_unicode_form_skipped(tmp_path: Path) -> None:
+    composed = tagged_copy(tmp_path, "mp3", name="T\u00e5glek.mp3")
+    (tmp_path / "Ta\u030aglek.mp3").write_bytes(composed.read_bytes())
+
+    names, warnings = found_names(tmp_path)
+
+    assert len(names) == 1
+    assert len(warnings) == 1 and "Unicode form" in warnings[0]
+
+
 def test_quick_hash_small_and_large_files(tmp_path: Path) -> None:
     small = tmp_path / "small"
     small.write_bytes(b"a" * 100)

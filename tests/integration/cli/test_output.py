@@ -50,6 +50,22 @@ def test_no_color_option_wins(tmp_path: Path, music: Path) -> None:
     assert "\x1b" not in result.stdout
 
 
+@pytest.mark.parametrize("command", [["scan", "MUSIC"], ["list"], ["import", "beets", "LIB"]])
+def test_no_color_after_the_command(tmp_path: Path, music: Path, command: list[str]) -> None:
+    home = tmp_path / "home"
+    tunedex(home, "scan", str(music), "--apply", "--yes", color=False)
+    beets = tmp_path / "library.db"
+    beets.write_bytes(b"")
+    arguments = [str(music) if a == "MUSIC" else str(beets) if a == "LIB" else a for a in command]
+
+    result = runner.invoke(
+        app, ["--home", str(home), *arguments, "--no-color"], env={"FORCE_COLOR": "1"}
+    )
+
+    assert "No such option" not in result.output
+    assert "\x1b" not in result.output
+
+
 @pytest.mark.parametrize(
     "command", [["scan", "MUSIC"], ["list"], ["dupes"], ["status"], ["playlists"], ["fix"]]
 )
