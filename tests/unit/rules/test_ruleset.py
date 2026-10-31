@@ -201,6 +201,12 @@ def test_second_run_changes_nothing() -> None:
             "unknown field 't'",
         ),
         ("colors: {}", "unknown sections: colors"),
+        (
+            "rename: {pattern: '{artist} - {name}'}",
+            "rename: pattern '{artist} - {name}': unknown field 'name'",
+        ),
+        ("rename: '{artist}'", "rename: expected a mapping with a pattern"),
+        ("rename: {pattern: '{title}', case: upper}", "rename: expected a mapping with a pattern"),
         ("rules: {}", "rules: expected a list"),
         ("- a\n- b", "expected a mapping"),
     ],
@@ -248,3 +254,11 @@ def test_load_from_a_file(tmp_path: Path) -> None:
         load(path)
     with pytest.raises(RuleError, match="cannot read"):
         load(tmp_path / "missing.yaml")
+
+
+def test_rename_pattern() -> None:
+    ruleset = parse(yaml.safe_load("rename: {pattern: '{artist} - {title} [{year}]'}"))
+    assert ruleset.rename is not None
+    assert ruleset.rename.fields == ("artist", "title", "year")
+    assert ruleset.only(["remove_urls"]).rename == ruleset.rename
+    assert parse(yaml.safe_load("fixes: {}")).rename is None

@@ -16,8 +16,10 @@ from tunedex.cli.dupes import dupes
 from tunedex.cli.enrich import enrich
 from tunedex.cli.fix import fix
 from tunedex.cli.relocate import relocate
+from tunedex.cli.rename import rename
 from tunedex.cli.scan import scan
 from tunedex.cli.status import status
+from tunedex.cli.write_tags import write_tags
 from tunedex.home import Home, resolve_home
 
 LIBRARY, TAGS, APPS, SAFETY = "Library", "Change tags", "Other apps", "Safety"
@@ -42,6 +44,8 @@ app.command(rich_help_panel=LIBRARY)(relocate)
 app.command(rich_help_panel=TAGS)(fix)
 app.command(rich_help_panel=TAGS)(enrich)
 app.command(rich_help_panel=TAGS)(dupes)
+app.command("write-tags", rich_help_panel=TAGS)(write_tags)
+app.command(rich_help_panel=TAGS)(rename)
 app.add_typer(imports.app, name="import", rich_help_panel=APPS)
 app.add_typer(export.app, name="export", rich_help_panel=APPS)
 app.add_typer(snapshot.app, name="snapshot", rich_help_panel=SAFETY)

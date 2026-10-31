@@ -71,8 +71,8 @@ def restore(
 ) -> None:
     """Put the files of a target back as they were in a snapshot.
 
-    Shows the files it would put back or remove; --apply restores them. The current
-    state is saved in a new snapshot first, so a restore can be undone.
+    Shows the files it would put back, remove or rename back; --apply restores them.
+    The current state is saved in a new snapshot first, so a restore can be undone.
 
     Example: tunedex snapshot restore library 000012-20261029T120000Z --apply
     """
@@ -85,6 +85,7 @@ def restore(
             _console.echo_lines(
                 [
                     (heading, "heading"),
+                    *((f"  rename {r.new} → {r.old}", "moved") for r in reversed(snapshot.renames)),
                     *(
                         (f"  put back {r.path}", "updated")
                         if r.present
@@ -130,6 +131,7 @@ def _restore_json(
             {"path": r.path, "action": "put_back" if r.present else "remove"}
             for r in snapshot.files
         ],
+        "renames": [{"from": r.new, "to": r.old} for r in reversed(snapshot.renames)],
     }
     if result is not None:
         document["result"] = result

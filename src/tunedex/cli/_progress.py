@@ -59,17 +59,18 @@ class FolderProgress(_Shown):
 
 
 class StepProgress(_Shown):
-    """A bar with how many tracks were enriched out of how many."""
+    """A bar with how many items were done out of how many: tracks enriched, by default."""
 
-    def __init__(self) -> None:
+    def __init__(self, doing: str = "Enriching", items: str = "tracks") -> None:
         super().__init__(
-            TextColumn("Enriching"),
+            TextColumn(doing),
             BarColumn(),
             MofNCompleteColumn(),
-            TextColumn("tracks"),
+            TextColumn(items),
             TaskProgressColumn(),
             TimeElapsedColumn(),
         )
+        self._doing = doing
 
     def __call__(self, done: int, total: int) -> None:
-        self._show("Enriching", completed=done, total=total)
+        self._show(self._doing, completed=done, total=total)

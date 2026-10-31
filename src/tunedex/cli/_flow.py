@@ -11,7 +11,7 @@ import typer
 
 from tunedex.adapters.errors import AdapterError
 from tunedex.cli import _console
-from tunedex.cli._progress import FolderProgress
+from tunedex.cli._progress import FolderProgress, StepProgress
 from tunedex.enrich import EnrichError
 from tunedex.home import Home
 from tunedex.model.unmapped import JSONValue
@@ -26,6 +26,7 @@ from tunedex.planning import (
     assume_yes,
     to_json,
 )
+from tunedex.planning.model import TAGS_TARGET
 from tunedex.planning.render import plan_lines
 from tunedex.rules import RuleError
 from tunedex.snapshots import SnapshotError
@@ -160,7 +161,12 @@ def _apply(home: Home, engine: Engine, plan: Plan, *, yes: bool, as_json: bool) 
         typer.echo(json.dumps(to_json(plan), ensure_ascii=False, indent=2))
     if not confirm("Apply this plan?", yes=yes, as_json=as_json, refused="not applied"):
         return ApplyResult(status="declined")
-    return home.apply(engine, plan)
+    progress = StepProgress("Writing", "files") if stderr_is_interactive() else None
+    try:
+        return home.apply(engine, plan, progress=progress)
+    finally:
+        if progress is not None:
+            progress.clear()
 
 
 def _report(plan: Plan, result: ApplyResult | None) -> None:
@@ -177,6 +183,12 @@ def _report(plan: Plan, result: ApplyResult | None) -> None:
             f"Applied. Snapshot {result.snapshot} of {plan.target} holds the previous state.",
             "added",
         )
+        if result.files_renamed:
+            files = "file" if result.files_renamed == 1 else "files"
+            _console.echo(f"Renamed {result.files_renamed} {files}.", "added")
+        if plan.target == TAGS_TARGET:
+            files = "file" if result.files_written == 1 else "files"
+            _console.echo(f"Wrote the tags of {result.files_written} {files}.", "added")
         if result.files_trashed:
             files = "file" if result.files_trashed == 1 else "files"
             _console.echo(f"Moved {result.files_trashed} {files} to the system trash.", "trash")

@@ -438,6 +438,22 @@ class Store:
         ).fetchall()
         return [name for (name,) in rows]
 
+    def linked_targets(self) -> dict[TrackId, set[str]]:
+        """The sources and export targets that hold each track, by name.
+
+        A track is held by every source it was imported from, and by every target its
+        playlists were exported to.
+        """
+        rows = self._db.execute(
+            "SELECT track_id, source FROM source_values"
+            " UNION SELECT e.track_id, s.target FROM sync_state s"
+            " JOIN playlist_entries e ON e.node_id = s.node_id"
+        ).fetchall()
+        linked: dict[TrackId, set[str]] = {}
+        for track_id, name in rows:
+            linked.setdefault(TrackId(uuid.UUID(track_id)), set()).add(name)
+        return linked
+
     def source_values(self, name: str) -> dict[TrackId, dict[str, JSONValue]]:
         """The merge base per track: what the last import from ``name`` read."""
         rows = self._db.execute(

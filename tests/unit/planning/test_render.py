@@ -215,6 +215,7 @@ def test_json_result() -> None:
         "files_written": 0,
         "operations_applied": 1,
         "files_trashed": 0,
+        "files_renamed": 0,
         "warnings": [],
     }
 

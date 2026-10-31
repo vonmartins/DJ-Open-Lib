@@ -71,6 +71,15 @@ def plan_lines(plan: Plan, *, limit: int = 20) -> list[Line]:
     if plan.nodes or plan.untouched_nodes:
         lines.append(_line(_node_summary(plan), "heading"))
         lines.extend(_bounded(plan.nodes, limit, _node_lines, "playlists"))
+    if plan.tags:
+        snapshot = file_size(plan.snapshot_bytes)
+        lines.append(
+            _line(
+                f"Files to write: {len(plan.tags)} (the tag snapshot takes about {snapshot})",
+                "heading",
+            )
+        )
+        lines.extend(_bounded(plan.tags, limit, _track_lines, "files"))
     if plan.files:
         actions = Counter(f.action for f in plan.files)
         summary = "Files: " + ", ".join(f"{n} to {a}" for a, n in sorted(actions.items()))
@@ -263,6 +272,8 @@ def to_json(plan: Plan, result: ApplyResult | None = None) -> dict[str, JSONValu
         "losses": [_loss_json(loss) for loss in plan.losses],
         "warnings": list(plan.warnings),
         "conflicts": [_conflict_json(c) for c in plan.conflicts],
+        "tags": [_tags_json(t) for t in plan.tags],
+        "snapshot_bytes": plan.snapshot_bytes,
         "result": None if result is None else _result_json(result),
     }
 
@@ -285,6 +296,11 @@ def _track_json(change: TrackChange) -> dict[str, JSONValue]:
             for f in change.fields
         ],
     }
+
+
+def _tags_json(change: TrackChange) -> dict[str, JSONValue]:
+    track = _track_json(change)
+    return {key: track[key] for key in ("track_id", "path", "name", "fields")}
 
 
 def _node_json(change: NodeChange) -> dict[str, JSONValue]:
@@ -341,6 +357,7 @@ def _result_json(result: ApplyResult) -> dict[str, JSONValue]:
         "files_written": result.files_written,
         "operations_applied": result.operations_applied,
         "files_trashed": result.files_trashed,
+        "files_renamed": result.files_renamed,
         "warnings": list(result.warnings),
     }
 
