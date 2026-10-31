@@ -14,7 +14,9 @@ STATUS_FORMAT = "tunedex-status"
 _TIME = "%Y-%m-%d %H:%M UTC"
 
 
-def status(ctx: typer.Context, as_json: _options.Json = False) -> None:
+def status(
+    ctx: typer.Context, as_json: _options.Json = False, _no_color: _options.NoColor = False
+) -> None:
     """Show a summary of the library: tracks, playlists, sources, snapshots, duplicates.
 
     Example: tunedex status

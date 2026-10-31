@@ -23,6 +23,7 @@ def list_snapshots(
     ctx: typer.Context,
     target: Annotated[str | None, typer.Argument(help="Only this target, such as library.")] = None,
     as_json: _options.Json = False,
+    _no_color: _options.NoColor = False,
 ) -> None:
     """List snapshots, newest first, with their target, id, time and reason.
 
@@ -66,6 +67,7 @@ def restore(
     ] = False,
     yes: _options.Yes = False,
     as_json: _options.Json = False,
+    _no_color: _options.NoColor = False,
 ) -> None:
     """Put the files of a target back as they were in a snapshot.
 

@@ -17,6 +17,7 @@ def relocate(
     apply: _options.Apply = False,
     yes: _options.Yes = False,
     as_json: _options.Json = False,
+    _no_color: _options.NoColor = False,
 ) -> None:
     """Find, under a folder, the files of the tracks that are missing on this computer.
 

@@ -27,6 +27,7 @@ def enrich(
     apply: _options.Apply = False,
     yes: _options.Yes = False,
     as_json: _options.Json = False,
+    _no_color: _options.NoColor = False,
 ) -> None:
     """Fill in tags from MusicBrainz for the tracks AcoustID recognizes by their sound.
 
