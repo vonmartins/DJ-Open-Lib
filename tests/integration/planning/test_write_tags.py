@@ -11,6 +11,7 @@ from support.audio import CLIPS, tagged_copy
 from support.files import sha256
 from tunedex.model.cue import Cue, CueKind
 from tunedex.model.key import Key, Mode
+from tunedex.model.paths import normalize_path
 from tunedex.model.track import Track
 from tunedex.planning import ApplyFailedError, Engine, StaleTargetError, assume_yes, to_json
 from tunedex.planning.render import render_text
@@ -55,7 +56,7 @@ def test_cleaned_title_is_planned_and_nothing_written(
     plan = engine.plan_write_tags()
 
     (change,) = plan.tags
-    assert change.path == str(path)
+    assert change.path == normalize_path(str(path))
     assert [(f.field, f.before, f.after) for f in change.fields] == [
         ("title", "Galaxy [www.slider.kz]", "Galaxy"),
         ("comment", "first release", None),
@@ -73,7 +74,7 @@ def test_cleaned_title_is_planned_and_nothing_written(
     assert document["tags"] == [
         {
             "track_id": str(change.track_id),
-            "path": str(path),
+            "path": normalize_path(str(path)),
             "name": "Sam Paganini - Galaxy",
             "fields": [
                 {
@@ -254,7 +255,7 @@ def test_undoing_a_write_keeps_the_library_values(
     track = store.find_track_by_path(str(path))
     assert track is not None
     assert track.title == "Galaxy"  # the file's old title did not come back
-    assert [t.path for t in engine.plan_write_tags().tags] == [str(path)]
+    assert [t.path for t in engine.plan_write_tags().tags] == [normalize_path(str(path))]
 
 
 def test_a_file_edited_elsewhere_after_writing_is_read_on_the_next_scan(

@@ -7,7 +7,12 @@ from pathlib import Path
 
 def case_only(old: Path, new: Path) -> bool:
     """Whether ``new`` is ``old`` with only the case of its name changed."""
-    return old != new and old.parent == new.parent and old.name.casefold() == new.name.casefold()
+    # Strings, not paths: Windows paths compare equal ignoring case.
+    return (
+        old.name != new.name
+        and os.fspath(old.parent) == os.fspath(new.parent)
+        and old.name.casefold() == new.name.casefold()
+    )
 
 
 def name_free(old: Path, new: Path) -> bool:

@@ -7,6 +7,7 @@ import pytest
 
 from support.audio import tagged_copy
 from tunedex.model.cue import Cue, CueKind
+from tunedex.model.paths import normalize_path
 from tunedex.model.playlist import Playlist
 from tunedex.planning import ApplyFailedError, Engine, PlanError, StaleTargetError, assume_yes
 from tunedex.planning import engine as engine_module
@@ -26,6 +27,10 @@ def music(tmp_path: Path) -> Path:
     return root
 
 
+def norm(path: Path) -> str:
+    return normalize_path(str(path))
+
+
 def scanned(engine: Engine, folder: Path) -> None:
     engine.apply(engine.plan_scan(folder), assume_yes)
 
@@ -42,11 +47,11 @@ def test_default_pattern_plans_and_renames_nothing(engine: Engine, music: Path) 
 
     assert plan.target == "renames"
     assert [(t.change, t.old_path, t.path) for t in plan.tracks] == [
-        ("moved", str(music / "02 glue.flac"), str(music / "Bicep - Glue.flac")),
+        ("moved", norm(music / "02 glue.flac"), norm(music / "Bicep - Glue.flac")),
         (
             "moved",
-            str(music / "sam_paganini-galaxy_www.slider.kz.mp3"),
-            str(music / "Sam Paganini - Galaxy.mp3"),
+            norm(music / "sam_paganini-galaxy_www.slider.kz.mp3"),
+            norm(music / "Sam Paganini - Galaxy.mp3"),
         ),
     ]
     assert any("untitled.wav: not renamed, it has no artist" in w for w in plan.warnings)
@@ -57,9 +62,9 @@ def test_default_pattern_plans_and_renames_nothing(engine: Engine, music: Path) 
 def test_pattern_and_scope(engine: Engine, music: Path) -> None:
     scanned(engine, music)
     plan = engine.plan_rename("{title}{ (remixer remix)}", under=music / "sub")
-    assert [t.path for t in plan.tracks] == [str(music / "sub" / "Only a title.wav")]
+    assert [t.path for t in plan.tracks] == [norm(music / "sub" / "Only a title.wav")]
     plan = engine.plan_rename("{artist} - {title}{ (remixer remix)}")
-    assert str(music / "Bicep - Glue (Scuba remix).flac") in [t.path for t in plan.tracks]
+    assert norm(music / "Bicep - Glue (Scuba remix).flac") in [t.path for t in plan.tracks]
 
 
 def test_unknown_field_fails_before_planning(engine: Engine) -> None:
@@ -71,7 +76,7 @@ def test_a_taken_name_is_skipped(engine: Engine, music: Path) -> None:
     scanned(engine, music)
     (music / "bicep - glue.FLAC").write_bytes(b"other")
     plan = engine.plan_rename()
-    assert str(music / "Bicep - Glue.flac") not in [t.path for t in plan.tracks]
+    assert norm(music / "Bicep - Glue.flac") not in [t.path for t in plan.tracks]
     (warning,) = [w for w in plan.warnings if "already has that name" in w]
     assert "02 glue.flac" in warning
     assert "bicep - glue.FLAC" in warning
@@ -83,7 +88,7 @@ def test_two_tracks_with_one_name_are_both_skipped(
     tagged_copy(music, "mp3", "other.mp3", artist="Sam Paganini", title="Galaxy")
     scanned(engine, music)
     plan = engine.plan_rename()
-    assert [t.path for t in plan.tracks] == [str(music / "Bicep - Glue.flac")]
+    assert [t.path for t in plan.tracks] == [norm(music / "Bicep - Glue.flac")]
     (warning,) = [w for w in plan.warnings if "would all be named" in w]
     assert "other.mp3" in warning
     assert "sam_paganini-galaxy_www.slider.kz.mp3" in warning
@@ -116,7 +121,7 @@ def test_apply_keeps_the_tracks_and_a_rescan_finds_nothing(
         "sub/untitled.wav",
     ]
     renamed = store.get_track(track.id)
-    assert renamed.path == str(music / "Bicep - Glue.flac")
+    assert renamed.path == norm(music / "Bicep - Glue.flac")
     assert (renamed.title, renamed.cues) == ("Glue", (cue,))
     (peak,) = store.load_library().playlists
     assert isinstance(peak, Playlist)
@@ -134,7 +139,7 @@ def test_a_case_only_change(engine: Engine, store: Store, tmp_path: Path) -> Non
     path = tagged_copy(tmp_path / "m", "mp3", "bicep - glue.mp3", artist="Bicep", title="Glue")
     scanned(engine, tmp_path / "m")
     plan = engine.plan_rename()
-    assert [t.path for t in plan.tracks] == [str(path.with_name("Bicep - Glue.mp3"))]
+    assert [t.path for t in plan.tracks] == [norm(path.with_name("Bicep - Glue.mp3"))]
     engine.apply(plan, assume_yes)
     assert names(tmp_path / "m") == ["Bicep - Glue.mp3"]
 

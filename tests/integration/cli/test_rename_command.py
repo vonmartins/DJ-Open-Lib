@@ -7,6 +7,7 @@ from typer.testing import CliRunner, Result
 
 from support.audio import tagged_copy
 from tunedex.cli import app
+from tunedex.model.paths import normalize_path
 from tunedex.store import Store
 
 runner = CliRunner()
@@ -86,7 +87,7 @@ def test_apply_then_undo(tmp_path: Path) -> None:
     assert result.exit_code == 0, result.stderr
     assert "Renamed 2 files." in result.stdout
     assert names(root) == ["dl/Sam Paganini - Galaxy.mp3", "kept/Bicep - Glue.flac"]
-    assert paths(tmp_path) == sorted(str(root / n) for n in names(root))
+    assert paths(tmp_path) == sorted(normalize_path(str(root / n)) for n in names(root))
     scan = json.loads(invoke(tmp_path, "scan", str(root), "--json").stdout)
     assert scan["empty"]
 
