@@ -12,7 +12,7 @@ Your music folder, and optionally your [beets](https://beets.io) library, is the
 <div class="grid cards" markdown>
 
 - **New to tunedex?** [Install it](install.md), then follow the [tutorial](tutorial.md): scan a folder, clean the tags and export to Mixxx in ten minutes.
-- **Cleaning up a library?** The guides cover [importing from Mixxx](guides/import-mixxx.md) or [beets](guides/import-beets.md), [fixing tags](guides/fix.md), [enriching them from MusicBrainz](guides/enrich.md) and [merging duplicates](guides/duplicates.md).
+- **Cleaning up a library?** The guides cover [importing from Mixxx](guides/import-mixxx.md) or [beets](guides/import-beets.md), [fixing tags](guides/fix.md), [enriching them from MusicBrainz](guides/enrich.md), [merging duplicates](guides/duplicates.md), [writing tags to your files](guides/write-tags.md) and [renaming files](guides/rename.md).
 - **Building an app or a script on top?** Read [using tunedex from another program](guides/from-another-program.md), then the [JSON formats](reference/json.md) and the [Python API](reference/python-api.md).
 - **Looking something up?** Every command and option is in the [command reference](reference/cli.md).
 
@@ -24,6 +24,7 @@ Your music folder, and optionally your [beets](https://beets.io) library, is the
 - **Cleans** tags with bundled fixes and your own [rules](reference/rules.md) in YAML.
 - **Recognizes** tracks by their sound and takes their tags from MusicBrainz, when you ask it to.
 - **Finds and merges duplicates**, keeping the best file and moving the others to the system trash.
+- **Writes the cleaned tags into your files**, keeping cover art and the audio intact, and **renames files** from their tags.
 - **Finds moved files** after a disk or a folder changes.
 - **Exports** playlists to Mixxx and M3U.
 - **Undoes** any write: a snapshot is taken before each one.

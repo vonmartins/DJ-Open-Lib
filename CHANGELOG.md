@@ -9,6 +9,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Writing tags to files (`tunedex write-tags`): the library's title, artist, album,
+  album artist, genre, year, track and disc number, BPM, key, composer, remixer, label,
+  comment, grouping and lyricist go into the files whose tags differ, as ID3v2.3 for
+  MP3, WAV and AIFF and Vorbis comments for FLAC. Cover art and every other tag are kept,
+  and the audio is checked unchanged before each file is replaced. Files changed since
+  the last scan are skipped. The `tags` snapshot holds only the bytes outside the audio
+  and restores each file byte for byte. The plan JSON lists the files in `tags`, with
+  `snapshot_bytes`.
+- Renaming files from their tags (`tunedex rename`): a pattern such as
+  `{artist} - {title}{ (remixer remix)}`, from `--pattern` or the `rename` section of the
+  rules file, gives each file a new name in its folder, safe on every system. Names
+  already taken are skipped, the library follows the new names, the plan warns about
+  apps that still list the old ones, and the `renames` snapshot renames them back. The
+  plan result has `files_renamed`, and the restore JSON lists `renames`.
 - Two fixes: `split_artist_title` (`Sam Paganini - Galaxy` in the title, no artist) and
   `remove_itunes_data` (iTunes volume data in the comment). `title_from_file_name` restores
   titles cut at 30 characters, `remove_leading_number` removes store ids, `remove_urls`
@@ -129,6 +143,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- iTunes data in ID3 comment frames (`iTunNORM`, `iTunSMPB`) is no longer read as the
+  track's comment.
 - A scan no longer fails when two file names differ only in their Unicode form; the second
   is skipped with a warning.
 - Track number, disc number, year and BPM 0 are read as empty, without warnings.

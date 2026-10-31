@@ -19,6 +19,8 @@ planned first, shown as a diff, and backed by a snapshot you can restore.
   ask it to.
 - **Finds and merges duplicates**, keeping the best file and moving the others to the
   system trash.
+- **Writes the cleaned tags into your files**, keeping cover art and the audio intact,
+  and **renames files** from their tags.
 - **Exports** playlists to Mixxx and M3U.
 - **Undoes** any write: a snapshot is taken before each one.
 

@@ -6,7 +6,7 @@ Every document starts with `format`, which names it, and `version`. A new versio
 
 | Format | Version | Printed by |
 |---|---|---|
-| [`tunedex-plan`](#tunedex-plan) | 3 | `scan`, `relocate`, `fix`, `enrich`, `dupes --merge`, `import mixxx`, `import beets`, `export m3u`, `export mixxx` |
+| [`tunedex-plan`](#tunedex-plan) | 3 | `scan`, `relocate`, `fix`, `enrich`, `dupes --merge`, `write-tags`, `rename`, `import mixxx`, `import beets`, `export m3u`, `export mixxx` |
 | [`tunedex-status`](#tunedex-status) | 1 | `status` |
 | [`tunedex-tracks`](#tunedex-tracks) | 1 | `list` |
 | [`tunedex-track`](#tunedex-track) | 1 | `show` |
@@ -70,12 +70,15 @@ Conventions in every format:
   ],
   "warnings": [],
   "conflicts": [],
+  "tags": [],
+  "snapshot_bytes": 0,
   "result": {
     "status": "applied",
     "snapshot": "000001-20261030T193927Z",
     "files_written": 1,
     "operations_applied": 0,
     "files_trashed": 0,
+    "files_renamed": 0,
     "warnings": []
   }
 }
@@ -83,11 +86,11 @@ Conventions in every format:
 
 | Field | Type | Meaning |
 |---|---|---|
-| `target` | string | What the plan changes: `library` for the tunedex library, or `<adapter>-<12 hex digits>` for an export target. Snapshots are kept per target. |
+| `target` | string | What the plan changes: `library` for the tunedex library, `tags` for the tags of audio files, `renames` for file names, or `<adapter>-<12 hex digits>` for an export target. Snapshots are kept per target. |
 | `title` | string | A one-line description of the plan. |
 | `location` | string or null | The folder or file the plan writes to; `null` for the library. |
 | `empty` | boolean | `true` when there is nothing to do. |
-| `tracks` | array of [track changes](#track-change) | Tracks added, updated, moved, missing, present again or merged. |
+| `tracks` | array of [track changes](#track-change) | Tracks added, updated, moved, missing, present again or merged. A renamed file is a moved track. |
 | `refreshed` | integer | Files whose recorded state was refreshed without any field change (scans only). |
 | `rebased` | integer | Tracks whose import base was updated without any field change (imports only). |
 | `playlists` | array of [playlist changes](#playlist-change) | Folders, playlists and smartlists added, updated or removed. |
@@ -97,6 +100,8 @@ Conventions in every format:
 | `losses` | array of [losses](#loss) | What the target cannot keep. |
 | `warnings` | array of strings | Things to know before applying. |
 | `conflicts` | array of [conflicts](#conflict) | Fields edited in tunedex whose tag also changed in the file (scans). tunedex's value is kept. |
+| `tags` | array of [tag writes](#tag-write) | Audio files whose tags the apply would write (`write-tags` only). |
+| `snapshot_bytes` | integer | About how much the tag snapshot takes, in bytes (`write-tags` only; 0 otherwise). |
 | `result` | [result](#result) or null | What the apply did; `null` in a dry run. |
 
 ### Track change
@@ -110,6 +115,25 @@ Conventions in every format:
 | `merged_into` | string or null | For a merged track, the path of the track it was merged into. |
 | `name` | string | How the track is shown: `artist - title`, or the file name. |
 | `fields` | array | Each changed field: `field`, `before`, `after`, and `by`, the fix, rule or source that made the change (or `null`). For an added track, every field it has, from `null`. |
+
+### Tag write
+
+```json
+{
+  "track_id": "0b5a4ba6-41a4-4f06-9a59-4d8b2b5c46a1",
+  "path": "/home/ana/Music/dl/galaxy.mp3",
+  "name": "Sam Paganini - Galaxy",
+  "fields": [
+    {"field": "title", "before": "Galaxy [www.slider.kz]", "after": "Galaxy", "by": null},
+    {"field": "comment", "before": "00000EC8 00000EC8", "after": null, "by": null}
+  ]
+}
+```
+
+| Field | Type | Meaning |
+|---|---|---|
+| `track_id`, `path`, `name` | strings | The track and its file. |
+| `fields` | array | Each field to write: `field`, `before` (the value in the file now) and `after` (the library's value, written to the file). An `after` of `null` removes the field from the file. `by` is always `null`. |
 
 ### Playlist change
 
@@ -157,9 +181,10 @@ Conventions in every format:
 |---|---|---|
 | `status` | string | `applied`; `declined` when the confirmation was refused; `nothing` when the plan was empty. |
 | `snapshot` | string or null | The snapshot taken before writing. |
-| `files_written` | integer | Files written to the target. |
+| `files_written` | integer | Files written to the target; for `write-tags`, the audio files whose tags were written. |
 | `operations_applied` | integer | Changes written to the library. |
 | `files_trashed` | integer | Audio files moved to the system trash. |
+| `files_renamed` | integer | Audio files renamed (`rename`). |
 | `warnings` | array of strings | Problems that did not stop the apply, such as a file that could not be trashed. |
 
 ## `tunedex-status`
@@ -399,6 +424,7 @@ The example is shortened: every [track](#track) field is always present.
     {"path": "/home/ana/playlists/Sets/Friday.m3u8", "action": "put_back"},
     {"path": "/home/ana/playlists/Sets/New.m3u8", "action": "remove"}
   ],
+  "renames": [],
   "result": {"status": "restored", "pre_restore": "000002-20261030T194502Z"}
 }
 ```
@@ -406,5 +432,6 @@ The example is shortened: every [track](#track) field is always present.
 | Field | Type | Meaning |
 |---|---|---|
 | `target`, `snapshot` | strings | What is restored. |
-| `files[].action` | string | `put_back`: the file returns to its content in the snapshot. `remove`: the file did not exist then and is deleted. |
+| `files[].action` | string | `put_back`: the file returns to its content in the snapshot. `remove`: the file did not exist then and is deleted. For a `tags` snapshot, `put_back` rebuilds the file from its tags in the snapshot and its current audio. |
+| `renames` | array | For a `renames` snapshot, each file renamed back first: `from` (its name now) and `to` (its name in the snapshot). Empty for other targets. |
 | `result` | object | Only with `--apply`. `status` is `restored` or `declined`. On `restored`, `pre_restore` is the snapshot taken just before, so the restore can itself be undone. |

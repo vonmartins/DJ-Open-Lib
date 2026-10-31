@@ -33,7 +33,7 @@ Fixes run in this order, each one seeing the result of the previous ones:
 
 ## The rules file
 
-A rules file has two optional sections, `fixes` and `rules`:
+A rules file has three optional sections, `fixes`, `rules` and `rename`:
 
 ```yaml
 fixes:
@@ -52,6 +52,8 @@ rules:
       - {field: genre, op: equals, value: DnB}
       - {field: genre, op: equals, value: Drum n Bass}
     then: {set: genre, value: Drum And Bass}
+rename:
+  pattern: '{artist} - {title}{ (remixer remix)}'
 ```
 
 ### `fixes`
@@ -85,6 +87,17 @@ The actions are:
 If a value does not fit the field, such as text for `bpm`, that rule leaves the track unchanged and the plan shows a warning.
 
 Running the same fixes and rules again on their result changes nothing.
+
+### `rename`
+
+The file name pattern of [`tunedex rename`](../guides/rename.md), used when the command gets no `--pattern`:
+
+```yaml
+rename:
+  pattern: '{artist} - {title} [{year}]'
+```
+
+`pattern` is the only key. A pattern with an unknown field, or with an optional part that does not hold exactly one field, is reported with the other errors of the file. The [renaming guide](../guides/rename.md#patterns) describes patterns.
 
 ## Conditions
 

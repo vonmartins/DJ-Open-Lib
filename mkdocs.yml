@@ -68,6 +68,8 @@ nav:
       - Enriching tags: guides/enrich.md
       - Fixing tags with rules: guides/fix.md
       - Merging duplicates: guides/duplicates.md
+      - Writing tags to your files: guides/write-tags.md
+      - Renaming files: guides/rename.md
       - Exporting to Mixxx: guides/export-mixxx.md
       - Exporting to M3U: guides/export-m3u.md
       - Snapshots and restore: guides/snapshots.md
