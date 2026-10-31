@@ -8,7 +8,7 @@ Your music folder (and optionally your [beets](https://beets.io) library) is the
 source of truth. DJ apps such as Mixxx are targets you sync to safely: every write is
 planned first, shown as a diff, and backed by a snapshot you can restore.
 
-> **Status: pre-alpha.** Try it with a scratch home and a test profile of your DJ app
+> **Status: alpha.** Try it with a scratch home and a test profile of your DJ app
 > before you point it at the library you play from.
 
 ## What it does
@@ -30,10 +30,11 @@ programs. No accounts, no telemetry, no cloud.
 ## Install
 
 ```sh
-uv tool install git+https://github.com/vonmartins/tunedex
+uv tool install tunedex
 ```
 
-or `pipx install git+https://github.com/vonmartins/tunedex`. Python 3.11 or later.
+or `pipx install tunedex`. Python 3.11 or later, on Linux, macOS and Windows. For the
+development version, install `git+https://github.com/vonmartins/tunedex@dev`.
 
 ## Quick start
 
@@ -63,9 +64,9 @@ uv run tunedex --help
 uv run pytest
 ```
 
-See [CONTRIBUTING.md](CONTRIBUTING.md) for the checks, the conventions and how to
+See [CONTRIBUTING.md](https://github.com/vonmartins/tunedex/blob/main/CONTRIBUTING.md) for the checks, the conventions and how to
 preview the documentation.
 
 ## License
 
-[GPL-3.0-or-later](LICENSE).
+[GPL-3.0-or-later](https://github.com/vonmartins/tunedex/blob/main/LICENSE).

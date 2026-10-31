@@ -60,3 +60,33 @@ jobs:
 
       - name: Build
         run: uv run --frozen zensical build --strict
+
+  package:
+    name: package
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: astral-sh/setup-uv@v7
+        with:
+          python-version: "3.14"
+          enable-cache: true
+
+      - name: Build
+        run: uv build
+
+      - name: Check metadata
+        run: uvx twine check --strict dist/*
+
+      - name: Check sdist contents
+        run: |
+          tar tzf dist/*.tar.gz | tee sdist.txt
+          if grep -E '(^|/)(\.venv|site|openspec|\.claude)/|CLAUDE\.md' sdist.txt; then
+            echo "files that do not belong in the package"; exit 1
+          fi
+
+      - name: Smoke test the wheel
+        run: |
+          uv venv --no-project smoke
+          VIRTUAL_ENV=smoke uv pip install dist/*.whl
+          uv run --no-project python scripts/smoke.py smoke/bin/tunedex

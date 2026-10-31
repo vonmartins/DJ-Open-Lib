@@ -1,0 +1,182 @@
+name: Release
+
+# A version tag (v0.1.0) on main publishes to PyPI and creates the GitHub release.
+# Running it by hand publishes the current version to TestPyPI, as a rehearsal.
+
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+jobs:
+  build:
+    name: build
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - uses: astral-sh/setup-uv@v7
+        with:
+          python-version: "3.14"
+
+      - name: Check the version
+        id: version
+        run: |
+          if [ "$GITHUB_EVENT_NAME" = push ]; then
+            version="${GITHUB_REF_NAME#v}"
+            git merge-base --is-ancestor "$GITHUB_SHA" origin/main \
+              || { echo "the tag $GITHUB_REF_NAME is not on main"; exit 1; }
+          else
+            version="$(uv version --short)"
+          fi
+          uv run --no-project python scripts/release_check.py "$version" > notes.md
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+
+      - name: Build
+        run: uv build
+
+      - name: Check metadata
+        run: uvx twine check --strict dist/*
+
+      - uses: actions/upload-artifact@v7
+        with:
+          name: dist
+          path: |
+            dist/*.tar.gz
+            dist/*.whl
+          if-no-files-found: error
+
+      - uses: actions/upload-artifact@v7
+        with:
+          name: notes
+          path: notes.md
+
+  smoke:
+    name: smoke ${{ matrix.os }} / py${{ matrix.python-version }}
+    needs: build
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: true
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+        python-version: ["3.11", "3.14"]
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: astral-sh/setup-uv@v7
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - uses: actions/download-artifact@v8
+        with:
+          name: dist
+          path: dist
+
+      - name: Smoke test the wheel
+        run: |
+          uv venv --no-project smoke
+          VIRTUAL_ENV=smoke uv pip install dist/*.whl
+          if [ "$RUNNER_OS" = Windows ]; then bin=smoke/Scripts/tunedex.exe; else bin=smoke/bin/tunedex; fi
+          uv run --no-project python scripts/smoke.py "$bin"
+
+  publish-testpypi:
+    name: publish to TestPyPI
+    if: github.event_name == 'workflow_dispatch'
+    needs: [build, smoke]
+    runs-on: ubuntu-latest
+    environment:
+      name: testpypi
+      url: https://test.pypi.org/project/tunedex/${{ needs.build.outputs.version }}/
+    permissions:
+      id-token: write
+    steps:
+      - uses: actions/download-artifact@v8
+        with:
+          name: dist
+          path: dist
+
+      - uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          repository-url: https://test.pypi.org/legacy/
+
+  publish:
+    name: publish to PyPI
+    if: github.event_name == 'push'
+    needs: [build, smoke]
+    runs-on: ubuntu-latest
+    environment:
+      name: pypi
+      url: https://pypi.org/project/tunedex/${{ needs.build.outputs.version }}/
+    permissions:
+      id-token: write
+    steps:
+      - uses: actions/download-artifact@v8
+        with:
+          name: dist
+          path: dist
+
+      - uses: pypa/gh-action-pypi-publish@release/v1
+
+  github-release:
+    name: GitHub release
+    needs: [build, publish]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v8
+        with:
+          name: dist
+          path: dist
+
+      - uses: actions/download-artifact@v8
+        with:
+          name: notes
+
+      - name: Create the release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VERSION: ${{ needs.build.outputs.version }}
+        run: |
+          gh release create "$GITHUB_REF_NAME" dist/* \
+            --repo "$GITHUB_REPOSITORY" --title "tunedex $VERSION" --notes-file notes.md
+
+  verify:
+    name: install from PyPI on ${{ matrix.os }}
+    needs: [build, publish]
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: astral-sh/setup-uv@v7
+
+      - name: Install the published version
+        env:
+          VERSION: ${{ needs.build.outputs.version }}
+        run: |
+          # The index can take a few minutes to serve a new release.
+          for attempt in 1 2 3 4 5 6 7 8 9 10; do
+            uv tool install --refresh "tunedex==$VERSION" && break
+            echo "attempt $attempt failed; retrying in 30 s"; sleep 30
+          done
+          "$(uv tool dir --bin)/tunedex" --version | tee version.txt
+          grep -qx "tunedex $VERSION" version.txt

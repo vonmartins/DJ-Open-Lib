@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.0] - 2026-10-31
+
+The first release. tunedex scans your music folder and imports Mixxx and beets
+libraries read-only, cleans tags with bundled fixes and your own rules, takes tags from
+MusicBrainz, merges duplicates, writes the clean tags back into your files, renames them,
+and exports playlists to Mixxx and M3U. Every write is planned first and covered by a
+snapshot you can restore.
+
 ### Added
 
 - Writing tags to files (`tunedex write-tags`): the library's title, artist, album,
@@ -166,3 +174,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Plan JSON version 2: track changes and conflicts name the track under `name`
   (was `label`, easy to confuse with the record label), and added tracks list every
   field they bring.
+
+[Unreleased]: https://github.com/vonmartins/tunedex/compare/v0.1.0...HEAD
+[0.1.0]: https://github.com/vonmartins/tunedex/releases/tag/v0.1.0
