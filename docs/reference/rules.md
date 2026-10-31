@@ -18,15 +18,17 @@ Fixes run in this order, each one seeing the result of the previous ones:
 
 | Fix | What it does | Default fields | On by default |
 |---|---|---|---|
-| `title_from_file_name` | Fills a missing title, and artist, from `Artist - Title.mp3`. | `title`, `artist` | yes |
+| `title_from_file_name` | Fills a missing title, and artist, from `Artist - Title.mp3`. Also restores a title cut at 30 characters (ID3v1) when the file name holds the whole of it. | `title`, `artist` | yes |
 | `fix_encoding` | Repairs `CafÃ©` → `Café` and `&amp;` → `&`. | every text field | yes |
 | `normalize_characters` | Full-width `：` → `:` outside CJK text; odd and repeated spaces. | every text field | yes |
-| `remove_urls` | `Glue (freebeats.com)` → `Glue`; also `http…` and `www.…`. | `title`, `artist`, `album` | yes |
+| `remove_urls` | `Glue (freebeats.com)` → `Glue`; also `http…`, `www.…` and a domain at the end (`Glue my-free-mp3s.com`). | `title`, `artist`, `album` | yes |
 | `remove_video_ids` | `Glue [dOFq-swCWro]` → `Glue`. | `title` | yes |
-| `underscores_to_spaces` | `Sunrise_Overlook_320` → `Sunrise Overlook 320`. | `title`, `album` | yes |
-| `remove_leading_number` | `03 - Glue` → `Glue`. | `title` | yes |
-| `extract_featured` | `Storm (feat. Mira)` → title `Storm`, artist `… feat. Mira`. | `title`, `artist` | yes |
+| `underscores_to_spaces` | `Sunrise_Overlook_320` → `Sunrise Overlook 320`. Underscores inside a URL or a domain are kept. | `title`, `album` | yes |
+| `remove_leading_number` | `03 - Glue` → `Glue`; also a store id, `1156882 Glue` → `Glue`. | `title` | yes |
+| `split_artist_title` | With no artist, `Sam Paganini - Galaxy` → artist `Sam Paganini`, title `Galaxy`, when the file name starts with the same `Sam Paganini - `. | `artist`, `title` | yes |
+| `extract_featured` | `Storm (feat. Mira)` or `Storm feat Mira` → title `Storm`, artist `… feat. Mira`. | `title`, `artist` | yes |
 | `extract_remixer` | Fills the remixer from `(Tom Ray Remix)`; the title is unchanged. | `remixer` | yes |
+| `remove_itunes_data` | Clears a comment that only holds iTunes volume data (`00000EC8 00000EC8 …`). | `comment` | yes |
 | `fix_case` | `whisper of the trees` → `Whisper of the Trees`. | `title`, `album` | no: one-case titles are often deliberate (`HUMBLE.`, `bad guy`) |
 
 ## The rules file

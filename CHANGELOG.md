@@ -9,6 +9,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Two fixes: `split_artist_title` (`Sam Paganini - Galaxy` in the title, no artist) and
+  `remove_itunes_data` (iTunes volume data in the comment). `title_from_file_name` restores
+  titles cut at 30 characters, `remove_leading_number` removes store ids, `remove_urls`
+  removes a domain at the end, and `extract_featured` takes `feat` without a period.
+- `--no-color` is also accepted after the command name.
+
 - A documentation site at <https://vonmartins.github.io/tunedex/>: install, a
   tutorial, guides, the reference of every command, JSON format, error code and Python
   name, and explanations of how tunedex works. The README is now a short overview.
@@ -120,6 +126,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Project bootstrap: Python package `tunedex` managed with uv, placeholder `tunedex`
   command (`--version`, `--help`), ruff, pyright, pytest + hypothesis,
   pre-commit hooks and CI on Linux, macOS and Windows.
+
+### Fixed
+
+- A scan no longer fails when two file names differ only in their Unicode form; the second
+  is skipped with a warning.
+- Track number, disc number, year and BPM 0 are read as empty, without warnings.
+- `enrich` no longer takes a recording that does not fit the track's own artist or title;
+  it reports it instead.
+- `underscores_to_spaces` no longer breaks URLs into words.
 
 ### Changed
 

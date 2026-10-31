@@ -37,7 +37,8 @@ These tracks are left unchanged and listed in the plan's warnings:
 - tracks with several possible recordings;
 - tracks recognized but not in MusicBrainz;
 - tracks not recognized;
-- tracks whose MusicBrainz id, from beets, points elsewhere.
+- tracks whose MusicBrainz id, from beets, points elsewhere;
+- tracks whose recording does not fit their own tags. When a track has an artist, in its tags or as `Artist - ` in its file name, the recording's artist must share a word with it; otherwise the title or file name must share a word with the recording's title. This keeps AcoustID's occasional wrong match from replacing good tags. The plan lists the first 20, with what the track says and what AcoustID heard.
 
 Once applied, running it again on an unchanged library just says `Nothing to do.`
 
