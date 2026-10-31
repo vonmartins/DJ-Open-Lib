@@ -5,10 +5,10 @@ from typing import Any
 
 import pytest
 
-from djlib.enrich import EnrichError, acoustid, musicbrainz
-from djlib.enrich.cache import Cache
-from djlib.enrich.http import Client
 from support.enrich import FIXTURES, FakeClock, FakeTransport
+from tunedex.enrich import EnrichError, acoustid, musicbrainz
+from tunedex.enrich.cache import Cache
+from tunedex.enrich.http import Client
 
 LUNG_A = "73d6b7b1-2a6b-42b9-b92b-575774a70180"
 LUNG_B = "bf6253d6-1245-4d94-a0b2-22a870f1614b"
@@ -51,7 +51,7 @@ def test_acoustid_error() -> None:
 
 
 def test_lookup_request(monkeypatch: pytest.MonkeyPatch) -> None:
-    monkeypatch.setenv("DJLIB_ACOUSTID_KEY", "testkey")
+    monkeypatch.setenv("TUNEDEX_ACOUSTID_KEY", "testkey")
     transport, clock = FakeTransport(), FakeClock()
     transport.route(acoustid.LOOKUP, lambda url, data: load("acoustid-dfrnt.json"))
     client = Client(transport, Cache(None), clock=clock, sleep=clock.sleep)
@@ -64,7 +64,7 @@ def test_lookup_request(monkeypatch: pytest.MonkeyPatch) -> None:
 
 
 def test_key_default(monkeypatch: pytest.MonkeyPatch) -> None:
-    monkeypatch.delenv("DJLIB_ACOUSTID_KEY", raising=False)
+    monkeypatch.delenv("TUNEDEX_ACOUSTID_KEY", raising=False)
     assert acoustid.key() == acoustid.ACOUSTID_KEY
 
 

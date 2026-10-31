@@ -1,6 +1,6 @@
 """Tagged copies of the synthetic audio clips, written with mutagen.
 
-This mapping is written independently of djlib's tag reader on purpose, so tests do not
+This mapping is written independently of tunedex's tag reader on purpose, so tests do not
 check the reader against itself.
 """
 

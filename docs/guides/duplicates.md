@@ -3,12 +3,12 @@
 Find tracks that are the same song and keep the best copy of each.
 
 ```sh
-djlib dupes                      # report the groups
-djlib dupes --merge              # show the merge plan
-djlib dupes --merge --apply      # decide group by group
+tunedex dupes                      # report the groups
+tunedex dupes --merge              # show the merge plan
+tunedex dupes --merge --apply      # decide group by group
 ```
 
-`djlib dupes` lists groups of tracks that are the same song. For each file it shows the format, bitrate, length, cues and playlists, and marks the one it suggests keeping.
+`tunedex dupes` lists groups of tracks that are the same song. For each file it shows the format, bitrate, length, cues and playlists, and marks the one it suggests keeping.
 
 ## Same song
 
@@ -33,7 +33,7 @@ The first criterion that tells two tracks apart decides:
 
 ## Merging
 
-With `--merge --apply` in a terminal, djlib shows each group and you answer:
+With `--merge --apply` in a terminal, tunedex shows each group and you answer:
 
 | Answer | Effect |
 |---|---|
@@ -48,7 +48,7 @@ Then one plan shows everything and asks once.
 From a script, give the answers as options: `--keep PATH` chooses the track to keep, `--skip PATH` and `--ignore PATH` act on a track's group, and `--yes` takes the suggestions for the rest:
 
 ```sh
-djlib dupes --merge --keep ~/Music/a.flac --skip ~/Music/b.mp3 --apply --yes
+tunedex dupes --merge --keep ~/Music/a.flac --skip ~/Music/b.mp3 --apply --yes
 ```
 
 ## What the kept track gets
@@ -60,8 +60,8 @@ djlib dupes --merge --keep ~/Music/a.flac --skip ~/Music/b.mp3 --apply --yes
 
 ## The other files
 
-They go to the **system trash**, so they can be recovered; djlib never deletes a file for good.
+They go to the **system trash**, so they can be recovered; tunedex never deletes a file for good.
 
 - A file that cannot be trashed (some network mounts have no trash) is left in place and reported.
-- `--keep-files` merges in djlib only and leaves every file where it is.
+- `--keep-files` merges in tunedex only and leaves every file where it is.
 - The plan warns when a file belongs to your beets or Mixxx library, which will then miss it. Later imports from them update the kept track instead of bringing the merged one back.

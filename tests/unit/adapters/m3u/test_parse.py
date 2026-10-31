@@ -2,8 +2,8 @@ from pathlib import Path
 
 import pytest
 
-from djlib.adapters.m3u import M3UAdapter
-from djlib.adapters.m3u.reader import parse_text
+from tunedex.adapters.m3u import M3UAdapter
+from tunedex.adapters.m3u.reader import parse_text
 
 
 @pytest.mark.parametrize("name", ["Warmup.M3U8", "set.m3u", "a.b.m3u8"])

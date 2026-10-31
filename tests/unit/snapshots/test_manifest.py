@@ -3,14 +3,14 @@ import json
 
 import pytest
 
-from djlib.snapshots.errors import SnapshotCorruptError
-from djlib.snapshots.manifest import FileRecord, Snapshot, dump_manifest, load_manifest
+from tunedex.snapshots.errors import SnapshotCorruptError
+from tunedex.snapshots.manifest import FileRecord, Snapshot, dump_manifest, load_manifest
 
 SNAPSHOT = Snapshot(
     id="000003-20261027T101500Z",
     target="traktor",
     created_at=datetime.datetime(2026, 10, 27, 10, 15, 0, 123456, tzinfo=datetime.UTC),
-    djlib_version="0.0.0",
+    tunedex_version="0.0.0",
     reason="pre-restore",
     files=(
         FileRecord(

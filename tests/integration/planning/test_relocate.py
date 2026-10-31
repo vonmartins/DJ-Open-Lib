@@ -7,10 +7,10 @@ from pathlib import Path
 
 import pytest
 
-from djlib.model.paths import normalize_path
-from djlib.model.track import Track
-from djlib.planning import Engine, PlanError, assume_yes
-from djlib.store import FileState, Store
+from tunedex.model.paths import normalize_path
+from tunedex.model.track import Track
+from tunedex.planning import Engine, PlanError, assume_yes
+from tunedex.store import FileState, Store
 
 NOW = datetime.datetime(2026, 10, 28, 12, 0, tzinfo=datetime.UTC)
 

@@ -7,14 +7,14 @@ import uuid
 
 from hypothesis import strategies as st
 
-from djlib.model.beatgrid import BeatGrid, BeatMarker
-from djlib.model.cue import Cue, CueKind
-from djlib.model.ids import NodeId, TrackId
-from djlib.model.key import Key, Mode
-from djlib.model.library import Library
-from djlib.model.playlist import Folder, MatchMode, Node, Playlist, Rule, Smartlist
-from djlib.model.track import Track
-from djlib.model.unmapped import JSONValue
+from tunedex.model.beatgrid import BeatGrid, BeatMarker
+from tunedex.model.cue import Cue, CueKind
+from tunedex.model.ids import NodeId, TrackId
+from tunedex.model.key import Key, Mode
+from tunedex.model.library import Library
+from tunedex.model.playlist import Folder, MatchMode, Node, Playlist, Rule, Smartlist
+from tunedex.model.track import Track
+from tunedex.model.unmapped import JSONValue
 
 # Lone surrogates cannot be stored as UTF-8 text, so they are excluded here.
 text = st.text(st.characters(exclude_categories=("Cs",)), max_size=20)

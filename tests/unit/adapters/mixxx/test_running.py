@@ -3,7 +3,7 @@ import sys
 
 import pytest
 
-from djlib.adapters.mixxx import running
+from tunedex.adapters.mixxx import running
 
 
 def test_probe_answers() -> None:

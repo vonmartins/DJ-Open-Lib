@@ -4,10 +4,10 @@ import dataclasses
 import time
 from pathlib import Path
 
-from djlib.adapters.mixxx import MixxxAdapter
-from djlib.planning import Engine, assume_yes
-from djlib.store import Store
 from support.mixxx import HOT_CUE, MixxxDatabase, beat_grid
+from tunedex.adapters.mixxx import MixxxAdapter
+from tunedex.planning import Engine, assume_yes
+from tunedex.store import Store
 
 COUNT = 10_000
 

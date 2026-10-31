@@ -6,10 +6,10 @@ from pathlib import Path
 
 import pytest
 
-from djlib.enrich import EnrichError
-from djlib.enrich.cache import Cache
-from djlib.enrich.fingerprint import Fingerprinter
 from support.enrich import FakeFpcalc
+from tunedex.enrich import EnrichError
+from tunedex.enrich.cache import Cache
+from tunedex.enrich.fingerprint import Fingerprinter
 
 
 def test_fpcalc_missing(tmp_path: Path) -> None:

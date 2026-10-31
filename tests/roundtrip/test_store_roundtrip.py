@@ -5,9 +5,9 @@ from pathlib import Path
 
 from hypothesis import HealthCheck, given, settings
 
-from djlib.model.library import Library
-from djlib.store import Store
 from support.strategies import libraries, synthetic_library
+from tunedex.model.library import Library
+from tunedex.store import Store
 
 
 @given(library=libraries())

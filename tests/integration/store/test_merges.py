@@ -6,18 +6,18 @@ from pathlib import Path
 
 import pytest
 
-from djlib.model.playlist import Playlist
-from djlib.model.track import Track
-from djlib.store import Store
-from djlib.store.errors import StoreError
-from djlib.store.migrations import bundled_migrations, schema_version
-from djlib.store.operations import (
+from support.store import old_database
+from tunedex.model.playlist import Playlist
+from tunedex.model.track import Track
+from tunedex.store import Store
+from tunedex.store.errors import StoreError
+from tunedex.store.migrations import bundled_migrations, schema_version
+from tunedex.store.operations import (
     AddImportedTrack,
     IgnoreDuplicates,
     MergeTracks,
     RegisterSource,
 )
-from support.store import old_database
 
 NOW = datetime.datetime(2026, 10, 29, 12, 0, tzinfo=datetime.UTC)
 BEETS = "beets-1a2b3c4d5e6f"

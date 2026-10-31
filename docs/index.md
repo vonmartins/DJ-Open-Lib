@@ -1,19 +1,19 @@
-# djlib
+# tunedex
 
 **A free, local-first, scriptable DJ library manager.**
 
 Your music folder, and optionally your [beets](https://beets.io) library, is the source of truth. DJ apps such as Mixxx are targets you sync to safely: every write is planned first, shown as a diff, and backed by a snapshot you can restore.
 
 !!! warning "Pre-alpha"
-    djlib is young. Try it with a scratch home and a test profile of your DJ app before you point it at the library you play from. `djlib` is a working name; the final name is still open.
+    tunedex is young. Try it with a scratch home and a test profile of your DJ app before you point it at the library you play from.
 
 ## Where to start
 
 <div class="grid cards" markdown>
 
-- **New to djlib?** [Install it](install.md), then follow the [tutorial](tutorial.md): scan a folder, clean the tags and export to Mixxx in ten minutes.
+- **New to tunedex?** [Install it](install.md), then follow the [tutorial](tutorial.md): scan a folder, clean the tags and export to Mixxx in ten minutes.
 - **Cleaning up a library?** The guides cover [importing from Mixxx](guides/import-mixxx.md) or [beets](guides/import-beets.md), [fixing tags](guides/fix.md), [enriching them from MusicBrainz](guides/enrich.md) and [merging duplicates](guides/duplicates.md).
-- **Building an app or a script on top?** Read [using djlib from another program](guides/from-another-program.md), then the [JSON formats](reference/json.md) and the [Python API](reference/python-api.md).
+- **Building an app or a script on top?** Read [using tunedex from another program](guides/from-another-program.md), then the [JSON formats](reference/json.md) and the [Python API](reference/python-api.md).
 - **Looking something up?** Every command and option is in the [command reference](reference/cli.md).
 
 </div>
@@ -36,4 +36,4 @@ Your music folder, and optionally your [beets](https://beets.io) library, is the
 - **Headless first.** Everything works from the command line, with [JSON output](reference/json.md) for other programs.
 - **Runs everywhere**: Linux, macOS and Windows.
 
-djlib is free software under the [GPL-3.0-or-later](https://github.com/vonmartins/DJ-Open-Lib/blob/main/LICENSE) license.
+tunedex is free software under the [GPL-3.0-or-later](https://github.com/vonmartins/tunedex/blob/main/LICENSE) license.

@@ -8,21 +8,21 @@ from pathlib import Path
 import pytest
 from typer.testing import CliRunner
 
-from djlib import home as _home
-from djlib.cli import _flow, app
-from djlib.cli import snapshot as snapshot_cli
-from djlib.home import Home
-from djlib.model.playlist import Folder, Playlist
-from djlib.model.track import Track
-from djlib.planning import ApplyFailedError
-from djlib.store import Store
 from support.audio import tagged_copy
 from support.files import tree_bytes
+from tunedex import home as _home
+from tunedex.cli import _flow, app
+from tunedex.cli import snapshot as snapshot_cli
+from tunedex.home import Home
+from tunedex.model.playlist import Folder, Playlist
+from tunedex.model.track import Track
+from tunedex.planning import ApplyFailedError
+from tunedex.store import Store
 
 runner = CliRunner()
 
 
-def djlib(*args: str | Path, input: str | None = None) -> "Result":
+def tunedex(*args: str | Path, input: str | None = None) -> "Result":
     result = runner.invoke(app, [str(a) for a in args], input=input)
     return Result(result.exit_code, result.stdout, result.stderr)
 
@@ -73,7 +73,7 @@ def track_count(home: Path) -> int:
 
 
 def test_home_option(home: Path, music: Path) -> None:
-    result = djlib("--home", home, "scan", music, "--apply", "--yes")
+    result = tunedex("--home", home, "scan", music, "--apply", "--yes")
 
     assert result.exit_code == 0, result.stderr
     assert (home / "library.db").is_file()
@@ -81,27 +81,27 @@ def test_home_option(home: Path, music: Path) -> None:
 
 
 def test_home_from_environment(home: Path, music: Path, monkeypatch: pytest.MonkeyPatch) -> None:
-    monkeypatch.setenv("DJLIB_HOME", str(home))
+    monkeypatch.setenv("TUNEDEX_HOME", str(home))
 
-    assert djlib("scan", music, "--apply", "--yes").exit_code == 0
+    assert tunedex("scan", music, "--apply", "--yes").exit_code == 0
     assert (home / "library.db").is_file()
 
 
 def test_default_location(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setattr(sys, "platform", "linux")
     monkeypatch.setenv("XDG_DATA_HOME", str(tmp_path / "xdg"))
-    assert _home.default_home() == tmp_path / "xdg" / "djlib"
+    assert _home.default_home() == tmp_path / "xdg" / "tunedex"
     monkeypatch.setenv("XDG_DATA_HOME", "relative/ignored")
-    assert _home.default_home() == Path.home() / ".local" / "share" / "djlib"
+    assert _home.default_home() == Path.home() / ".local" / "share" / "tunedex"
     monkeypatch.setattr(sys, "platform", "darwin")
-    assert _home.default_home() == Path.home() / "Library" / "Application Support" / "djlib"
+    assert _home.default_home() == Path.home() / "Library" / "Application Support" / "tunedex"
     monkeypatch.setattr(sys, "platform", "win32")
     monkeypatch.setenv("LOCALAPPDATA", str(tmp_path / "local"))
-    assert _home.default_home() == tmp_path / "local" / "djlib"
+    assert _home.default_home() == tmp_path / "local" / "tunedex"
 
 
 def test_dry_run_creates_nothing(home: Path, music: Path) -> None:
-    result = djlib("--home", home, "scan", music)
+    result = tunedex("--home", home, "scan", music)
 
     assert result.exit_code == 0
     assert "Tracks: 2 added" in result.stdout
@@ -113,11 +113,11 @@ def test_dry_run_creates_nothing(home: Path, music: Path) -> None:
 
 
 def test_plan_only(home: Path, music: Path) -> None:
-    djlib("--home", home, "scan", music, "--apply", "--yes")
+    tunedex("--home", home, "scan", music, "--apply", "--yes")
     tagged_copy(music, "ogg", name="c.ogg", title="C")
     database = (home / "library.db").read_bytes()
 
-    result = djlib("--home", home, "scan", music)
+    result = tunedex("--home", home, "scan", music)
 
     assert result.exit_code == 0
     assert "Tracks: 1 added" in result.stdout
@@ -125,7 +125,7 @@ def test_plan_only(home: Path, music: Path) -> None:
 
 
 def test_not_confirmed(home: Path, music: Path, interactive: None) -> None:
-    result = djlib("--home", home, "scan", music, "--apply", input="n\n")
+    result = tunedex("--home", home, "scan", music, "--apply", input="n\n")
 
     assert result.exit_code == 0
     assert "Not applied." in result.stdout
@@ -133,7 +133,7 @@ def test_not_confirmed(home: Path, music: Path, interactive: None) -> None:
 
 
 def test_confirmed(home: Path, music: Path, interactive: None) -> None:
-    result = djlib("--home", home, "scan", music, "--apply", input="y\n")
+    result = tunedex("--home", home, "scan", music, "--apply", input="y\n")
 
     assert result.exit_code == 0
     assert "Applied." in result.stdout
@@ -141,7 +141,7 @@ def test_confirmed(home: Path, music: Path, interactive: None) -> None:
 
 
 def test_scripted(home: Path, music: Path) -> None:
-    result = djlib("--home", home, "scan", music, "--apply", "--yes")
+    result = tunedex("--home", home, "scan", music, "--apply", "--yes")
 
     assert result.exit_code == 0
     assert "Apply this plan?" not in result.stdout
@@ -149,7 +149,7 @@ def test_scripted(home: Path, music: Path) -> None:
 
 
 def test_apply_without_terminal_or_yes(home: Path, music: Path) -> None:
-    result = djlib("--home", home, "scan", music, "--apply")
+    result = tunedex("--home", home, "scan", music, "--apply")
 
     assert result.exit_code == 1
     assert "pass --yes" in result.stderr
@@ -160,13 +160,13 @@ def test_apply_without_terminal_or_yes(home: Path, music: Path) -> None:
 
 
 def test_first_scan(home: Path, music: Path) -> None:
-    djlib("--home", home, "scan", music, "--apply", "--yes")
+    tunedex("--home", home, "scan", music, "--apply", "--yes")
 
     assert track_count(home) == 2
 
 
 def test_missing_folder(home: Path, tmp_path: Path) -> None:
-    result = djlib("--home", home, "scan", tmp_path / "nope")
+    result = tunedex("--home", home, "scan", tmp_path / "nope")
 
     assert result.exit_code == 1
     assert result.stderr.startswith("error: ") and result.stderr.count("\n") == 1
@@ -176,7 +176,7 @@ def test_selected_playlist_exported(home: Path, tmp_path: Path) -> None:
     library_with_playlists(home)
     out = tmp_path / "out"
 
-    result = djlib(
+    result = tunedex(
         "--home", home, "export", "m3u", out, "--playlist", "Techno/Peak", "--apply", "--yes"
     )
 
@@ -187,9 +187,9 @@ def test_selected_playlist_exported(home: Path, tmp_path: Path) -> None:
 def test_modified_export(home: Path, tmp_path: Path) -> None:
     library_with_playlists(home)
     out = tmp_path / "out"
-    djlib("--home", home, "export", "m3u", out, "--apply", "--yes")
+    tunedex("--home", home, "export", "m3u", out, "--apply", "--yes")
 
-    result = djlib("--home", home, "export", "m3u", out, "--modified")
+    result = tunedex("--home", home, "export", "m3u", out, "--modified")
 
     assert result.exit_code == 0
     assert "Nothing to do." in result.stdout
@@ -198,7 +198,7 @@ def test_modified_export(home: Path, tmp_path: Path) -> None:
 def test_conflicting_options(home: Path, tmp_path: Path) -> None:
     library_with_playlists(home)
 
-    result = djlib(
+    result = tunedex(
         "--home", home, "export", "m3u", tmp_path / "out", "--playlist", "A", "--modified"
     )
 
@@ -210,23 +210,23 @@ def test_conflicting_options(home: Path, tmp_path: Path) -> None:
 def test_unknown_playlist(home: Path, tmp_path: Path) -> None:
     library_with_playlists(home)
 
-    result = djlib("--home", home, "export", "m3u", tmp_path / "out", "--playlist", "Techno/Peek")
+    result = tunedex("--home", home, "export", "m3u", tmp_path / "out", "--playlist", "Techno/Peek")
 
     assert result.exit_code == 1
     assert "did you mean 'Techno/Peak'" in result.stderr
 
 
 def test_machine_readable_plan(home: Path, music: Path) -> None:
-    result = djlib("--home", home, "scan", music, "--json")
+    result = tunedex("--home", home, "scan", music, "--json")
 
     document = json.loads(result.stdout)
-    assert (document["format"], document["version"]) == ("djlib-plan", 3)
+    assert (document["format"], document["version"]) == ("tunedex-plan", 3)
     assert len(document["tracks"]) == 2
     assert document["result"] is None
 
 
 def test_machine_readable_apply(home: Path, music: Path) -> None:
-    result = djlib("--home", home, "scan", music, "--json", "--apply", "--yes")
+    result = tunedex("--home", home, "scan", music, "--json", "--apply", "--yes")
 
     document = json.loads(result.stdout)
     assert document["result"]["status"] == "applied"
@@ -237,7 +237,7 @@ def test_stale_target(
 ) -> None:
     library_with_playlists(home)
     out = tmp_path / "out"
-    djlib("--home", home, "export", "m3u", out, "--apply", "--yes")
+    tunedex("--home", home, "export", "m3u", out, "--apply", "--yes")
     with Store.open(home / "library.db") as store:
         track = store.find_track_by_path("/music/b.mp3")
         assert track is not None
@@ -248,7 +248,7 @@ def test_stale_target(
         return True
 
     monkeypatch.setattr(_flow, "confirm", edit_while_asking)
-    result = djlib("--home", home, "export", "m3u", out, "--apply")
+    result = tunedex("--home", home, "export", "m3u", out, "--apply")
 
     assert result.exit_code == 1
     assert result.stderr.count("\n") == 1
@@ -260,7 +260,7 @@ def test_not_a_library(home: Path, music: Path) -> None:
     home.mkdir()
     (home / "library.db").write_text("not a database")
 
-    result = djlib("--home", home, "scan", music)
+    result = tunedex("--home", home, "scan", music)
 
     assert result.exit_code == 1
     assert "not an SQLite database" in result.stderr
@@ -270,11 +270,11 @@ def test_not_a_library(home: Path, music: Path) -> None:
 
 
 def test_snapshot_list(home: Path, music: Path) -> None:
-    assert djlib("--home", home, "snapshot", "list").stdout == "No snapshots.\n"
-    djlib("--home", home, "scan", music, "--apply", "--yes")
+    assert tunedex("--home", home, "snapshot", "list").stdout == "No snapshots.\n"
+    tunedex("--home", home, "scan", music, "--apply", "--yes")
 
-    text = djlib("--home", home, "snapshot", "list").stdout
-    document = json.loads(djlib("--home", home, "snapshot", "list", "library", "--json").stdout)
+    text = tunedex("--home", home, "snapshot", "list").stdout
+    document = json.loads(tunedex("--home", home, "snapshot", "list", "library", "--json").stdout)
 
     header, row = text.splitlines()
     assert header.split() == ["TARGET", "ID", "TIME", "REASON"]
@@ -292,11 +292,11 @@ def test_restore_after_an_export(home: Path, tmp_path: Path) -> None:
     (out / "Warm.m3u8").write_bytes(b"#EXTM3U\n# mine\n")
     before = tree_bytes(out)
     export = json.loads(
-        djlib("--home", home, "export", "m3u", out, "--json", "--apply", "--yes").stdout
+        tunedex("--home", home, "export", "m3u", out, "--json", "--apply", "--yes").stdout
     )
     assert tree_bytes(out) != before
 
-    result = djlib(
+    result = tunedex(
         "--home",
         home,
         "snapshot",
@@ -315,13 +315,15 @@ def test_restore_after_an_export(home: Path, tmp_path: Path) -> None:
 
 
 def test_restore_needs_confirmation(home: Path, music: Path) -> None:
-    djlib("--home", home, "scan", music, "--apply", "--yes")
+    tunedex("--home", home, "scan", music, "--apply", "--yes")
     (snapshot_id,) = [
         s["id"]
-        for s in json.loads(djlib("--home", home, "snapshot", "list", "--json").stdout)["snapshots"]
+        for s in json.loads(tunedex("--home", home, "snapshot", "list", "--json").stdout)[
+            "snapshots"
+        ]
     ]
 
-    result = djlib("--home", home, "snapshot", "restore", "library", snapshot_id, "--apply")
+    result = tunedex("--home", home, "snapshot", "restore", "library", snapshot_id, "--apply")
 
     assert result.exit_code == 1
     assert "pass --yes" in result.stderr
@@ -329,13 +331,15 @@ def test_restore_needs_confirmation(home: Path, music: Path) -> None:
 
 
 def test_restore_dry_run(home: Path, music: Path) -> None:
-    djlib("--home", home, "scan", music, "--apply", "--yes")
+    tunedex("--home", home, "scan", music, "--apply", "--yes")
     (snapshot_id,) = [
         s["id"]
-        for s in json.loads(djlib("--home", home, "snapshot", "list", "--json").stdout)["snapshots"]
+        for s in json.loads(tunedex("--home", home, "snapshot", "list", "--json").stdout)[
+            "snapshots"
+        ]
     ]
 
-    result = djlib("--home", home, "snapshot", "restore", "library", snapshot_id)
+    result = tunedex("--home", home, "snapshot", "restore", "library", snapshot_id)
 
     assert result.exit_code == 0
     assert "put back" in result.stdout
@@ -344,18 +348,20 @@ def test_restore_dry_run(home: Path, music: Path) -> None:
 
 
 def test_restore_as_json(home: Path, music: Path) -> None:
-    djlib("--home", home, "scan", music, "--apply", "--yes")
+    tunedex("--home", home, "scan", music, "--apply", "--yes")
     (snapshot_id,) = [
         s["id"]
-        for s in json.loads(djlib("--home", home, "snapshot", "list", "--json").stdout)["snapshots"]
+        for s in json.loads(tunedex("--home", home, "snapshot", "list", "--json").stdout)[
+            "snapshots"
+        ]
     ]
 
-    result = djlib(
+    result = tunedex(
         "--home", home, "snapshot", "restore", "library", snapshot_id, "--apply", "--yes", "--json"
     )
 
     document = json.loads(result.stdout)
-    assert (document["format"], document["version"]) == ("djlib-restore", 1)
+    assert (document["format"], document["version"]) == ("tunedex-restore", 1)
     assert document["snapshot"] == snapshot_id
     assert document["files"][0]["action"] == "put_back"
     assert document["result"]["status"] == "restored"
@@ -364,13 +370,15 @@ def test_restore_as_json(home: Path, music: Path) -> None:
 
 
 def test_restore_declined(home: Path, music: Path, interactive: None) -> None:
-    djlib("--home", home, "scan", music, "--apply", "--yes")
+    tunedex("--home", home, "scan", music, "--apply", "--yes")
     (snapshot_id,) = [
         s["id"]
-        for s in json.loads(djlib("--home", home, "snapshot", "list", "--json").stdout)["snapshots"]
+        for s in json.loads(tunedex("--home", home, "snapshot", "list", "--json").stdout)[
+            "snapshots"
+        ]
     ]
 
-    result = djlib(
+    result = tunedex(
         "--home", home, "snapshot", "restore", "library", snapshot_id, "--apply", input="n\n"
     )
 
@@ -379,7 +387,7 @@ def test_restore_declined(home: Path, music: Path, interactive: None) -> None:
 
 
 def test_restore_unknown_snapshot(home: Path) -> None:
-    result = djlib(
+    result = tunedex(
         "--home", home, "snapshot", "restore", "library", "000009-20260101T000000Z", "--yes"
     )
 
@@ -390,7 +398,7 @@ def test_restore_unknown_snapshot(home: Path) -> None:
 def test_unknown_playlist_as_json(home: Path, tmp_path: Path) -> None:
     library_with_playlists(home)
 
-    result = djlib(
+    result = tunedex(
         "--home", home, "export", "m3u", tmp_path / "out", "--playlist", "Nope", "--json"
     )
 
@@ -408,13 +416,13 @@ def test_failed_apply_as_json(home: Path, music: Path, monkeypatch: pytest.Monke
         )
 
     monkeypatch.setattr(Home, "apply", broken)
-    as_json = djlib("--home", home, "scan", music, "--apply", "--yes", "--json")
-    as_text = djlib("--home", home, "scan", music, "--apply", "--yes")
+    as_json = tunedex("--home", home, "scan", music, "--apply", "--yes", "--json")
+    as_text = tunedex("--home", home, "scan", music, "--apply", "--yes")
 
     error = json.loads(as_json.stderr)["error"]
     assert (error["code"], error["target"], error["restored"]) == ("apply_failed", "library", False)
     assert error["snapshot"] == "000001-20261029T120000Z"
-    assert "djlib snapshot restore library 000001-20261029T120000Z --apply" in as_text.stderr
+    assert "tunedex snapshot restore library 000001-20261029T120000Z --apply" in as_text.stderr
 
 
 ANSI_ESCAPE = re.compile(r"\x1b\[[0-9;]*m")
@@ -441,14 +449,14 @@ ANSI_ESCAPE = re.compile(r"\x1b\[[0-9;]*m")
     ],
 )
 def test_every_command_has_an_example(command: list[str]) -> None:
-    result = djlib(*command, "--help")
+    result = tunedex(*command, "--help")
 
     assert result.exit_code == 0
-    assert f"Example: djlib {' '.join(command)}" in ANSI_ESCAPE.sub("", result.stdout)
+    assert f"Example: tunedex {' '.join(command)}" in ANSI_ESCAPE.sub("", result.stdout)
 
 
 def test_root_help_states_the_rules() -> None:
-    text = " ".join(ANSI_ESCAPE.sub("", djlib("--help").stdout).split())
+    text = " ".join(ANSI_ESCAPE.sub("", tunedex("--help").stdout).split())
 
     assert "unless --apply is given" in text
     assert "Exit codes: 0 success" in text
@@ -457,7 +465,7 @@ def test_root_help_states_the_rules() -> None:
 
 
 def test_missing_argument_is_a_usage_error(home: Path) -> None:
-    result = djlib("--home", home, "scan")
+    result = tunedex("--home", home, "scan")
 
     assert result.exit_code == 2
     assert "Missing argument" in ANSI_ESCAPE.sub("", result.stderr)

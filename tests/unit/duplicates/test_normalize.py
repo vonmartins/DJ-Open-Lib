@@ -4,8 +4,8 @@ import pytest
 from hypothesis import given
 from hypothesis import strategies as st
 
-from djlib.duplicates.normalize import name_key, normalize_text
-from djlib.model.track import Track
+from tunedex.duplicates.normalize import name_key, normalize_text
+from tunedex.model.track import Track
 
 
 def key(artist: str | None, title: str | None) -> tuple[str, str] | None:

@@ -3,10 +3,10 @@
 import time
 from pathlib import Path
 
-from djlib.model.library import Library
-from djlib.model.track import Track
-from djlib.planning import Engine, assume_yes
-from djlib.store import Store
+from tunedex.model.library import Library
+from tunedex.model.track import Track
+from tunedex.planning import Engine, assume_yes
+from tunedex.store import Store
 
 COUNT = 10_000
 

@@ -1,10 +1,10 @@
-from djlib.adapters.contract import Capabilities
-from djlib.adapters.losses import compute_losses, display_name
-from djlib.model.beatgrid import BeatGrid, BeatMarker
-from djlib.model.cue import Cue, CueKind
-from djlib.model.library import Library
-from djlib.model.playlist import Folder, Playlist, Smartlist
-from djlib.model.track import Track
+from tunedex.adapters.contract import Capabilities
+from tunedex.adapters.losses import compute_losses, display_name
+from tunedex.model.beatgrid import BeatGrid, BeatMarker
+from tunedex.model.cue import Cue, CueKind
+from tunedex.model.library import Library
+from tunedex.model.playlist import Folder, Playlist, Smartlist
+from tunedex.model.track import Track
 
 BASIC = Capabilities(track_fields=frozenset({"title", "artist"}))
 

@@ -3,10 +3,10 @@
 import time
 from pathlib import Path
 
-from djlib.adapters.m3u import M3UAdapter
-from djlib.planning import Engine, assume_yes
-from djlib.store import Store
 from support.strategies import synthetic_library
+from tunedex.adapters.m3u import M3UAdapter
+from tunedex.planning import Engine, assume_yes
+from tunedex.store import Store
 
 COUNT = 10_000
 

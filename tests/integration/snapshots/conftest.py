@@ -2,7 +2,7 @@ from pathlib import Path
 
 import pytest
 
-from djlib.snapshots import SnapshotStore
+from tunedex.snapshots import SnapshotStore
 
 
 @pytest.fixture

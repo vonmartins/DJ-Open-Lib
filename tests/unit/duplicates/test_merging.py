@@ -2,10 +2,10 @@
 
 import datetime
 
-from djlib.duplicates.merging import merge
-from djlib.model.beatgrid import BeatGrid, BeatMarker
-from djlib.model.cue import Cue, CueKind
-from djlib.model.track import Track
+from tunedex.duplicates.merging import merge
+from tunedex.model.beatgrid import BeatGrid, BeatMarker
+from tunedex.model.cue import Cue, CueKind
+from tunedex.model.track import Track
 
 CUES = tuple(Cue(kind=CueKind.HOT, start_us=i * 1_000_000, slot=i) for i in range(4))
 GRID = BeatGrid(markers=(BeatMarker(position_us=0, bpm=140.0),))

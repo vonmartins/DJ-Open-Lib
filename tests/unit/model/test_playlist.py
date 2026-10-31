@@ -2,9 +2,9 @@ import dataclasses
 
 import pytest
 
-from djlib.model.errors import ValidationError
-from djlib.model.ids import new_track_id
-from djlib.model.playlist import Folder, MatchMode, Playlist, Rule, Smartlist
+from tunedex.model.errors import ValidationError
+from tunedex.model.ids import new_track_id
+from tunedex.model.playlist import Folder, MatchMode, Playlist, Rule, Smartlist
 
 
 def test_folder_with_tracks_rejected() -> None:

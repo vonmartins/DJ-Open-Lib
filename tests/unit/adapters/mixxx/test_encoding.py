@@ -1,7 +1,8 @@
 from hypothesis import given
 from hypothesis import strategies as st
 
-from djlib.adapters.mixxx.beats import (
+from support.mixxx import beat_grid, beat_map
+from tunedex.adapters.mixxx.beats import (
     BEAT_GRID,
     BEAT_MAP,
     decode_grid,
@@ -11,9 +12,8 @@ from djlib.adapters.mixxx.beats import (
     grid_from_mixxx,
     grid_to_mixxx,
 )
-from djlib.adapters.mixxx.keys import encode_key_map, key_from_id, key_to_id
-from djlib.model.beatgrid import BeatGrid, BeatMarker
-from support.mixxx import beat_grid, beat_map
+from tunedex.adapters.mixxx.keys import encode_key_map, key_from_id, key_to_id
+from tunedex.model.beatgrid import BeatGrid, BeatMarker
 
 RATE = 44100
 

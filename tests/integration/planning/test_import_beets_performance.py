@@ -5,9 +5,9 @@ import sqlite3
 import time
 from pathlib import Path
 
-from djlib.planning import Engine, assume_yes
-from djlib.sources.beets import BeetsSource
 from support.beets import BeetsDatabase
+from tunedex.planning import Engine, assume_yes
+from tunedex.sources.beets import BeetsSource
 
 COUNT = 10_000
 

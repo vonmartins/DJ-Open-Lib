@@ -5,11 +5,11 @@ from typing import Any
 
 import pytest
 
-from djlib.model.playlist import Playlist
-from djlib.model.track import Track
-from djlib.planning import Engine, assume_yes
-from djlib.snapshots import SnapshotStore
-from djlib.store import Store
+from tunedex.model.playlist import Playlist
+from tunedex.model.track import Track
+from tunedex.planning import Engine, assume_yes
+from tunedex.snapshots import SnapshotStore
+from tunedex.store import Store
 
 from .conftest import NOW
 

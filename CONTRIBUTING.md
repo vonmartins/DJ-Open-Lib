@@ -42,7 +42,7 @@ documented, and the commands in examples exist.
 help, arguments or options, regenerate it:
 
 ```sh
-uv run typer djlib.cli utils docs --name djlib --title Commands --output docs/reference/cli.md
+uv run typer tunedex.cli utils docs --name tunedex --title Commands --output docs/reference/cli.md
 ```
 
 A change to a `--json` document, an error code or a public Python name needs its

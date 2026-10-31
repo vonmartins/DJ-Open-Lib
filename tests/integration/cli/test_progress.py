@@ -5,7 +5,7 @@ from pathlib import Path
 
 import pytest
 
-from djlib.cli._progress import FolderProgress, StepProgress
+from tunedex.cli._progress import FolderProgress, StepProgress
 
 
 def captured(monkeypatch: pytest.MonkeyPatch) -> io.StringIO:

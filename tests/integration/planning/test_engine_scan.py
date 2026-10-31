@@ -4,11 +4,11 @@ from pathlib import Path
 
 import pytest
 
-from djlib.planning import ApplyFailedError, Engine, StaleTargetError, assume_yes
-from djlib.snapshots import SnapshotStore
-from djlib.store import FileState, Store
 from support.audio import tagged_copy, write_tags
 from support.files import tree_bytes
+from tunedex.planning import ApplyFailedError, Engine, StaleTargetError, assume_yes
+from tunedex.snapshots import SnapshotStore
+from tunedex.store import FileState, Store
 
 
 @pytest.fixture

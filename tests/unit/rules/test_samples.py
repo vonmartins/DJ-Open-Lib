@@ -5,10 +5,10 @@ from typing import Any
 import pytest
 import yaml
 
-from djlib.model.track import Track
-from djlib.rules.ruleset import defaults
-from djlib.rules.runner import run
 from support.rules_corpus import CORPUS
+from tunedex.model.track import Track
+from tunedex.rules.ruleset import defaults
+from tunedex.rules.runner import run
 
 SAMPLES = yaml.safe_load((CORPUS / "_samples.yaml").read_text(encoding="utf-8"))
 

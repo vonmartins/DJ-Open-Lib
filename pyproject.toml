@@ -1,5 +1,5 @@
 [project]
-name = "djlib"
+name = "tunedex"
 version = "0.0.0"
 description = "Free, local-first, scriptable DJ library manager."
 readme = "README.md"
@@ -25,11 +25,11 @@ dependencies = [
 ]
 
 [project.urls]
-Documentation = "https://vonmartins.github.io/DJ-Open-Lib/"
-Repository = "https://github.com/vonmartins/DJ-Open-Lib"
+Documentation = "https://vonmartins.github.io/tunedex/"
+Repository = "https://github.com/vonmartins/tunedex"
 
 [project.scripts]
-djlib = "djlib.cli:main"
+tunedex = "tunedex.cli:main"
 
 [build-system]
 requires = ["uv_build>=0.12.21,<0.13.0"]
@@ -61,8 +61,8 @@ select = ["E", "F", "W", "I", "UP", "B", "SIM", "RUF", "PTH", "S"]
 # Tests use assert and run the CLI through subprocess.
 "tests/**" = ["S"]
 # SQL text is composed only from module constants; values are always bound parameters.
-"src/djlib/store/repository.py" = ["S608"]
-"src/djlib/adapters/mixxx/writer.py" = ["S608"]
+"src/tunedex/store/repository.py" = ["S608"]
+"src/tunedex/adapters/mixxx/writer.py" = ["S608"]
 
 [tool.pyright]
 include = ["src", "tests"]

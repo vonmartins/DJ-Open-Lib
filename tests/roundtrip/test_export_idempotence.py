@@ -5,12 +5,12 @@ from pathlib import Path
 
 from hypothesis import given, settings
 
-from djlib.adapters.m3u import M3UAdapter
-from djlib.model.library import Library
-from djlib.planning import Engine, assume_yes
-from djlib.snapshots import SnapshotStore
-from djlib.store import Store
 from support.strategies import libraries
+from tunedex.adapters.m3u import M3UAdapter
+from tunedex.model.library import Library
+from tunedex.planning import Engine, assume_yes
+from tunedex.snapshots import SnapshotStore
+from tunedex.store import Store
 
 
 @given(library=libraries())

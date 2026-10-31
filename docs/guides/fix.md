@@ -1,12 +1,12 @@
 # Fixing tags with rules
 
-`djlib fix` cleans the tags of the library with bundled fixes and your own rules.
+`tunedex fix` cleans the tags of the library with bundled fixes and your own rules.
 
 ```sh
-djlib fix                                       # show what would change
-djlib fix --apply
-djlib fix --only remove_urls,extract_featured   # only some fixes
-djlib fix --under ~/Music/New                   # only some tracks
+tunedex fix                                       # show what would change
+tunedex fix --apply
+tunedex fix --only remove_urls,extract_featured   # only some fixes
+tunedex fix --under ~/Music/New                   # only some tracks
 ```
 
 Every change in the plan says which fix or rule made it:
@@ -16,7 +16,7 @@ Every change in the plan says which fix or rule made it:
       title: 'E Trips [6U6S6iXLSmU]' → 'E Trips'  (remove_video_ids)
 ```
 
-Only djlib's library changes. Audio files are never touched, and later scans and imports keep your fixed values.
+Only tunedex's library changes. Audio files are never touched, and later scans and imports keep your fixed values.
 
 ## The bundled fixes
 
@@ -24,7 +24,7 @@ They remove URLs and video ids from titles, fill missing titles from file names,
 
 ## Your own rules
 
-Put a `rules.yaml` in the [djlib home](../reference/environment.md#the-home-directory), or pass `--rules FILE`. In it you can turn fixes off, tune them, and add rules:
+Put a `rules.yaml` in the [tunedex home](../reference/environment.md#the-home-directory), or pass `--rules FILE`. In it you can turn fixes off, tune them, and add rules:
 
 ```yaml
 fixes:
@@ -49,4 +49,4 @@ Keep the file in git if you like: it is your library's cleanup, as code.
 
 ## Running it again
 
-Fixes and rules are idempotent: once applied, `djlib fix` plans nothing until the library or the rules change. A bad rule is an error that names it, and nothing is planned.
+Fixes and rules are idempotent: once applied, `tunedex fix` plans nothing until the library or the rules change. A bad rule is an error that names it, and nothing is planned.

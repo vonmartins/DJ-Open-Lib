@@ -2,7 +2,7 @@ from pathlib import Path
 
 import pytest
 
-from djlib.adapters.contract import (
+from tunedex.adapters.contract import (
     Adapter,
     Capabilities,
     Detection,
@@ -13,7 +13,7 @@ from djlib.adapters.contract import (
     WriteOptions,
     WritePlan,
 )
-from djlib.model.library import Library
+from tunedex.model.library import Library
 
 
 class FakeAdapter:

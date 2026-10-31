@@ -3,7 +3,7 @@ from pathlib import Path
 
 import pytest
 
-from djlib.store import Store
+from tunedex.store import Store
 
 
 @pytest.fixture

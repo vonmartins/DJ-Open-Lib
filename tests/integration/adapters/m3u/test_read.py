@@ -2,14 +2,14 @@ from pathlib import Path
 
 import pytest
 
-from djlib.adapters.contract import ReadOptions
-from djlib.adapters.errors import AdapterReadError
-from djlib.adapters.m3u import M3UAdapter
-from djlib.adapters.pathmap import PathMapping, PathRule
-from djlib.model.library import Library
-from djlib.model.paths import normalize_path
-from djlib.model.playlist import Folder, Playlist
 from support.adapter_contract import assert_read_only
+from tunedex.adapters.contract import ReadOptions
+from tunedex.adapters.errors import AdapterReadError
+from tunedex.adapters.m3u import M3UAdapter
+from tunedex.adapters.pathmap import PathMapping, PathRule
+from tunedex.model.library import Library
+from tunedex.model.paths import normalize_path
+from tunedex.model.playlist import Folder, Playlist
 
 FIXTURES = Path(__file__).parents[3] / "fixtures" / "m3u"
 TREE = FIXTURES / "tree"

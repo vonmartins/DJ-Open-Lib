@@ -6,7 +6,7 @@ import json
 from pathlib import Path
 from typing import Any
 
-from djlib.adapters.contract import (
+from tunedex.adapters.contract import (
     Capabilities,
     Detection,
     FileChange,
@@ -15,11 +15,11 @@ from djlib.adapters.contract import (
     WriteOptions,
     WritePlan,
 )
-from djlib.model.library import Library
-from djlib.model.track import Track
-from djlib.planning import Engine, assume_yes
-from djlib.snapshots import SnapshotStore
-from djlib.store import Store
+from tunedex.model.library import Library
+from tunedex.model.track import Track
+from tunedex.planning import Engine, assume_yes
+from tunedex.snapshots import SnapshotStore
+from tunedex.store import Store
 
 FIELDS = ("title", "genre", "bpm", "duration_us")
 
@@ -94,7 +94,7 @@ def test_never_imported_fills_only_empty_fields(
 ) -> None:
     path = tmp_path / "col.json"
     write_target(path, a={"title": "Mixxx title"})
-    store.add_track(Track(path_origin="/music/a.mp3", title="djlib title", bpm=128.0))
+    store.add_track(Track(path_origin="/music/a.mp3", title="tunedex title", bpm=128.0))
 
     plan = export(engine, path)
 

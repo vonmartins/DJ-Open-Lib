@@ -1,9 +1,9 @@
 from pathlib import Path
 
-from djlib.model.track import Track
-from djlib.snapshots import SnapshotStore
-from djlib.store import Store
 from support.files import sha256
+from tunedex.model.track import Track
+from tunedex.snapshots import SnapshotStore
+from tunedex.store import Store
 
 NML = "".join(
     f'<ENTRY TITLE="Track {i}"><LOCATION FILE="{i}.mp3"/><CUE_V2 START="{i}.5"/></ENTRY>\n'

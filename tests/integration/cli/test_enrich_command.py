@@ -1,4 +1,4 @@
-"""``djlib enrich`` (specs/cli)."""
+"""``tunedex enrich`` (specs/cli)."""
 
 import importlib
 import json
@@ -8,15 +8,15 @@ from typing import Any
 import pytest
 from typer.testing import CliRunner, Result
 
-from djlib.cli import app
-from djlib.enrich.cache import Cache
-from djlib.enrich.service import Services
-from djlib.model.track import Track
-from djlib.store import Store
 from support.enrich import FakeClock, FakeFpcalc, FakeTransport, catalogue, fixture
+from tunedex.cli import app
+from tunedex.enrich.cache import Cache
+from tunedex.enrich.service import Services
+from tunedex.model.track import Track
+from tunedex.store import Store
 
 # The package exports the command function under the module's name.
-command = importlib.import_module("djlib.cli.enrich")
+command = importlib.import_module("tunedex.cli.enrich")
 runner = CliRunner()
 DFRNT = "b03469f1-8ae8-4e57-a73d-1bb81db98783"
 
@@ -99,7 +99,7 @@ def test_key_from_the_environment(
     tmp_path: Path, transport: FakeTransport, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     library(tmp_path)
-    monkeypatch.setenv("DJLIB_ACOUSTID_KEY", "my-key")
+    monkeypatch.setenv("TUNEDEX_ACOUSTID_KEY", "my-key")
 
     assert invoke(tmp_path).exit_code == 0
     posted: Any = [data for _method, _url, data, _headers in transport.requests if data]

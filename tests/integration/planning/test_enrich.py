@@ -6,14 +6,14 @@ from typing import Any
 
 import pytest
 
-from djlib.enrich import EnrichError
-from djlib.enrich.cache import Cache
-from djlib.enrich.http import TransportError
-from djlib.enrich.service import Services
-from djlib.model.track import Track
-from djlib.planning import Engine, assume_yes, render_text
-from djlib.store import Store
 from support.enrich import FakeClock, FakeFpcalc, FakeTransport, answer, catalogue, fixture
+from tunedex.enrich import EnrichError
+from tunedex.enrich.cache import Cache
+from tunedex.enrich.http import TransportError
+from tunedex.enrich.service import Services
+from tunedex.model.track import Track
+from tunedex.planning import Engine, assume_yes, render_text
+from tunedex.store import Store
 
 DFRNT = "b03469f1-8ae8-4e57-a73d-1bb81db98783"
 INSIDERS = "6340a9b8-f427-4d89-a842-971a52ad3ce4"

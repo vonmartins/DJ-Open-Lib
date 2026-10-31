@@ -3,15 +3,15 @@ from pathlib import Path
 
 import pytest
 
-from djlib.store import database
-from djlib.store.database import APPLICATION_ID, open_database, transaction
-from djlib.store.errors import (
+from tunedex.store import database
+from tunedex.store.database import APPLICATION_ID, open_database, transaction
+from tunedex.store.errors import (
     BackupError,
     MigrationError,
-    NotADjlibDatabaseError,
+    NotATunedexDatabaseError,
     SchemaTooNewError,
 )
-from djlib.store.migrations import Migration, bundled_migrations, schema_version
+from tunedex.store.migrations import Migration, bundled_migrations, schema_version
 
 M1 = Migration(
     1,
@@ -73,7 +73,7 @@ def test_other_sqlite_file_refused(tmp_path: Path) -> None:
     other.close()
     before = snapshot(tmp_path)
 
-    with pytest.raises(NotADjlibDatabaseError):
+    with pytest.raises(NotATunedexDatabaseError):
         open_database(path)
     assert snapshot(tmp_path) == before
 
@@ -83,13 +83,13 @@ def test_non_database_refused(tmp_path: Path, content: bytes) -> None:
     path = tmp_path / "notes.txt"
     path.write_bytes(content)
 
-    with pytest.raises(NotADjlibDatabaseError):
+    with pytest.raises(NotATunedexDatabaseError):
         open_database(path)
     assert snapshot(tmp_path) == {"notes.txt": content}
 
 
 def test_directory_refused(tmp_path: Path) -> None:
-    with pytest.raises(NotADjlibDatabaseError):
+    with pytest.raises(NotATunedexDatabaseError):
         open_database(tmp_path)
 
 

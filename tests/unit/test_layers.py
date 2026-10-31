@@ -6,15 +6,15 @@ import sys
 import pytest
 
 CORE_PACKAGES = [
-    "djlib.model",
-    "djlib.store",
-    "djlib.snapshots",
-    "djlib.adapters",
-    "djlib.sources",
-    "djlib.enrich",
-    "djlib.duplicates",
-    "djlib.planning",
-    "djlib.query",
+    "tunedex.model",
+    "tunedex.store",
+    "tunedex.snapshots",
+    "tunedex.adapters",
+    "tunedex.sources",
+    "tunedex.enrich",
+    "tunedex.duplicates",
+    "tunedex.planning",
+    "tunedex.query",
 ]
 
 
@@ -24,7 +24,7 @@ def test_core_does_not_import_the_cli(module: str) -> None:
         f"import sys, {module}, pkgutil, importlib\n"
         f"for info in pkgutil.walk_packages({module}.__path__, '{module}.'):\n"
         "    importlib.import_module(info.name)\n"
-        "print(sorted(m for m in sys.modules if m == 'typer' or m.startswith('djlib.cli')))"
+        "print(sorted(m for m in sys.modules if m == 'typer' or m.startswith('tunedex.cli')))"
     )
     result = subprocess.run(
         [sys.executable, "-c", code], capture_output=True, text=True, check=True

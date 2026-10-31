@@ -5,12 +5,12 @@ from typing import Any
 
 import pytest
 
-from djlib.model.cue import Cue, CueKind
-from djlib.model.playlist import Folder, Playlist
-from djlib.model.track import Track
-from djlib.planning import Engine
-from djlib.snapshots import SnapshotStore
-from djlib.store import Store
+from tunedex.model.cue import Cue, CueKind
+from tunedex.model.playlist import Folder, Playlist
+from tunedex.model.track import Track
+from tunedex.planning import Engine
+from tunedex.snapshots import SnapshotStore
+from tunedex.store import Store
 
 NOW = datetime.datetime(2026, 10, 27, 12, 0, tzinfo=datetime.UTC)
 

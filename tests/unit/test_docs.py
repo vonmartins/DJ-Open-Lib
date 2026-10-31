@@ -17,13 +17,13 @@ import typer.main
 import yaml
 from typer.testing import CliRunner
 
-import djlib
-from djlib.cli import app
-from djlib.cli._flow import ERROR_CODES, fail
-from djlib.model.library import Library
-from djlib.model.playlist import Folder, Playlist
-from djlib.model.track import Track
-from djlib.store import Store
+import tunedex
+from tunedex.cli import app
+from tunedex.cli._flow import ERROR_CODES, fail
+from tunedex.model.library import Library
+from tunedex.model.playlist import Folder, Playlist
+from tunedex.model.track import Track
+from tunedex.store import Store
 
 ROOT = Path(__file__).resolve().parents[2]
 DOCS = ROOT / "docs"
@@ -32,8 +32,8 @@ CLI_REFERENCE = DOCS / "reference" / "cli.md"
 JSON_REFERENCE = DOCS / "reference" / "json.md"
 ERRORS_REFERENCE = DOCS / "reference" / "errors.md"
 REGENERATE_CLI = [
-    "typer", "djlib.cli", "utils", "docs",
-    "--name", "djlib", "--title", "Commands", "--output", "docs/reference/cli.md",
+    "typer", "tunedex.cli", "utils", "docs",
+    "--name", "tunedex", "--title", "Commands", "--output", "docs/reference/cli.md",
 ]  # fmt: skip
 
 
@@ -51,15 +51,15 @@ def test_command_reference_matches_the_commands(tmp_path: Path) -> None:
 
 def test_python_api_page_lists_every_public_name() -> None:
     page = (DOCS / "reference" / "python-api.md").read_text(encoding="utf-8")
-    documented = re.findall(r"^::: djlib\.(\w+)$", page, flags=re.MULTILINE)
+    documented = re.findall(r"^::: tunedex\.(\w+)$", page, flags=re.MULTILINE)
 
     assert len(documented) == len(set(documented))
-    assert set(documented) == set(djlib.__all__)
+    assert set(documented) == set(tunedex.__all__)
 
 
-@pytest.mark.parametrize("name", djlib.__all__)
+@pytest.mark.parametrize("name", tunedex.__all__)
 def test_public_name_has_its_own_docstring(name: str) -> None:
-    assert _own_docstring(name, getattr(djlib, name))
+    assert _own_docstring(name, getattr(tunedex, name))
 
 
 def _own_docstring(name: str, obj: object) -> str | None:
@@ -70,7 +70,7 @@ def _own_docstring(name: str, obj: object) -> str | None:
     if inspect.isfunction(obj):
         return obj.__doc__
     # A type alias: the string literal under its assignment, as mkdocstrings reads it.
-    for path in (ROOT / "src" / "djlib").rglob("*.py"):
+    for path in (ROOT / "src" / "tunedex").rglob("*.py"):
         body = ast.parse(path.read_text(encoding="utf-8")).body
         for statement, following in itertools.pairwise(body):
             if (
@@ -109,25 +109,25 @@ def test_every_page_is_in_the_navigation() -> None:
 
 
 def _json_formats_in_code() -> set[str]:
-    """Every ``djlib-...`` document name assigned to a ``*FORMAT`` constant."""
+    """Every ``tunedex-...`` document name assigned to a ``*FORMAT`` constant."""
     found: set[str] = set()
-    for path in (ROOT / "src" / "djlib").rglob("*.py"):
+    for path in (ROOT / "src" / "tunedex").rglob("*.py"):
         for node in ast.walk(ast.parse(path.read_text(encoding="utf-8"))):
             if (
                 isinstance(node, ast.Assign)
                 and any(isinstance(t, ast.Name) and t.id.endswith("FORMAT") for t in node.targets)
                 and isinstance(node.value, ast.Constant)
                 and isinstance(node.value.value, str)
-                and node.value.value.startswith("djlib-")
+                and node.value.value.startswith("tunedex-")
             ):
                 found.add(node.value.value)
     return found
 
 
 def json_sections() -> dict[str, str]:
-    """The text of each ``## `djlib-...` `` section of the JSON reference, by format."""
+    """The text of each ``## `tunedex-...` `` section of the JSON reference, by format."""
     page = JSON_REFERENCE.read_text(encoding="utf-8")
-    parts = re.split(r"^## `(djlib-[a-z]+)`$", page, flags=re.MULTILINE)
+    parts = re.split(r"^## `(tunedex-[a-z]+)`$", page, flags=re.MULTILINE)
     return dict(zip(parts[1::2], parts[2::2], strict=True))
 
 
@@ -162,7 +162,7 @@ def test_json_examples_parse_and_name_their_format() -> None:
 def _error_codes_in_code() -> set[str]:
     codes = {code for _, code in ERROR_CODES}
     codes.add(inspect.signature(fail).parameters["code"].default)
-    for path in (ROOT / "src" / "djlib" / "cli").rglob("*.py"):
+    for path in (ROOT / "src" / "tunedex" / "cli").rglob("*.py"):
         for node in ast.walk(ast.parse(path.read_text(encoding="utf-8"))):
             if isinstance(node, ast.Call) and getattr(node.func, "id", None) == "fail":
                 given = node.args[1:2] + [k.value for k in node.keywords if k.arg == "code"]
@@ -186,7 +186,7 @@ def test_every_error_code_is_documented() -> None:
 
 
 def _example_commands() -> Iterator[tuple[str, str]]:
-    """Each ``djlib ...`` command in a shell code block, with the page it is on."""
+    """Each ``tunedex ...`` command in a shell code block, with the page it is on."""
     for path in sorted(DOCS.rglob("*.md")):
         if path == CLI_REFERENCE:
             continue
@@ -194,13 +194,13 @@ def _example_commands() -> Iterator[tuple[str, str]]:
         for block in re.findall(r"```(?:sh|console)\n(.*?)```", text, flags=re.DOTALL):
             for line in block.replace("\\\n", " ").splitlines():
                 command = line.removeprefix("$ ").removeprefix("uv run ")
-                if re.match(r"([A-Z_]+=\S* )*djlib\b", command):
+                if re.match(r"([A-Z_]+=\S* )*tunedex\b", command):
                     yield path.relative_to(DOCS).as_posix(), command
 
 
 def _check_command(line: str) -> None:
     words = shlex.split(line, comments=True)
-    while not words[0].startswith("djlib"):
+    while not words[0].startswith("tunedex"):
         words.pop(0)  # environment assignments
     command: Any = typer.main.get_command(app)
     words = words[1:]

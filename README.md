@@ -1,16 +1,15 @@
-# djlib
+# tunedex
 
 A free, local-first, scriptable DJ library manager.
 
-**Documentation: [vonmartins.github.io/DJ-Open-Lib](https://vonmartins.github.io/DJ-Open-Lib/)**
+**Documentation: [vonmartins.github.io/tunedex](https://vonmartins.github.io/tunedex/)**
 
 Your music folder (and optionally your [beets](https://beets.io) library) is the
 source of truth. DJ apps such as Mixxx are targets you sync to safely: every write is
 planned first, shown as a diff, and backed by a snapshot you can restore.
 
 > **Status: pre-alpha.** Try it with a scratch home and a test profile of your DJ app
-> before you point it at the library you play from. `djlib` is a working name; the
-> final project name is still open.
+> before you point it at the library you play from.
 
 ## What it does
 
@@ -29,28 +28,28 @@ programs. No accounts, no telemetry, no cloud.
 ## Install
 
 ```sh
-uv tool install git+https://github.com/vonmartins/DJ-Open-Lib
+uv tool install git+https://github.com/vonmartins/tunedex
 ```
 
-or `pipx install git+https://github.com/vonmartins/DJ-Open-Lib`. Python 3.11 or later.
+or `pipx install git+https://github.com/vonmartins/tunedex`. Python 3.11 or later.
 
 ## Quick start
 
 ```sh
-export DJLIB_HOME=/tmp/djlib-try     # a scratch home, to try it safely
-djlib scan ~/Music                   # show what would be added; writes nothing
-djlib scan ~/Music --apply           # apply it, after confirming
-djlib fix                            # show how the tags would be cleaned
-djlib list --where "bpm>=170"
+export TUNEDEX_HOME=/tmp/tunedex-try     # a scratch home, to try it safely
+tunedex scan ~/Music                   # show what would be added; writes nothing
+tunedex scan ~/Music --apply           # apply it, after confirming
+tunedex fix                            # show how the tags would be cleaned
+tunedex list --where "bpm>=170"
 ```
 
-Then follow the [tutorial](https://vonmartins.github.io/DJ-Open-Lib/tutorial/).
+Then follow the [tutorial](https://vonmartins.github.io/tunedex/tutorial/).
 
-## Building on djlib
+## Building on tunedex
 
 Every command takes `--json` and prints one documented JSON document; errors have
-stable codes. Python programs can `import djlib`. See
-[using djlib from another program](https://vonmartins.github.io/DJ-Open-Lib/guides/from-another-program/).
+stable codes. Python programs can `import tunedex`. See
+[using tunedex from another program](https://vonmartins.github.io/tunedex/guides/from-another-program/).
 
 ## Development
 
@@ -58,7 +57,7 @@ Requires [uv](https://docs.astral.sh/uv/).
 
 ```sh
 uv sync
-uv run djlib --help
+uv run tunedex --help
 uv run pytest
 ```
 

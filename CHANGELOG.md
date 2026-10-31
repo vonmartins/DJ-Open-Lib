@@ -9,31 +9,31 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- A documentation site at <https://vonmartins.github.io/DJ-Open-Lib/>: install, a
+- A documentation site at <https://vonmartins.github.io/tunedex/>: install, a
   tutorial, guides, the reference of every command, JSON format, error code and Python
-  name, and explanations of how djlib works. The README is now a short overview.
-- Browsing the library: `djlib status` (summary), `djlib list` (tracks, filtered with
-  `--where "FIELD OP VALUE"`, `--under`, `--playlist` and `--missing`), `djlib show
-  TRACK` (one track, by path or id) and `djlib playlists` (the tree with track counts),
+  name, and explanations of how tunedex works. The README is now a short overview.
+- Browsing the library: `tunedex status` (summary), `tunedex list` (tracks, filtered with
+  `--where "FIELD OP VALUE"`, `--under`, `--playlist` and `--missing`), `tunedex show
+  TRACK` (one track, by path or id) and `tunedex playlists` (the tree with track counts),
   all with `--json`. They never write.
 - `--under FOLDER` on `fix` and `dupes`, `--skip` and `--ignore` on `dupes --merge`, and
   a repeatable `fix --only`.
 - With `--json`, errors are printed as a JSON document with a stable `code`.
-- A Python API: `djlib.open_library()` opens the library of the command line's home, and
-  `djlib` exports the stable names.
+- A Python API: `tunedex.open_library()` opens the library of the command line's home, and
+  `tunedex` exports the stable names.
 - Help texts in one format, with an example per command, grouped in the root help, which
   also states the dry-run rule and the exit codes (0, 1 and 2).
 - Colored output in terminals (plan changes by kind, warnings, errors, headers), off when
   the output is not a terminal, with `--no-color` or with `NO_COLOR`; `FORCE_COLOR`
   turns it on. Color never changes the text. Plans show each field's value before in
-  red and after in green; `djlib list` and `djlib show` color keys by their place on
-  the key wheel (in terminals with 256 colors or more). `djlib dupes`, `djlib snapshot
-  list` and `djlib status` print aligned columns, aligned by screen width so titles with
+  red and after in green; `tunedex list` and `tunedex show` color keys by their place on
+  the key wheel (in terminals with 256 colors or more). `tunedex dupes`, `tunedex snapshot
+  list` and `tunedex status` print aligned columns, aligned by screen width so titles with
   wide characters no longer shift them.
 - Progress displays on standard error in terminals: a spinner with the files found
-  while walking folders, and a bar for `djlib enrich`.
+  while walking folders, and a bar for `tunedex enrich`.
 
-- Merging duplicates (`djlib dupes`): tracks that are the same song (same MusicBrainz
+- Merging duplicates (`tunedex dupes`): tracks that are the same song (same MusicBrainz
   recording, or same normalized artist and title with lengths within 3 seconds; versions
   stay apart) are reported with their format, bitrate, cues and playlists and a
   suggested track to keep. `--merge` asks group by group, then plans one merge: the kept
@@ -42,47 +42,47 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   as not duplicates are remembered (schema version 7), so imports and scans do not bring
   them back. Plans can now move audio files to the trash; the plan JSON is version 3,
   with the `merged` track change, `merged_into` and `trash`.
-- Enriching tags (`djlib enrich`): tracks are fingerprinted with `fpcalc`, recognized
+- Enriching tags (`tunedex enrich`): tracks are fingerprinted with `fpcalc`, recognized
   by AcoustID and tagged from MusicBrainz (title, artist, remixer, album, dates, label,
   track and disc numbers; the genre only when empty), through a plan where each change
   is marked `musicbrainz`. The first run normalizes; later runs keep edits made in
-  djlib. Ambiguous, unknown and disagreeing tracks are reported, never guessed.
-  Answers are cached in the djlib home (`--refresh` asks again), `--under FOLDER`
+  tunedex. Ambiguous, unknown and disagreeing tracks are reported, never guessed.
+  Answers are cached in the tunedex home (`--refresh` asks again), `--under FOLDER`
   limits the run, and no other command uses the network.
-- Cleaning tags (`djlib fix`): ten bundled fixes (URLs, video ids, mojibake and HTML
+- Cleaning tags (`tunedex fix`): ten bundled fixes (URLs, video ids, mojibake and HTML
   entities, full-width and odd characters, underscores, leading numbers, featured
   artists, remixers, titles from file names, and an opt-in case fix), tested against
   per-fix tables, a clean corpus of about 400 titles in many genres and scripts, and
   properties such as idempotence. A YAML rules file tunes or disables fixes and adds
   rules made of conditions (shared with smartlists) and `replace` or `set` actions.
   Each planned change names the fix or rule that made it (`by` in the plan JSON).
-- Relocating tracks (`djlib relocate FOLDER`): tracks whose files are not on this
+- Relocating tracks (`tunedex relocate FOLDER`): tracks whose files are not on this
   computer are matched by file name under a folder (the same trailing folders win; ties
   without a recorded size are reported, never guessed) and get their new paths through a
   plan. Only the path changes, so links to beets and Mixxx items keep working.
   Imports take `--find-in FOLDER` to import only the tracks found there, and folder
   walks show their progress on standard error in terminals.
-- beets libraries (`djlib import beets`): every item's tags, keys in Open Key or
+- beets libraries (`tunedex import beets`): every item's tags, keys in Open Key or
   musical notation, MusicBrainz and Discogs ids and flexible attributes, from both the
   older schema and beets 2.14's list fields and relative paths. Read only; beets is not
   a dependency. Imports now link tracks to their source items (schema version 6) and
   match by that link before the path, warn about tracks whose files are not on this
   computer, and create no folder for sources without playlists.
 
-- Exports to Mixxx (`djlib export mixxx`): track metadata, keys, cues, loops, beat
+- Exports to Mixxx (`tunedex export mixxx`): track metadata, keys, cues, loops, beat
   grids, new tracks, playlists and crates are written into Mixxx 2.5 databases by
-  editing a copy and replacing the file atomically, with everything djlib does not
+  editing a copy and replacing the file atomically, with everything tunedex does not
   model kept. Writing is refused while Mixxx runs. Exports to targets that hold a
   collection merge three ways and keep fields edited in the target, reporting
   conflicts; the values written become the merge base, so importing right after an
-  export changes nothing. Playlists djlib creates in Mixxx are not imported back as
+  export changes nothing. Playlists tunedex creates in Mixxx are not imported back as
   copies (schema version 5 records where each exported node lives in its target).
   Snapshots of export targets are exact byte copies.
 - Mixxx adapter (read only): reads Mixxx 2.5 library databases (schema 39) from a
   consistent in-memory copy, with tracks, keys, hot cues, main cue, loops, beat grids
   (constant grids and beat maps), playlists and crates; Auto DJ and history are left out.
-- Imports into the library (`djlib import mixxx`): tracks matched by path, a three-way
-  merge per source that keeps edits made in djlib and reports conflicts, and the
+- Imports into the library (`tunedex import mixxx`): tracks matched by path, a three-way
+  merge per source that keeps edits made in tunedex and reports conflicts, and the
   source's playlists in a folder of its own that re-imports replace with stable ids.
   The store keeps per-source merge bases (schema version 4).
 - Plan/apply engine: the only write path. Plans list every change with before and
@@ -93,13 +93,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   those modified since the last export to the same target; nothing is ever deleted
   from a target. The store gains a revision counter and per-target sync state
   (schema version 3).
-- Commands `djlib scan`, `djlib export m3u`, `djlib snapshot list` and `djlib
+- Commands `tunedex scan`, `tunedex export m3u`, `tunedex snapshot list` and `tunedex
   snapshot restore`, dry-run by default with `--apply`, `--yes` and `--json`, and a
-  `--home` directory (or `DJLIB_HOME`) for the library and snapshots.
+  `--home` directory (or `TUNEDEX_HOME`) for the library and snapshots.
 - Folder scan: reads MP3, FLAC, WAV, AIFF, M4A and OGG tags and properties with
   mutagen into scan plans, with incremental rescans, move detection that keeps cues
   and playlists, missing-file marking, a three-way merge that keeps edits made in
-  djlib, and non-UTF-8 file names skipped with a warning. The store keeps per-track
+  tunedex, and non-UTF-8 file names skipped with a warning. The store keeps per-track
   file state (schema version 2) and applies scan plans atomically.
 - Adapter contract: declared capabilities, read-only reading, write plans with full
   file contents, base hashes and aggregated losses, path mapping between machines,
@@ -117,20 +117,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - SQLite library store with a documented schema, track and playlist operations,
   versioned migrations with a backup before each upgrade, and refusal of files from
   other applications or newer releases.
-- Project bootstrap: Python package `djlib` managed with uv, placeholder `djlib`
+- Project bootstrap: Python package `tunedex` managed with uv, placeholder `tunedex`
   command (`--version`, `--help`), ruff, pyright, pytest + hypothesis,
   pre-commit hooks and CI on Linux, macOS and Windows.
 
 ### Changed
 
-- **Breaking:** `djlib snapshot restore TARGET ID` shows what it would restore and
+- **Breaking:** `tunedex snapshot restore TARGET ID` shows what it would restore and
   writes nothing without `--apply`, like the other commands. It also accepts `--json`.
 - Every path argument and option expands `~`. A folder that does not exist is reported
   as such by every command.
-- `djlib list` shows paths relative to the folder all the listed tracks share, named on
+- `tunedex list` shows paths relative to the folder all the listed tracks share, named on
   the last line (`46 tracks in ~/Music/`); `--json` keeps the full paths.
 - BPM is shown with at most two decimals and no trailing zeros (`128`, `127.5`) in every
-  command; `djlib list` showed `128.0`.
+  command; `tunedex list` showed `128.0`.
 
 - Plan JSON version 2: track changes and conflicts name the track under `name`
   (was `label`, easy to confuse with the record label), and added tracks list every

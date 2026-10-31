@@ -2,8 +2,8 @@ from pathlib import Path
 
 import pytest
 
-from djlib.planning import writer
-from djlib.planning.writer import DirectoryTracker, write_atomically
+from tunedex.planning import writer
+from tunedex.planning.writer import DirectoryTracker, write_atomically
 
 
 def test_creates_and_replaces(tmp_path: Path) -> None:

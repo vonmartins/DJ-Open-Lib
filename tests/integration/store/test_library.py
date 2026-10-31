@@ -2,13 +2,13 @@ from collections.abc import Iterable
 
 import pytest
 
-from djlib.model.ids import NodeId
-from djlib.model.library import Library
-from djlib.model.playlist import Node, Playlist
-from djlib.model.track import Track
-from djlib.store import ConflictError, Store
-from djlib.store.repository import Store as StoreClass
 from support.strategies import synthetic_library
+from tunedex.model.ids import NodeId
+from tunedex.model.library import Library
+from tunedex.model.playlist import Node, Playlist
+from tunedex.model.track import Track
+from tunedex.store import ConflictError, Store
+from tunedex.store.repository import Store as StoreClass
 
 
 def test_empty_store_loads_empty_library(store: Store) -> None:

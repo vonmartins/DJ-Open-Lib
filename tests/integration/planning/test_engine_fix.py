@@ -3,11 +3,11 @@
 import dataclasses
 from pathlib import Path
 
-from djlib.model.track import Track
-from djlib.planning import Engine, assume_yes, render_text, to_json
-from djlib.rules.ruleset import defaults
-from djlib.store import Store
 from support.audio import tagged_copy
+from tunedex.model.track import Track
+from tunedex.planning import Engine, assume_yes, render_text, to_json
+from tunedex.rules.ruleset import defaults
+from tunedex.store import Store
 
 
 def test_fix_named(engine: Engine, store: Store) -> None:

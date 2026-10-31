@@ -1,4 +1,4 @@
-"""``djlib dupes`` (specs/cli)."""
+"""``tunedex dupes`` (specs/cli)."""
 
 import json
 from pathlib import Path
@@ -7,11 +7,11 @@ from typing import Any
 import pytest
 from typer.testing import CliRunner, Result
 
-from djlib.cli import _flow, app
-from djlib.model.paths import normalize_path
-from djlib.model.track import Track
-from djlib.planning import engine as engine_module
-from djlib.store import Store
+from tunedex.cli import _flow, app
+from tunedex.model.paths import normalize_path
+from tunedex.model.track import Track
+from tunedex.planning import engine as engine_module
+from tunedex.store import Store
 
 runner = CliRunner()
 
@@ -75,7 +75,7 @@ def test_report(tmp_path: Path) -> None:
     assert first.index("/") == second.index("/")  # the paths line up
     assert paths(tmp_path) == ["Numb.flac", "Numb.mp3"]
     document = json.loads(invoke(tmp_path, "--json").stdout)
-    assert document["format"] == "djlib-dupes"
+    assert document["format"] == "tunedex-dupes"
     assert [t["suggested"] for t in document["groups"][0]["tracks"]] == [True, False]
 
 

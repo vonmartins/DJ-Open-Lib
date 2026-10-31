@@ -2,25 +2,25 @@
 
 In this tutorial you will scan a music folder, clean its tags and export it to Mixxx, without touching your real library. It takes about ten minutes.
 
-You need djlib [installed](install.md), a folder with some music, and optionally [Mixxx](https://mixxx.org) for the last steps.
+You need tunedex [installed](install.md), a folder with some music, and optionally [Mixxx](https://mixxx.org) for the last steps.
 
 ## 1. Use a scratch home
 
-djlib keeps its library in a [home directory](reference/environment.md#the-home-directory). For this tutorial, use a scratch one, so that you can delete it afterwards:
+tunedex keeps its library in a [home directory](reference/environment.md#the-home-directory). For this tutorial, use a scratch one, so that you can delete it afterwards:
 
 ```sh
-export DJLIB_HOME=/tmp/djlib-try
+export TUNEDEX_HOME=/tmp/tunedex-try
 ```
 
-On Windows PowerShell, use `$env:DJLIB_HOME = "$env:TEMP\djlib-try"`.
+On Windows PowerShell, use `$env:TUNEDEX_HOME = "$env:TEMP\tunedex-try"`.
 
 ## 2. Scan your music
 
 ```sh
-djlib scan ~/Music
+tunedex scan ~/Music
 ```
 
-djlib reads the tags of every audio file and prints its **plan**, the changes it would make:
+tunedex reads the tags of every audio file and prints its **plan**, the changes it would make:
 
 ```text
 scan ~/Music
@@ -33,10 +33,10 @@ Dry run: nothing was written. Run again with --apply to apply it.
 
 Nothing was written. This is how every command that changes something works: it shows the plan and stops. Your audio files are only read, now and always.
 
-Add `--apply` to carry it out. djlib asks before writing:
+Add `--apply` to carry it out. tunedex asks before writing:
 
 ```sh
-djlib scan ~/Music --apply
+tunedex scan ~/Music --apply
 ```
 
 ```text
@@ -46,8 +46,8 @@ Applied. Snapshot 000001-20261030T194441Z of library holds the previous state.
 ## 3. Look at the library
 
 ```sh
-djlib status
-djlib list
+tunedex status
+tunedex list
 ```
 
 ```text
@@ -59,16 +59,16 @@ Benga       E Trips [6U6S6iXLSmU]           140  8m   4:39  Benga - E Trips.mp3
 44 tracks in ~/Music/
 ```
 
-Files downloaded from the web often have poor tags: no title, or a video id stuck to it. `djlib show` prints everything djlib knows about one track:
+Files downloaded from the web often have poor tags: no title, or a video id stuck to it. `tunedex show` prints everything tunedex knows about one track:
 
 ```sh
-djlib show "~/Music/Benga - E Trips.mp3"
+tunedex show "~/Music/Benga - E Trips.mp3"
 ```
 
 ## 4. Clean the tags
 
 ```sh
-djlib fix
+tunedex fix
 ```
 
 ```text
@@ -84,10 +84,10 @@ Tracks: 43 updated
   …
 ```
 
-Each change says which fix made it. Only djlib's library changes; your files keep their tags. Apply it:
+Each change says which fix made it. Only tunedex's library changes; your files keep their tags. Apply it:
 
 ```sh
-djlib fix --apply
+tunedex fix --apply
 ```
 
 To change what `fix` does, see [fixing tags with rules](guides/fix.md).
@@ -97,8 +97,8 @@ To change what `fix` does, see [fixing tags with rules](guides/fix.md).
 `--where` filters by any field:
 
 ```sh
-djlib list --where "remixer!="
-djlib list --where "bpm>=140"
+tunedex list --where "remixer!="
+tunedex list --where "bpm>=140"
 ```
 
 The first lists the tracks that now have a remixer; the second, those at 140 BPM or more.
@@ -106,10 +106,10 @@ The first lists the tracks that now have a remixer; the second, those at 140 BPM
 ## 6. Check for duplicates
 
 ```sh
-djlib dupes
+tunedex dupes
 ```
 
-If you have two copies of a song, djlib lists them and suggests which one to keep. [Merging duplicates](guides/duplicates.md) explains the rest.
+If you have two copies of a song, tunedex lists them and suggests which one to keep. [Merging duplicates](guides/duplicates.md) explains the rest.
 
 ## 7. Export to Mixxx
 
@@ -122,7 +122,7 @@ mixxx --settingsPath ~/mixxx-test
 Now export to that profile:
 
 ```sh
-djlib export mixxx ~/mixxx-test
+tunedex export mixxx ~/mixxx-test
 ```
 
 ```text
@@ -136,10 +136,10 @@ Losses: 2
 Dry run: nothing was written. Run again with --apply to apply it.
 ```
 
-**Losses** are what Mixxx cannot keep. djlib tells you before writing; see [adapters and losses](explanation/adapters.md).
+**Losses** are what Mixxx cannot keep. tunedex tells you before writing; see [adapters and losses](explanation/adapters.md).
 
 ```sh
-djlib export mixxx ~/mixxx-test --apply
+tunedex export mixxx ~/mixxx-test --apply
 ```
 
 Start Mixxx with the test profile again: your tracks are there, with the cleaned titles.
@@ -149,7 +149,7 @@ Start Mixxx with the test profile again: your tracks are there, with the cleaned
 Every apply took a snapshot first:
 
 ```sh
-djlib snapshot list
+tunedex snapshot list
 ```
 
 ```text
@@ -162,7 +162,7 @@ mixxx-2af9b1fc0f27  000001-20261030T194540Z  2026-10-30 19:45:40 UTC  export mix
 To put the library back as it was before `fix`:
 
 ```sh
-djlib snapshot restore library 000002-20261030T194448Z --apply
+tunedex snapshot restore library 000002-20261030T194448Z --apply
 ```
 
 ## Clean up
@@ -170,11 +170,11 @@ djlib snapshot restore library 000002-20261030T194448Z --apply
 Delete the scratch home and the test profile:
 
 ```sh
-rm -rf /tmp/djlib-try ~/mixxx-test
+rm -rf /tmp/tunedex-try ~/mixxx-test
 ```
 
 ## Next
 
-- Use djlib with your real library: unset `DJLIB_HOME` and djlib uses its [default home](reference/environment.md#the-home-directory).
+- Use tunedex with your real library: unset `TUNEDEX_HOME` and tunedex uses its [default home](reference/environment.md#the-home-directory).
 - Bring in what you already have: [import from Mixxx](guides/import-mixxx.md) or [from beets](guides/import-beets.md).
 - Fill in missing tags from MusicBrainz with [`enrich`](guides/enrich.md).

@@ -13,7 +13,7 @@ from typing import Any
 
 import yaml
 
-from djlib.model.track import Track
+from tunedex.model.track import Track
 
 CORPUS = Path(__file__).parents[1] / "fixtures" / "rules"
 

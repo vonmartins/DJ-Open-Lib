@@ -4,12 +4,12 @@ from pathlib import Path
 
 import pytest
 
-from djlib.adapters.contract import Capabilities
-from djlib.model.library import Library
-from djlib.model.playlist import Folder, Playlist
-from djlib.model.track import Track
-from djlib.planning.errors import UnknownPlaylistError
-from djlib.planning.selection import covered, fingerprints, modified, resolve_paths, target_name
+from tunedex.adapters.contract import Capabilities
+from tunedex.model.library import Library
+from tunedex.model.playlist import Folder, Playlist
+from tunedex.model.track import Track
+from tunedex.planning.errors import UnknownPlaylistError
+from tunedex.planning.selection import covered, fingerprints, modified, resolve_paths, target_name
 
 CAPS = Capabilities(track_fields=frozenset({"title"}), folders=True)
 A, B = Track(path_origin="/music/a.mp3", title="A"), Track(path_origin="/music/b.mp3", title="B")

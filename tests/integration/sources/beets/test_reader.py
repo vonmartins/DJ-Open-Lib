@@ -5,15 +5,15 @@ from pathlib import Path
 
 import pytest
 
-from djlib.adapters.errors import AdapterError, AdapterReadError
-from djlib.model.key import Key, Mode
-from djlib.model.library import Library
-from djlib.model.paths import normalize_path
-from djlib.model.track import Track
-from djlib.sources.beets import BeetsSource
 from support.adapter_contract import assert_read_only
 from support.beets import BeetsDatabase
 from support.mixxx import MixxxDatabase
+from tunedex.adapters.errors import AdapterError, AdapterReadError
+from tunedex.model.key import Key, Mode
+from tunedex.model.library import Library
+from tunedex.model.paths import normalize_path
+from tunedex.model.track import Track
+from tunedex.sources.beets import BeetsSource
 
 SOURCE = BeetsSource()
 ADDED = datetime.datetime(2026, 2, 20, 12, 0, tzinfo=datetime.UTC).timestamp()

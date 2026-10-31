@@ -4,8 +4,8 @@ from pathlib import Path
 
 import pytest
 
-from djlib.sources.folder_scan import discover, quick_hash
 from support.audio import FORMATS, tagged_copy
+from tunedex.sources.folder_scan import discover, quick_hash
 
 
 def found_names(root: Path) -> tuple[list[str], list[str]]:

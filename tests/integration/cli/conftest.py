@@ -10,7 +10,7 @@ class NetworkBlockedError(OSError):
 
 @pytest.fixture(autouse=True)
 def no_network(monkeypatch: pytest.MonkeyPatch) -> Iterator[None]:
-    """No command may open a connection; ``djlib enrich`` tests use a fake transport."""
+    """No command may open a connection; ``tunedex enrich`` tests use a fake transport."""
 
     def blocked(*_args: object, **_kwargs: object) -> None:
         raise NetworkBlockedError("network access in a CLI test")

@@ -8,12 +8,12 @@ import pytest
 from hypothesis import given
 from hypothesis import strategies as st
 
-from djlib.duplicates.grouping import find_groups
-from djlib.duplicates.ranking import Facts, rank
-from djlib.model.beatgrid import BeatGrid, BeatMarker
-from djlib.model.cue import Cue, CueKind
-from djlib.model.ids import TrackId
-from djlib.model.track import Track
+from tunedex.duplicates.grouping import find_groups
+from tunedex.duplicates.ranking import Facts, rank
+from tunedex.model.beatgrid import BeatGrid, BeatMarker
+from tunedex.model.cue import Cue, CueKind
+from tunedex.model.ids import TrackId
+from tunedex.model.track import Track
 
 RECORDING = "b03469f1-8ae8-4e57-a73d-1bb81db98783"
 

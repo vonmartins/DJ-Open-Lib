@@ -1,6 +1,6 @@
 import pytest
 
-from djlib.adapters.m3u.names import MAX_NAME_BYTES, sanitize, unique
+from tunedex.adapters.m3u.names import MAX_NAME_BYTES, sanitize, unique
 
 
 @pytest.mark.parametrize(

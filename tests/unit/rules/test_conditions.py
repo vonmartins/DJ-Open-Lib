@@ -5,11 +5,11 @@ import re
 
 import pytest
 
-from djlib.model.key import Key, Mode
-from djlib.model.playlist import MatchMode, Rule
-from djlib.model.track import Track
-from djlib.rules import RuleError
-from djlib.rules.conditions import condition, from_mapping, from_rule, holds
+from tunedex.model.key import Key, Mode
+from tunedex.model.playlist import MatchMode, Rule
+from tunedex.model.track import Track
+from tunedex.rules import RuleError
+from tunedex.rules.conditions import condition, from_mapping, from_rule, holds
 
 TRACK = Track(
     path_origin="/music/Drum/Glue.mp3",

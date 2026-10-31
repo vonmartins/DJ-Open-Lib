@@ -1,13 +1,13 @@
 # Rules
 
-`djlib fix` cleans tags with bundled **fixes** and your own **rules**. Both change only djlib's library. Audio files are never touched, and later scans and imports keep the fixed values. Every change in the plan says which fix or rule made it.
+`tunedex fix` cleans tags with bundled **fixes** and your own **rules**. Both change only tunedex's library. Audio files are never touched, and later scans and imports keep the fixed values. Every change in the plan says which fix or rule made it.
 
-The same **conditions** also filter `djlib list --where`.
+The same **conditions** also filter `tunedex list --where`.
 
 ## Where the rules come from
 
 1. The file given with `--rules FILE`.
-2. Otherwise, `rules.yaml` in the [djlib home](environment.md#the-home-directory), when it exists.
+2. Otherwise, `rules.yaml` in the [tunedex home](environment.md#the-home-directory), when it exists.
 3. Otherwise, the bundled fixes with their defaults.
 
 `--only NAME` limits a run to some fixes or rule ids. It is repeatable, or takes names separated by commas.
@@ -109,7 +109,7 @@ An unknown fix, field, operator, option or action, or an invalid regular express
 
 ## `--where`
 
-`djlib list --where` takes conditions as short `FIELD OP VALUE` expressions:
+`tunedex list --where` takes conditions as short `FIELD OP VALUE` expressions:
 
 | Operator | Means |
 |---|---|
@@ -120,9 +120,9 @@ An unknown fix, field, operator, option or action, or an invalid regular express
 | `>` `>=` `<` `<=` | `gt` `gte` `lt` `lte` |
 
 ```sh
-djlib list --where "genre=Techno" --where "bpm>=130"
-djlib list --where "title~remix"
-djlib list --where "comment="
+tunedex list --where "genre=Techno" --where "bpm>=130"
+tunedex list --where "title~remix"
+tunedex list --where "comment="
 ```
 
 - `FIELD=` with no value matches an empty field, and `FIELD!=` matches a field with a value.

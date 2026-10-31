@@ -7,17 +7,17 @@ from pathlib import Path
 
 import pytest
 
-from djlib.adapters.contract import WriteOptions, WritePlan
-from djlib.adapters.errors import AdapterError
-from djlib.adapters.mixxx import MixxxAdapter
-from djlib.model.beatgrid import BeatGrid, BeatMarker
-from djlib.model.cue import Cue, CueKind
-from djlib.model.key import Key, Mode
-from djlib.model.library import Library
-from djlib.model.playlist import Folder, Playlist, Smartlist
-from djlib.model.track import Track
 from support.files import tree_bytes
 from support.mixxx import HOT_CUE, INTRO, MixxxDatabase, beat_grid
+from tunedex.adapters.contract import WriteOptions, WritePlan
+from tunedex.adapters.errors import AdapterError
+from tunedex.adapters.mixxx import MixxxAdapter
+from tunedex.model.beatgrid import BeatGrid, BeatMarker
+from tunedex.model.cue import Cue, CueKind
+from tunedex.model.key import Key, Mode
+from tunedex.model.library import Library
+from tunedex.model.playlist import Folder, Playlist, Smartlist
+from tunedex.model.track import Track
 
 ADAPTER = MixxxAdapter(running=lambda: False)
 

@@ -1,10 +1,10 @@
 import pytest
 
-from djlib.model.errors import ValidationError
-from djlib.model.ids import new_track_id
-from djlib.model.library import Library
-from djlib.model.playlist import Folder, Playlist, Smartlist
-from djlib.model.track import Track
+from tunedex.model.errors import ValidationError
+from tunedex.model.ids import new_track_id
+from tunedex.model.library import Library
+from tunedex.model.playlist import Folder, Playlist, Smartlist
+from tunedex.model.track import Track
 
 
 def test_build_indexes_tracks_by_id() -> None:

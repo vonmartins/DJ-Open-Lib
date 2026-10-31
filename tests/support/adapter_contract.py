@@ -2,8 +2,8 @@
 
 from pathlib import Path
 
-from djlib.adapters.contract import Adapter, ReadOptions, ReadResult, WriteOptions, WritePlan
-from djlib.model.library import Library
+from tunedex.adapters.contract import Adapter, ReadOptions, ReadResult, WriteOptions, WritePlan
+from tunedex.model.library import Library
 
 TreeState = dict[str, tuple[bytes, int]]
 

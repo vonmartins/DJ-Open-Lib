@@ -1,4 +1,4 @@
-"""``djlib import beets`` (specs/cli)."""
+"""``tunedex import beets`` (specs/cli)."""
 
 import sys
 from pathlib import Path
@@ -6,12 +6,12 @@ from pathlib import Path
 import pytest
 from typer.testing import CliRunner, Result
 
-from djlib.cli import app
-from djlib.cli._beets import config_settings, default_beets_library, default_music_dir
-from djlib.model.paths import normalize_path
-from djlib.store import Store
 from support.beets import BeetsDatabase
 from support.files import tree_bytes
+from tunedex.cli import app
+from tunedex.cli._beets import config_settings, default_beets_library, default_music_dir
+from tunedex.model.paths import normalize_path
+from tunedex.store import Store
 
 runner = CliRunner()
 

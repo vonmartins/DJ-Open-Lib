@@ -1,8 +1,8 @@
 # Adapters and losses
 
-An **adapter** connects djlib to a format or an app: it reads it, and for targets it plans what to write. Each adapter declares what its format can hold, its **capabilities**. Whatever the library has that the format cannot hold is a **loss**.
+An **adapter** connects tunedex to a format or an app: it reads it, and for targets it plans what to write. Each adapter declares what its format can hold, its **capabilities**. Whatever the library has that the format cannot hold is a **loss**.
 
-djlib never hides a loss. The plan lists each one with how many tracks it affects and a few examples, before anything is written:
+tunedex never hides a loss. The plan lists each one with how many tracks it affects and a few examples, before anything is written:
 
 ```text
 Losses: 2
@@ -30,12 +30,12 @@ For tracks Mixxx already has, an export updates the text fields, year, track num
 
 ## Unmapped data
 
-Formats hold things djlib has no field for. They are kept with the track or playlist as **unmapped** data, under the name of the format they came from, and written back when djlib writes to that format again. Nothing is thrown away just because djlib does not understand it.
+Formats hold things tunedex has no field for. They are kept with the track or playlist as **unmapped** data, under the name of the format they came from, and written back when tunedex writes to that format again. Nothing is thrown away just because tunedex does not understand it.
 
 ## Sources
 
-The folder scan and beets are **sources**: they are only read and never written. The beets source keeps every beets tag that has no djlib field as unmapped data under `beets`.
+The folder scan and beets are **sources**: they are only read and never written. The beets source keeps every beets tag that has no tunedex field as unmapped data under `beets`.
 
 ## Adapters are never the app
 
-Adapters read and write files. They never need the app installed and never talk to it while it runs. This is why Mixxx has to be closed for an export: djlib checks for it and refuses otherwise. It also explains the `stale_target` check described in [plan, snapshot, apply](plan-apply.md).
+Adapters read and write files. They never need the app installed and never talk to it while it runs. This is why Mixxx has to be closed for an export: tunedex checks for it and refuses otherwise. It also explains the `stale_target` check described in [plan, snapshot, apply](plan-apply.md).

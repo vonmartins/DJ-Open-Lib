@@ -1,10 +1,10 @@
 # Enriching tags
 
-`djlib enrich` recognizes each track by its sound and takes its tags from [MusicBrainz](https://musicbrainz.org). It is the cure for files with poor or missing tags.
+`tunedex enrich` recognizes each track by its sound and takes its tags from [MusicBrainz](https://musicbrainz.org). It is the cure for files with poor or missing tags.
 
 ```sh
-djlib enrich                              # show what would change
-djlib enrich --under ~/Music/New --apply
+tunedex enrich                              # show what would change
+tunedex enrich --under ~/Music/New --apply
 ```
 
 It needs `fpcalc`; see [install](../install.md#optional-fpcalc-for-enrich).
@@ -28,7 +28,7 @@ The first time a track is enriched, it takes MusicBrainz's title, artist, remixe
 
 ## Later runs
 
-Fields you edit in djlib are kept. When both you and MusicBrainz changed a field, your value stays and the plan lists the conflict.
+Fields you edit in tunedex are kept. When both you and MusicBrainz changed a field, your value stays and the plan lists the conflict.
 
 ## No guessing
 
@@ -45,6 +45,6 @@ Once applied, running it again on an unchanged library just says `Nothing to do.
 
 MusicBrainz allows one request per second, so a first run takes about two seconds per track. A bar shows the progress.
 
-Fingerprints and answers are cached in `cache.db` in the [djlib home](../reference/environment.md#the-home-directory). Later runs are quick and work offline. `--refresh` asks the services again.
+Fingerprints and answers are cached in `cache.db` in the [tunedex home](../reference/environment.md#the-home-directory). Later runs are quick and work offline. `--refresh` asks the services again.
 
-Set `DJLIB_ACOUSTID_KEY` to use your own AcoustID application key.
+Set `TUNEDEX_ACOUSTID_KEY` to use your own AcoustID application key.

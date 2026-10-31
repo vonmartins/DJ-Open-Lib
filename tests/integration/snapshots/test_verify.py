@@ -2,8 +2,8 @@ from pathlib import Path
 
 import pytest
 
-from djlib.snapshots import SnapshotCorruptError, SnapshotError, SnapshotStore
-from djlib.store import Store
+from tunedex.snapshots import SnapshotCorruptError, SnapshotError, SnapshotStore
+from tunedex.store import Store
 
 
 def damaged_setup(snapshots: SnapshotStore, app_dir: Path) -> tuple[Path, Path]:

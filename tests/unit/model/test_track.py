@@ -3,11 +3,11 @@ import datetime
 
 import pytest
 
-from djlib.model.beatgrid import BeatGrid, BeatMarker
-from djlib.model.cue import Cue, CueKind
-from djlib.model.errors import ValidationError
-from djlib.model.key import Key, Mode
-from djlib.model.track import DATE_FIELDS, INT_FIELDS, TEXT_FIELDS, Track
+from tunedex.model.beatgrid import BeatGrid, BeatMarker
+from tunedex.model.cue import Cue, CueKind
+from tunedex.model.errors import ValidationError
+from tunedex.model.key import Key, Mode
+from tunedex.model.track import DATE_FIELDS, INT_FIELDS, TEXT_FIELDS, Track
 
 PATH = "/music/Artist/Track.mp3"
 

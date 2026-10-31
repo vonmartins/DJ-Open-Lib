@@ -1,8 +1,8 @@
 import pytest
 
-from djlib.adapters.errors import UnknownAdapterError
-from djlib.adapters.m3u import M3UAdapter
-from djlib.adapters.registry import get_adapter, list_adapters
+from tunedex.adapters.errors import UnknownAdapterError
+from tunedex.adapters.m3u import M3UAdapter
+from tunedex.adapters.registry import get_adapter, list_adapters
 
 
 def test_lookup_by_name() -> None:

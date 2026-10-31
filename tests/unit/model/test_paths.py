@@ -2,8 +2,8 @@ import unicodedata
 
 import pytest
 
-from djlib.model.errors import ValidationError
-from djlib.model.paths import normalize_path
+from tunedex.model.errors import ValidationError
+from tunedex.model.paths import normalize_path
 
 
 @pytest.mark.parametrize(

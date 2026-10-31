@@ -4,9 +4,9 @@ import shutil
 import time
 from pathlib import Path
 
-from djlib.sources.folder_scan import scan_folder
-from djlib.store import Store
 from support.audio import FORMATS, tagged_copy
+from tunedex.sources.folder_scan import scan_folder
+from tunedex.store import Store
 
 COUNT = 2_000
 

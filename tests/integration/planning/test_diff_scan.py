@@ -2,10 +2,10 @@ import dataclasses
 import datetime
 from pathlib import Path
 
-from djlib.model.track import Track
-from djlib.planning.diff import diff_scan
-from djlib.planning.model import FieldChange
-from djlib.sources.scan_plan import (
+from tunedex.model.track import Track
+from tunedex.planning.diff import diff_scan
+from tunedex.planning.model import FieldChange
+from tunedex.sources.scan_plan import (
     AddTrack,
     MarkMissing,
     MarkPresent,
@@ -14,7 +14,7 @@ from djlib.sources.scan_plan import (
     ScanPlan,
     UpdateTrack,
 )
-from djlib.store import FileState, Store
+from tunedex.store import FileState, Store
 
 ROOT = Path("/music")
 NOW = datetime.datetime(2026, 10, 27, 12, 0, tzinfo=datetime.UTC)

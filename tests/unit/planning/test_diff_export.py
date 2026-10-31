@@ -1,11 +1,11 @@
 import dataclasses
 
-from djlib.adapters.contract import Capabilities
-from djlib.model.library import Library
-from djlib.model.playlist import Folder, MatchMode, Playlist, Rule, Smartlist
-from djlib.model.track import Track
-from djlib.planning.diff import diff_export
-from djlib.planning.model import FieldChange, NodeChange
+from tunedex.adapters.contract import Capabilities
+from tunedex.model.library import Library
+from tunedex.model.playlist import Folder, MatchMode, Playlist, Rule, Smartlist
+from tunedex.model.track import Track
+from tunedex.planning.diff import diff_export
+from tunedex.planning.model import FieldChange, NodeChange
 
 PLAYLISTS_ONLY = Capabilities(track_fields=frozenset({"title", "artist"}), folders=True)
 WITH_COLLECTION = Capabilities(
