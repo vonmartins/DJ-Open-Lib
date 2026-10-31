@@ -138,11 +138,17 @@ _URL = re.compile(r"\s*[\(\[]?\s*(?:https?://|www\.)[^\s\)\]]+\s*[\)\]]?")
 _BRACKETED_DOMAIN = re.compile(
     r"\s*[\(\[]\s*(?:[\w-]+\.)+(?:" + _TLDS + r")(?:/[^\s\)\]]*)?\s*[\)\]]", re.IGNORECASE
 )
+_TRAILING_DOMAIN = re.compile(r"\s+(?:[A-Za-z0-9-]+\.)+(?:" + _TLDS + r")\s*$", re.IGNORECASE)
 _EDGES = re.compile("^[\\s\\-\u2013\u2014_|:~]+|[\\s\\-\u2013\u2014_|:~]+$")
+# A URL or a bare domain, with its path: the underscores in it are part of it.
+_LINK = re.compile(
+    r"(?:https?://|www\.)\S+|(?:[A-Za-z0-9-]+\.)+(?:" + _TLDS + r")\b(?:/\S*)?", re.IGNORECASE
+)
 
 
 def remove_urls_text(text: str) -> str:
     stripped = _BRACKETED_DOMAIN.sub(" ", _URL.sub(" ", text))
+    stripped = _TRAILING_DOMAIN.sub(" ", stripped)
     if stripped == text:
         return text
     stripped = _clean_spaces(_EDGES.sub("", stripped))
@@ -173,18 +179,28 @@ def remove_video_ids_text(text: str) -> str:
 def underscores_to_spaces_text(text: str) -> str:
     if "_" not in text or " " in text or not _has_alnum(text.replace("_", "")):
         return text
-    return _clean_spaces(re.sub(r"_+", " ", text))
+    parts: list[str] = []
+    start = 0
+    for link in _LINK.finditer(text):  # underscores inside URLs and domains are kept
+        parts.append(re.sub(r"_+", " ", text[start : link.start()]) + link.group())
+        start = link.end()
+    parts.append(re.sub(r"_+", " ", text[start:]))
+    return _clean_spaces("".join(parts))
 
 
 # remove_leading_number
 
 _LEADING_NUMBER = re.compile("^(\\d{1,3})\\s*(?:[-\u2013.)]|\\s-)\\s+(?=[^\\W\\d_])")
+_STORE_ID = re.compile(r"^\d{6,8}\s+(?=[^\W\d_])")  # Beatport and other stores' track ids
 
 
 def remove_leading_number(track: Track, options: Mapping[str, Any]) -> Changes:
     title = track.title
     if not title:
         return {}
+    store_id = _STORE_ID.match(title)
+    if store_id is not None:
+        return {"title": title[store_id.end() :]}
     match = _LEADING_NUMBER.match(title)
     if match is None:
         return {}
@@ -198,33 +214,78 @@ def remove_leading_number(track: Track, options: Mapping[str, Any]) -> Changes:
 # title_from_file_name
 
 _NUMBERED = re.compile(r"\.\d+$")
+ID3V1_LENGTH = 30
 _YEAR = re.compile(r"\s*[\[\(]\d{4}[\]\)]$")
 
 
 def title_from_file_name(track: Track, options: Mapping[str, Any]) -> Changes:
+    parsed = _from_file_name(track.path)
+    if parsed is None:
+        return {}
+    artist, title, stem = parsed
     if track.title and track.title.strip():
-        return {}
-    stem = posixpath.splitext(posixpath.basename(track.path))[0]
-    stem = _YEAR.sub("", _NUMBERED.sub("", stem)).strip()
-    if re.search(r"(?:^|\s)-\s*$", stem) or re.match(r"^\s*-(?:\s|$)", stem):
-        return {}  # "Artist - " or "- " with nothing after: no usable title
-    artist, sep, title = stem.partition(" - ")
-    if not sep:
-        artist, title = "", stem
-    title = normalize_characters_text(title)
-    if not _has_alnum(title):
-        return {}
+        return _untruncated(track.title, (title, stem))
     changes: Changes = {"title": title}
-    artist = normalize_characters_text(artist)
     if not (track.artist and track.artist.strip()) and _has_alnum(artist):
         changes["artist"] = artist
     return changes
 
 
+def _from_file_name(path: str) -> tuple[str, str, str] | None:
+    """(artist, title, whole name) from a file name, or ``None`` when it has no title."""
+    stem = posixpath.splitext(posixpath.basename(path))[0]
+    stem = _YEAR.sub("", _NUMBERED.sub("", stem)).strip()
+    if re.search(r"(?:^|\s)-\s*$", stem) or re.match(r"^\s*-(?:\s|$)", stem):
+        return None  # "Artist - " or "- " with nothing after: no usable title
+    artist, sep, title = stem.partition(" - ")
+    if not sep:
+        artist, title = "", stem
+    title = normalize_characters_text(title)
+    if not _has_alnum(title):
+        return None
+    return normalize_characters_text(artist), title, normalize_characters_text(stem)
+
+
+def _untruncated(title: str, candidates: Sequence[str]) -> Changes:
+    """The file name's title for a title cut at ID3v1's 30 characters."""
+    if len(title) != ID3V1_LENGTH:
+        return {}
+    cut = _loose(title)
+    for candidate in candidates:
+        longer = _loose(candidate)
+        # A title that cleanups made 30 characters long is not cut: leave it.
+        cleaned = _loose(_settled(remove_urls_text, _settled(remove_video_ids_text, candidate)))
+        if len(longer) > len(cut) and longer.startswith(cut) and cleaned != cut:
+            return {"title": candidate}
+    return {}
+
+
+def _loose(text: str) -> str:
+    return _clean_spaces(text.replace("_", " ")).casefold()
+
+
+# split_artist_title
+
+
+def split_artist_title(track: Track, options: Mapping[str, Any]) -> Changes:
+    if (track.artist and track.artist.strip()) or not track.title:
+        return {}
+    artist, sep, title = track.title.partition(" - ")
+    artist, title = artist.strip(), title.strip()
+    if not sep or artist[:1] in ("[", "(", "#"):  # "[BREAKS] Artist - Title" is left alone
+        return {}
+    if not _has_alnum(artist) or not _has_alnum(title):
+        return {}
+    stem = posixpath.splitext(posixpath.basename(track.path))[0]
+    if not _loose(stem).startswith(_loose(artist) + " - "):  # the file name must agree
+        return {}
+    return {"artist": artist, "title": title}
+
+
 # extract_featured
 
 _FEAT_GROUP = re.compile(r"\s*[\(\[]\s*(?:feat\.?|ft\.|featuring)\s+([^\(\)\[\]]+?)\s*[\)\]]", re.I)
-_FEAT_TAIL = re.compile(r"\s+(?:feat\.|ft\.)\s+([^\(\)\[\]]+?)\s*$", re.I)
+_FEAT_TAIL = re.compile(r"\s+(?:feat\.?|ft\.)\s+([^\(\)\[\]]+?)\s*$", re.I)
 
 
 def extract_featured(track: Track, options: Mapping[str, Any]) -> Changes:
@@ -269,6 +330,15 @@ def extract_remixer(track: Track, options: Mapping[str, Any]) -> Changes:
     if not _has_alnum(names) or words <= _NOT_NAMES:
         return {}
     return {"remixer": names}
+
+
+# remove_itunes_data
+
+_ITUNES_DATA = re.compile(r"^\s*(?:[0-9A-Fa-f]{8}\s+){3,}[0-9A-Fa-f]{8}\s*$")
+
+
+def remove_itunes_data_text(text: str) -> str:
+    return "" if _ITUNES_DATA.match(text) else text
 
 
 # fix_case
@@ -329,8 +399,10 @@ FIXES: tuple[Fix, ...] = (
     Fix("remove_video_ids", _per_field(remove_video_ids_text), ("title",)),
     Fix("underscores_to_spaces", _per_field(underscores_to_spaces_text), ("title", "album")),
     Fix("remove_leading_number", remove_leading_number, ("title",)),
+    Fix("split_artist_title", split_artist_title, ("artist", "title")),
     Fix("extract_featured", extract_featured, ("title", "artist")),
     Fix("extract_remixer", extract_remixer, ("remixer",)),
+    Fix("remove_itunes_data", _per_field(remove_itunes_data_text), ("comment",)),
     Fix("fix_case", fix_case, ("title", "album"), on=False, options=frozenset({"keep"})),
 )
 BY_NAME: dict[str, Fix] = {fix.name: fix for fix in FIXES}

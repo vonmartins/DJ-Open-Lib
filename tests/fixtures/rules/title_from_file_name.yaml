@@ -11,6 +11,8 @@ change:
   - {track: {path: "/music/坂本龍一 - 戦場のメリークリスマス.mp3"}, expected: {title: 戦場のメリークリスマス, artist: 坂本龍一}, why: Japanese}
   - {track: {path: "/music/Track  Name.mp3"}, expected: {title: Track Name}, why: spaces normalized}
   - {track: {path: "/music/Echo Unit - Storm.mp3", title: "   "}, expected: {title: Storm, artist: Echo Unit}, why: a blank title counts as empty}
+  - {track: {title: "Live_at_Electric_Proms_(Camden", path: "/music/Live_at_Electric_Proms_(Camden_Roundhouse).mp3"}, expected: {title: "Live_at_Electric_Proms_(Camden_Roundhouse)"}, why: title cut at 30 characters}
+  - {track: {title: "Tinush - Sandburg (Original Mi", path: "/music/Tinush - Sandburg (Original Mix).mp3"}, expected: {title: "Tinush - Sandburg (Original Mix)"}, why: cut title that holds the artist}
 keep:
   - {track: {path: "/music/Echo Unit -  [0000].1.mp3"}, why: nothing after the artist}
   - {track: {path: "/music/-  [0000].mp3"}, why: no artist and no title}
@@ -22,3 +24,6 @@ keep:
   - {track: {path: "/music/(2012).mp3"}, why: year only}
   - {track: {path: "/music/ - .mp3"}, why: separator only}
   - {track: {path: "/music/x.mp3", title: "0"}, why: a digit is a title}
+  - {track: {title: "Exactly Thirty Characters Long", path: "/music/Exactly Thirty Characters Long.mp3"}, why: complete 30-character title}
+  - {track: {title: "Sam Paganini - Galaxy Is Right", path: "/music/Sam Paganini - Galaxy Is Right [www.slider.kz].mp3"}, why: 30 characters only after the URL is removed}
+  - {track: {title: "Short Title", path: "/music/Short Title Extended.mp3"}, why: not 30 characters}

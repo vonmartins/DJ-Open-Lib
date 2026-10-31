@@ -10,6 +10,7 @@ change:
   - {in: "Mix_(Edit)", out: "Mix (Edit)", why: before a bracket}
   - {in: "one_two_three_four", out: "one two three four", why: many words}
   - {track: {album: "Best_Of", title: "X"}, expected: {album: "Best Of"}, why: applies to albums}
+  - {in: "Wolfine_Bella__(44outdoors.com", out: "Wolfine Bella (44outdoors.com", why: underscores outside a domain}
 keep:
   - {in: "\"Stone Age\" [T-FILE-EP004_3]", why: title with spaces keeps its codes}
   - {in: "Glue", why: no underscores}
@@ -22,3 +23,4 @@ keep:
   - {in: "B_side Story", why: spaced title}
   - {in: "Glue", why: clean}
   - {track: {artist: "_ensnare_", title: Ruins}, why: artists are not touched by default}
+  - {in: "https://vk.com/edm_people", why: underscore inside a URL}
