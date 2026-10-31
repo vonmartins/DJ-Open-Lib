@@ -22,3 +22,7 @@ for name in sys.argv[1:]:
     if audio.tags:
         audio.delete()
 ' silence.ogg silence.flac silence.m4a
+
+# Tagged clips: ID3v2.4 with art and MusicBrainz ids, ID3v2.3 with ID3v1, APEv2, FLAC
+# with a picture, ID3 chunks in WAV and AIFF, and an M4A file.
+uv run python tagged.py .
