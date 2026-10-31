@@ -20,6 +20,7 @@ from tunedex.enrich.mapping import NORMALIZED, choose_release, first_release_dat
 from tunedex.enrich.match import (
     Disagreement,
     Identified,
+    Mismatch,
     NotRecognized,
     Unlinked,
     Unresolved,
@@ -42,6 +43,7 @@ from tunedex.store.operations import (
 )
 
 SOURCE = "musicbrainz"
+MISMATCHES_SHOWN = 20
 Steps = Callable[[int, int], None]
 """Told how many of the tracks were done, and how many there are."""
 
@@ -64,6 +66,9 @@ class _Outcomes:
     unlinked: list[Track] = dataclasses.field(default_factory=list[Track])
     disagreements: list[tuple[Track, Disagreement]] = dataclasses.field(
         default_factory=list[tuple[Track, Disagreement]]
+    )
+    mismatches: list[tuple[Track, Mismatch]] = dataclasses.field(
+        default_factory=list[tuple[Track, Mismatch]]
     )
     missing: list[Track] = dataclasses.field(default_factory=list[Track])
     failed: list[str] = dataclasses.field(default_factory=list[str])
@@ -115,6 +120,8 @@ def plan_enrich(
             title=track.title,
             carried_id=carried_recording(track),
             first_release=lambda rid: first_release_date(services.recording(rid)),
+            artist=track.artist,
+            file_name=path.stem,
         )
         match outcome:
             case Identified(recording_id, score):
@@ -150,6 +157,8 @@ def plan_enrich(
                 outcomes.not_recognized.append(track)
             case Disagreement():
                 outcomes.disagreements.append((track, outcome))
+            case Mismatch():
+                outcomes.mismatches.append((track, outcome))
     if steps is not None and tracks:
         steps(len(tracks), len(tracks))
     # Outcomes are reported with changes, or before anything was ever enriched; once
@@ -216,6 +225,7 @@ def _warnings(outcomes: _Outcomes) -> list[str]:
         f"{len(outcomes.unlinked)} recognized but not in MusicBrainz",
         f"{len(outcomes.not_recognized)} not recognized",
         f"{len(outcomes.disagreements)} disagree with their MusicBrainz id",
+        f"{len(outcomes.mismatches)} disagree with their tags",
         f"{len(outcomes.missing)} skipped (file missing)",
     ]
     warnings = [f"musicbrainz: {', '.join(counts)}"]
@@ -229,6 +239,16 @@ def _warnings(outcomes: _Outcomes) -> list[str]:
             f"{track.path}: carries MusicBrainz recording {disagreement.carried} but sounds like"
             f" {disagreement.found}; left unchanged"
         )
+    for track, mismatch in outcomes.mismatches[:MISMATCHES_SHOWN]:
+        found = mismatch.candidate
+        own = " - ".join(v for v in (track.artist, track.title) if v) or Path(track.path).name
+        warnings.append(
+            f"{track.path}: sounds like {found.artist} - {found.title}, but its tags say {own};"
+            " left unchanged"
+        )
+    if len(outcomes.mismatches) > MISMATCHES_SHOWN:
+        hidden = len(outcomes.mismatches) - MISMATCHES_SHOWN
+        warnings.append(f"… and {hidden} more tracks that disagree with their tags")
     warnings.extend(
         report(outcomes.unlinked, "tracks are recognized by AcoustID but not linked to MusicBrainz")
     )

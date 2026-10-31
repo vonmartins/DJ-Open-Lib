@@ -234,6 +234,17 @@ def test_disagreement_left_alone(world: World) -> None:
     assert world.store.get_track(track.id).title == "x"
 
 
+def test_recording_that_disagrees_with_the_tags_left_alone(world: World) -> None:
+    track = world.add("dfrnt.mp3", artist="Khainz", title="That Simple")
+
+    plan = world.plan()
+
+    assert plan.empty
+    assert "1 disagree with their tags" in plan.warnings[0]
+    assert any("sounds like DFRNT" in w and "Khainz - That Simple" in w for w in plan.warnings)
+    assert world.store.get_track(track.id) == track
+
+
 def test_under_a_folder(world: World) -> None:
     world.add("dfrnt.mp3", title="x")
     elsewhere = world.music / "other"

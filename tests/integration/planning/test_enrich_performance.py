@@ -23,7 +23,8 @@ def test_enrich_timings(engine: Engine, store: Store, tmp_path: Path) -> None:
         name = f"{i:04d}.mp3"
         (music / name).write_bytes(b"audio")
         prints[name] = (370.9, f"fp-{i}")
-        tracks.append(Track(path_origin=str(music / name), title=f"Track {i}"))
+        # Titled like the recording AcoustID answers, so that it fits the track.
+        tracks.append(Track(path_origin=str(music / name), title=f"Headspace {i}"))
     store.replace_library(Library.build(tracks))  # one transaction: commits are slow on Windows
     answer = fixture("acoustid-dfrnt.json")
     transport = catalogue({fp: answer for _duration, fp in prints.values()})
