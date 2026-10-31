@@ -4,6 +4,7 @@ Planning never writes. Applying takes a confirmation decision from the caller an
 does nothing without it.
 """
 
+import dataclasses
 import datetime
 import hashlib
 import os
@@ -49,8 +50,7 @@ from tunedex.rules.ruleset import RuleSet
 from tunedex.snapshots import SnapshotStore
 from tunedex.snapshots.manifest import Rename
 from tunedex.snapshots.moves import move_file, name_free
-from tunedex.sources.folder_scan import encode_values, quick_hash, scan_folder
-from tunedex.sources.tags import read_file
+from tunedex.sources.folder_scan import quick_hash, scan_folder
 from tunedex.store import FileState, Store, StoreError
 from tunedex.store.operations import RefreshState, RelocateTrack
 from tunedex.tagwrite.writer import write_tags
@@ -502,7 +502,11 @@ class Engine:
         warnings: tuple[str, ...] = ()
         try:
             now = self._clock()
-            states = [RefreshState(f.track_id, _state_after_write(f, now)) for f in action.files]
+            states = [
+                RefreshState(f.track_id, _state_after_write(state, f, now))
+                for f in action.files
+                if (state := self.store.file_state(f.track_id)) is not None
+            ]
             self.store.apply_operations(states)
         except (OSError, StoreError) as error:
             warnings = (
@@ -602,17 +606,22 @@ def _rename_back(done: Sequence[FileRename]) -> bool:
     return True
 
 
-def _state_after_write(file: TagFile, now: datetime.datetime) -> FileState:
-    """The file state a scan would record of a file just written."""
+def _state_after_write(state: FileState, file: TagFile, now: datetime.datetime) -> FileState:
+    """The state of a file just written: a scan sees it unchanged.
+
+    The merge base stays the values last scanned. Once the write is undone, the next
+    scan then finds the file's old values where it read them before, and leaves the
+    library's values alone.
+    """
     path = Path(file.path)
     stat = path.stat()
-    return FileState(
-        track_id=file.track_id,
+    return dataclasses.replace(
+        state,
         size=stat.st_size,
         mtime_ns=stat.st_mtime_ns,
         quick_hash=quick_hash(path, stat.st_size),
         scanned_at=now,
-        scanned_values=encode_values(read_file(path).values),
+        missing=False,
     )
 
 

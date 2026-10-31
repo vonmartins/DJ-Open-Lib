@@ -237,3 +237,37 @@ def test_keys_and_numbers(engine: Engine, store: Store, tmp_path: Path) -> None:
     engine.apply(engine.plan_write_tags(), assume_yes)
     tags = id3.ID3(path)
     assert (str(tags["TKEY"]), str(tags["TRCK"]), str(tags["TBPM"])) == ("Cm", "4/12", "128")
+
+
+def test_undoing_a_write_keeps_the_library_values(
+    engine: Engine, store: Store, snapshots: SnapshotStore, music: Path
+) -> None:
+    scanned(engine, music)
+    path = music / "tagged.flac"
+    edit(store, path, title="Galaxy")
+    engine.apply(engine.plan_write_tags(), assume_yes)
+    (snapshot,) = snapshots.list("tags")
+
+    snapshots.restore(snapshot)
+    engine.apply(engine.plan_scan(music), assume_yes)
+
+    track = store.find_track_by_path(str(path))
+    assert track is not None
+    assert track.title == "Galaxy"  # the file's old title did not come back
+    assert [t.path for t in engine.plan_write_tags().tags] == [str(path)]
+
+
+def test_a_file_edited_elsewhere_after_writing_is_read_on_the_next_scan(
+    engine: Engine, store: Store, music: Path
+) -> None:
+    scanned(engine, music)
+    path = music / "tagged.flac"
+    edit(store, path, title="Galaxy")
+    engine.apply(engine.plan_write_tags(), assume_yes)
+    write_tags(path, {"album": "Remixes"})  # another program
+
+    engine.apply(engine.plan_scan(music), assume_yes)
+
+    track = store.find_track_by_path(str(path))
+    assert track is not None
+    assert (track.title, track.album) == ("Galaxy", "Remixes")
