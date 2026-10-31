@@ -1,6 +1,6 @@
 [project]
 name = "tunedex"
-version = "0.0.0"
+version = "0.1.0"
 description = "Free, local-first, scriptable DJ library manager."
 readme = "README.md"
 authors = [{ name = "VonMartins" }]
@@ -8,12 +8,16 @@ license = "GPL-3.0-or-later"
 license-files = ["LICENSE"]
 requires-python = ">=3.11"
 classifiers = [
-    "Development Status :: 1 - Planning",
+    "Development Status :: 3 - Alpha",
     "Environment :: Console",
     "Intended Audience :: End Users/Desktop",
     "Operating System :: OS Independent",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
     "Topic :: Multimedia :: Sound/Audio",
 ]
 dependencies = [
@@ -27,6 +31,8 @@ dependencies = [
 [project.urls]
 Documentation = "https://vonmartins.github.io/tunedex/"
 Repository = "https://github.com/vonmartins/tunedex"
+Changelog = "https://github.com/vonmartins/tunedex/blob/main/CHANGELOG.md"
+Issues = "https://github.com/vonmartins/tunedex/issues"
 
 [project.scripts]
 tunedex = "tunedex.cli:main"
@@ -52,7 +58,7 @@ docs = [
 [tool.ruff]
 line-length = 100
 target-version = "py311"
-src = ["src", "tests"]
+src = ["src", "tests", "scripts"]
 
 [tool.ruff.lint]
 select = ["E", "F", "W", "I", "UP", "B", "SIM", "RUF", "PTH", "S"]
@@ -65,15 +71,15 @@ select = ["E", "F", "W", "I", "UP", "B", "SIM", "RUF", "PTH", "S"]
 "src/tunedex/adapters/mixxx/writer.py" = ["S608"]
 
 [tool.pyright]
-include = ["src", "tests"]
+include = ["src", "tests", "scripts"]
 pythonVersion = "3.11"
 typeCheckingMode = "standard"
 strict = ["src"]
 venvPath = "."
 venv = ".venv"
-extraPaths = ["src", "tests"]
+extraPaths = ["src", "tests", "scripts"]
 
 [tool.pytest.ini_options]
 addopts = ["--import-mode=importlib", "--strict-markers", "--strict-config"]
 testpaths = ["tests"]
-pythonpath = ["tests"]
+pythonpath = ["tests", "scripts"]
