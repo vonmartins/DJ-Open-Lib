@@ -181,7 +181,7 @@ def _convert(name: str, texts: list[str], path: Path, result: FileFields) -> Non
     value = converter(texts[0])
     if value is None:
         result.warnings.append(f"{path}: ignored invalid {name} {texts[0]!r}")
-    else:
+    elif value != 0:  # 0 means "not set" for numbers, years and BPM
         result.values[name] = value
 
 
@@ -200,7 +200,7 @@ def _bpm(text: str) -> float | None:
         value = float(text.replace(",", "."))
     except ValueError:
         return None
-    return value if 0 < value < 10_000 else None
+    return value if 0 <= value < 10_000 else None
 
 
 def _key(text: str) -> Key | None:

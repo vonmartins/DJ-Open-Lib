@@ -134,6 +134,16 @@ def test_invalid_values_dropped_with_warning(tmp_path: Path) -> None:
     assert len(result.warnings) == 2
 
 
+@pytest.mark.parametrize("fmt", ["mp3", "flac", "m4a"])
+def test_zero_values_read_as_absent(tmp_path: Path, fmt: str) -> None:
+    path = tagged_copy(tmp_path, fmt, track="0", disc="0", date="0000", bpm="0")
+
+    result = read_file(path)
+
+    assert {"track_number", "disc_number", "year", "bpm"}.isdisjoint(result.values)
+    assert result.warnings == []
+
+
 def test_open_key_and_unknown_key(tmp_path: Path) -> None:
     open_key = read_file(tagged_copy(tmp_path, "mp3", name="a.mp3", key="4m")).values
     unknown = read_file(tagged_copy(tmp_path, "mp3", name="b.mp3", key="8A")).values
