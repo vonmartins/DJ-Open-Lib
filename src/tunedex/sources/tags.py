@@ -88,6 +88,12 @@ def read_file(path: Path) -> FileFields:
         result.values["file_format"] = _EXTENSION_FORMATS.get(path.suffix.lower())
         return result
 
+    return read_audio(audio, path, result)
+
+
+def read_audio(audio: Any, path: Path, result: FileFields | None = None) -> FileFields:
+    """The field values of a file mutagen opened."""
+    result = result or FileFields()
     result.values["file_format"] = _format_of(audio, path)
     raw = _raw_values(audio)
     for name, texts in raw.items():

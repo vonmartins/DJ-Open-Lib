@@ -21,7 +21,7 @@ from mutagen.wave import WAVE
 
 from tunedex.model.key import Key, parse_musical, parse_open_key
 from tunedex.sources.frames import ID3, SOURCES, VORBIS, is_comment
-from tunedex.sources.tags import format_of_extension
+from tunedex.sources.tags import format_of_extension, read_audio
 from tunedex.tagwrite.regions import WRITABLE_FORMATS, LayoutError, audio_region, audio_sha256
 
 WRITTEN_FIELDS = (
@@ -110,6 +110,7 @@ def write_tags(path: Path, fields: Mapping[str, str | None]) -> None:
         _write(temporary, fmt, fields)
         if audio_sha256(temporary, audio_region(temporary, fmt)) != audio:
             raise TagWriteError(f"{path}: writing the tags would change the audio; not written")
+        _check_read_back(temporary, path, fmt, fields)
         with temporary.open("rb+") as file:
             os.fsync(file.fileno())
         temporary.replace(path)
@@ -141,6 +142,27 @@ def _write(path: Path, fmt: str, fields: Mapping[str, str | None]) -> None:
         raise
     except Exception as error:  # mutagen raises many unrelated types for damaged files
         raise TagWriteError(f"cannot write the tags ({error})") from error
+
+
+def _check_read_back(written: Path, path: Path, fmt: str, fields: Mapping[str, str | None]) -> None:
+    """Refuse a write whose fields do not read back, as in files whose tags mutagen cannot find."""
+    try:
+        values = read_audio(_OPENERS[fmt](written), path).values
+    except Exception as error:  # mutagen raises many unrelated types for damaged files
+        raise TagWriteError(
+            f"{path}: the written tags cannot be read back ({error}); not written"
+        ) from error
+    wrong = [
+        name
+        for name, text in fields.items()
+        if (text_of(name, values.get(name), values.get("key_original")) or "").strip()
+        != (text or "").strip()
+    ]
+    if wrong:
+        raise TagWriteError(
+            f"{path}: the written tags do not read back ({', '.join(wrong)});"
+            " the file's layout is not understood, not written"
+        )
 
 
 def _source(name: str) -> tuple[tuple[str, ...], tuple[str, ...], tuple[str, ...]]:

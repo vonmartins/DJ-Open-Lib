@@ -174,17 +174,24 @@ def _chunks(
         raise LayoutError("unknown container")
     if header[8:12] not in forms:
         raise LayoutError(f"unknown form {header[8:12]!r}")
+    region: tuple[int, int] | None = None
     position = 12
-    while position + 8 <= size:
+    end = min(size, 8 + int.from_bytes(header[4:8], order))
+    while position + 8 <= end:
         chunk = _read_at(file, position, 8)
         length = int.from_bytes(chunk[4:8], order)
+        if not all(0x20 <= byte <= 0x7E for byte in chunk[:4]):
+            # mutagen stops reading at such a chunk: tags after it could not be found.
+            raise LayoutError(f"a chunk at byte {position} has an invalid id")
         if chunk[:4] == audio:
             start = position + 8
             if start + length > size:
                 raise LayoutError("the audio chunk is longer than the file")
-            return start, start + length
+            region = (start, start + length)
         position += 8 + length + (length & 1)
-    raise LayoutError("no audio chunk")
+    if region is None:
+        raise LayoutError("no audio chunk")
+    return region
 
 
 def _wav(file: BinaryIO, size: int) -> tuple[int, int]:

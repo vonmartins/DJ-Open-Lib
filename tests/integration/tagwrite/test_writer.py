@@ -12,6 +12,7 @@ from mutagen.wave import WAVE
 from support.audio import CLIPS, tagged_copy
 from tunedex.model.key import Key, Mode
 from tunedex.sources.tags import read_file
+from tunedex.tagwrite import writer
 from tunedex.tagwrite.regions import audio_region, audio_sha256
 from tunedex.tagwrite.writer import TagWriteError, text_of, write_tags
 
@@ -189,3 +190,14 @@ def test_the_written_file_keeps_its_permissions(tmp_path: Path) -> None:
     write_tags(path, {"title": "Galaxy"})
     if os.name == "posix":
         assert path.stat().st_mode & 0o777 == 0o640
+
+
+def test_tags_that_do_not_read_back_are_not_written(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    path = _copy(tmp_path, "tagged.flac")
+    before = path.read_bytes()
+    monkeypatch.setattr(writer, "_write_vorbis", lambda tags, fields: None)  # writes nothing
+    with pytest.raises(TagWriteError, match=r"do not read back \(title\)"):
+        write_tags(path, {"title": "Galaxy"})
+    assert path.read_bytes() == before

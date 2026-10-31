@@ -107,3 +107,15 @@ def test_the_audio_hash_survives_mutagen_rewriting_the_tags(
     assert audio_sha256(path, region) == SILENCE[fmt]
     if length == 70_000 and fmt in ("mp3", "flac"):  # the leading tag grew: the audio moved
         assert region.start > audio_region(CLIPS / name).start
+
+
+def test_chunks_with_invalid_ids_are_refused(tmp_path: Path) -> None:
+    clip = (CLIPS / "tagged.wav").read_bytes()
+    region = audio_region(CLIPS / "tagged.wav")
+    junk = b"\x00\x00\x00\x00" + (20).to_bytes(4, "little") + bytes(20)
+    data = clip[: region.end] + junk + clip[region.end :]
+    data = data[:4] + (len(data) - 8).to_bytes(4, "little") + data[8:]
+    path = tmp_path / "junk.wav"
+    path.write_bytes(data)
+    with pytest.raises(LayoutError, match="invalid id"):
+        audio_region(path)
